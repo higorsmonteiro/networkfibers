@@ -126,6 +126,91 @@ extern int** defineNetwork(int** edges, int* regulator, Graph* graph, char* file
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////////
+/////////////////// STACK DATA STRUCTURE ////////////////////
+struct strstack
+{
+	char color[10];
+	struct strstack *next;
+};
+typedef struct strstack STRSTACK;
+
+struct stack
+{
+	int node_ID;
+	struct stack *next;
+};
+typedef struct stack Stack;
+////////////////////////////////
+////// STACK OPERATIONS ///////
+
+// To insert an element in the stack.
+extern STRSTACK *pushstr(STRSTACK* top, char* color)
+{
+	STRSTACK *ptr;
+	ptr = (STRSTACK*)malloc(sizeof(STRSTACK));
+	strcpy(ptr->color, color);
+	if(top==NULL)
+	{
+		ptr->next = NULL;
+		top = ptr;
+	}
+	else
+	{
+		ptr->next = top;
+		top = ptr;
+	}
+	return top;
+}
+
+// To delete an element in the stack.
+extern STRSTACK *popstr(STRSTACK* top)
+{
+	STRSTACK *ptr;
+	ptr = top;
+	if(top!=NULL)
+	{
+		top = top->next;
+		free(ptr);
+	}
+	return top;
+}
+
+// To insert an element in the stack.
+extern Stack *push(Stack* top, int node)
+{
+	Stack *ptr;
+	ptr = (Stack*)malloc(sizeof(Stack));
+	ptr->node_ID = node;
+	if(top==NULL)
+	{
+		ptr->next = NULL;
+		top = ptr;
+	}
+	else
+	{
+		ptr->next = top;
+		top = ptr;
+	}
+	return top;
+}
+
+// To delete an element in the stack.
+extern Stack *pop(Stack* top)
+{
+	Stack *ptr;
+	ptr = top;
+	if(top!=NULL)
+	{
+		top = top->next;
+		free(ptr);
+	}
+	return top;
+}
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
 // Reads the number of effective voxels and total number of voxels of the subject map.
 extern int nlines_file(char* filename, int ncolumns)
 {
@@ -170,7 +255,7 @@ extern void printGraph(Graph* graph)
 	}
 }
 
-int** arrint2d(int lines, int columns)
+extern int** arrint2d(int lines, int columns)
 {
     int i, j;
     int** arr = (int**)malloc(lines*sizeof(int*));
