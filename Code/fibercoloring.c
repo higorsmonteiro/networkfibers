@@ -21,6 +21,13 @@ struct sequences
 };
 typedef struct sequences STRSEQ;
 
+int cmp(const void *a, const void *b)
+{
+    STRSEQ *a1 = (STRSEQ *)a;
+    STRSEQ *a2 = (STRSEQ *)b;
+
+    return strcmp((*a1).strseq, (*a2).strseq);
+}
 
 // After the nodes and edges in the network has their colors set, we upgrade the
 // values given in the table structure.
@@ -40,12 +47,14 @@ void upgrade_table(int M, int** table, int** edges, int* edgecolor, int* nodecol
 int check_states(int ncolors, int** table, int* nodecolor, int* edgecolor, int N, int M)
 {
     int pluscolor;
-    int i, j, nn, nodetemp;
+    int newncolors;
+    int i, j, nn, nodetemp, nsize;
 
     char* strvar;
     STRSEQ* seqlist;
     Stack* node_in_class = NULL;
 
+    newncolors = ncolors;
     for(i=0; i<ncolors; i++)    // For each color class C_i.
     {
         nn = 0;          // Number of nodes inside the color class 'i'.
@@ -61,6 +70,7 @@ int check_states(int ncolors, int** table, int* nodecolor, int* edgecolor, int N
         // Get node at the top of the 'node_in_class' stack until stack is EMPTY.
         while(node_in_class)     
         {
+            nsize = nn;
             nodetemp = node_in_class->node_ID;
            
             //  For each color class C_j.
@@ -70,11 +80,11 @@ int check_states(int ncolors, int** table, int* nodecolor, int* edgecolor, int N
                 sprintf(temp, "%d", table[nodetemp][j]);
                 strcat(strvar, temp);
             }
-            seqlist[nn-1].node = nodetemp;
-            strcpy(seqlist[nn-1].strseq, strvar);
+            seqlist[nsize-1].node = nodetemp;
+            strcpy(seqlist[nsize-1].strseq, strvar);
 
             node_in_class = pop(node_in_class);
-            nn--;
+            nsize--;
         }
 
         // Now, 'seqlist' is a list of structures cointaining the node in the color class and its
@@ -83,12 +93,19 @@ int check_states(int ncolors, int** table, int* nodecolor, int* edgecolor, int N
         // Sort lexicographically that list. The blocks that have the same sequence will be neighbors
         // so that we can find the number of partitions inside the class color C_i.
 
-        
-
-
+        qsort(seqlist, nn, sizeof(seqlist[0]), cmp);
+        for(j=0; j<(nn-1); j++)
+        {
+            if(strcmp(seqlist[j].strseq, seqlist[j+1].strseq)!=0) pluscolor++;
+            if(pluscolor==0) nodecolor[seqlist[j].node] = i;
+            else nodecolor[seqlist[j].node] = (newncolors-1) + pluscolor;
+        }
         free(seqlist);
         free(strvar);
+
+        newncolors += pluscolor;
     }
+    return newncolors;
 }
 
 int** fibration(Graph* graph, int** edges, int* edgecolor, int* nodecolor, int** table, int ncolors, int N, int M)
