@@ -11,6 +11,25 @@
 #include <math.h>
 #include "graphdef.h"
 
+int set_group(Graph* graph, int** table, int** edges, int ncolors, int* edgecolor, int* nodecolor, int  M)
+{
+    int i, j;
+    int node1, node2, colorindex;
+    for(i=0; i<M; i++)
+    {
+        colorindex = edgecolor[i];
+        node2 = edges[i][1];
+        table[node2][colorindex]++;
+    }
+
+    for(j=0; j<ncolors; j++)
+    {
+        
+    }
+
+
+}
+
 int main() 
 { 
     int N;
@@ -23,18 +42,23 @@ int main()
 	// Creates the graph structure for N nodes.
     Graph* graph = createGraph(N);
 
-	int nlinks = nlines_file(genes_edges, 2);	  			// Effective number of voxels within the defined modules.
-	
     int** edges;
     int* regulator;
-    defineNetwork(edges, regulator, graph, genes_edges);
+    edges = defineNetwork(edges, regulator, graph, genes_edges);
 
     ///// Minimal balanced coloring algorithm /////
+	int M = nlines_file(genes_edges, 3);	  			// Effective number of voxels within the defined modules.
+    
     int i, j;
     int ncolors = 1;
 
-    int* colorset = (int*)malloc(N*sizeof(int));
-    for(i=0; i<N; i++) colorset[i] = 0; // Initial state (all nodes have color '0').
+    int* nodecolor = (int*)malloc(N*sizeof(int));
+    int* edgecolor = (int*)malloc(M*sizeof(int));
+    for(i=0; i<N; i++) nodecolor[i] = 0;        // Initial state (all nodes have color '0').
+    for(j=0; j<M; j++) edgecolor[j] = 0;        // Initial state (all links have color '0').
+
+    int** table = arrint2d(N, ncolors);
+    set_groups(graph, nodecolor, edgecolor, table);
 
 
 

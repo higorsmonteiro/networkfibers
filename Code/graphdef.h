@@ -87,7 +87,7 @@ void addEdges(int** edges, Graph* graph, int nE)
 	}
 }
 
-extern void defineNetwork(int** edges, int* regulator, Graph* graph, char* filename)
+extern int** defineNetwork(int** edges, int* regulator, Graph* graph, char* filename)
 {
 	FILE *EDGE_FILE = fopen(filename, "r");
 	if(EDGE_FILE==NULL) printf("ERROR in file reading");
@@ -120,9 +120,8 @@ extern void defineNetwork(int** edges, int* regulator, Graph* graph, char* filen
 	
     // Defines the network structure.
 	addEdges(edges, graph, nlink);
-	
-	for(i=0; i<nlink; i++) free(edges[i]);
-	free(edges);
+    
+    return edges;
 }
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -139,7 +138,7 @@ extern int nlines_file(char* filename, int ncolumns)
 	int r = 1;
 	while(r) // Calculates the number of lines in the file
 	{
-		if(ncolumns==2) r = fscanf(MODFILE, "%d\t%d\t%s\n", &i, &j, &ch);
+		if(ncolumns==3) r = fscanf(MODFILE, "%d\t%d\t%s\n", &i, &j, &ch);
 		else if(ncolumns==6) r = fscanf(MODFILE, "%d\t%d\t%d\t%d\t%d\t%d\n", &i, &j, &k, &x, &y, &z);
 		if(r==EOF) break;
 		ne++;
@@ -169,4 +168,17 @@ extern void printGraph(Graph* graph)
         }
         printf("\n");
 	}
+}
+
+int** arrint2d(int lines, int columns)
+{
+    int i, j;
+    int** arr = (int**)malloc(lines*sizeof(int*));
+    for(i=0; i<lines; i++)
+    {
+        arr[i] = (int*)malloc(columns*sizeof(int));
+        for(j=0; j<columns; j++)
+            arr[i][j] = 0;
+    }
+    return arr;
 }
