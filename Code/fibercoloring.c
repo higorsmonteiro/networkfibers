@@ -62,7 +62,7 @@ void UPGRADETABLE(int M, int** table, int** edges, int* edgecolor, int* nodecolo
 }
 
 
-/*  After the upgrade of the color table structure we have to check if the minimal balance condition
+/*  After the upgrade of the color table structure is done, we have to check if the minimal balance condition
     is satisfied. For this task, we loop for each color class, stacking all the nodes belonging to the 
     current color class. Then, we store and sort lexicographically the strings sequence to each node, in
     order to check if all the sequences are equal in the current color. If this is not true for at least
@@ -215,24 +215,26 @@ int main()
 { 
     int N;                                                  // Number of nodes in the network.
     
-	char genes[100] = "../Data/Ecoli/ngenes.dat";           // File containing (one line) the number of nodes in the network.
-    char genes_edges[100] = "../Data/Ecoli/edgelist.dat";   // File containing all the links in the network.
+    char netsize[100] = "../Data/Ecoli/ngenes.dat";         // File containing (one line) the number of nodes in the network.
+    char net_edges[100] = "../Data/Ecoli/edgelist.dat";   // File containing all the directed links in the network.
     
     // Defines the size of the network.
-    FILE* UTIL = fopen(genes, "r");
+    FILE* UTIL = fopen(netsize, "r");
     fscanf(UTIL, "%d\n", &N);
+    fclose(UTIL);
+    //////////////////////////////////
 
-	// Creates the graph structure for N nodes.
+    // Creates the graph structure for N nodes.
     Graph* graph = createGraph(N);
 
     // Properly defines the network structure with the given 'edgelist.dat' file.
     int** edges;
     int* regulator;
-    edges = defineNetwork(edges, regulator, graph, genes_edges);
+    edges = defineNetwork(edges, regulator, graph, net_edges);
     /////////////////////////////////////////////////////////////////////////////
 
     ///////////// Minimal balanced coloring algorithm //////////////
-	int M = nlines_file(genes_edges, 3);	     // Number of edges.  		
+	int M = nlines_file(net_edges, 3);              // Number of edges.  		
     
     int i, j;
 
