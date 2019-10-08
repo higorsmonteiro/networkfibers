@@ -1,11 +1,11 @@
-/*	The code given here has the aim to determine the minimal balanced color classes for a 
+/*  The code given here has the aim to determine the minimal balanced color classes for a 
     proper identification of the fibration building blocks of a directed network. The theory
-    concerning the graph fibration morphism and its application on biological networks is 
+    concerning the graph fibration morphism and its application on biological networks are 
     detailed, respectively, mainly in the paper of Boldi and Vigna (2001) and in the paper of Morone
     et. al. (2019, to be published). Concerning the algorithm reproduced in this code, one should refer
     to the work of Cardon and Crochemore (1982).
 
-    The resulted fibers represents, for each fiber, the set of nodes that are isomorphics under a graph
+    The resulted fibers represent, for each fiber, the set of nodes that are isomorphics under a graph
     fibration morphism, i. e., all nodes belonging to the same fiber has the same information input-tree.
 
     -----------------------------------------------------------------------------------------------------
@@ -16,9 +16,9 @@
 
     The result is stored in two arrays: 'nodecolor' and 'edgecolor'. Each array store the color of each
     component (node or link) and, thus, gives all the information needed, together with the files, for the
-    base construction.
+    base graph construction.
 
-	Author: Higor da S. Monteiro - Universidade Federal do Ceará
+    Author: Higor da S. Monteiro - Universidade Federal do Ceará
 */
 
 #include <stdio.h>
