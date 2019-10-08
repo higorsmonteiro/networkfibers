@@ -114,7 +114,7 @@ extern int** defineNetwork(int** edges, int* regulator, Graph* graph, char* file
         else if(strcmp("-", k)==0) regulator[j] = 1;
         else if(strcmp("b", k)==0) regulator[j] = 2;
         else regulator[j] = -1;
-        printf("%d\n", regulator[j]);
+        //printf("%d\n", regulator[j]);
 	}
 	fclose(EDGE_FILE);
 	
@@ -266,4 +266,11 @@ extern int** arrint2d(int lines, int columns)
             arr[i][j] = 0;
     }
     return arr;
+}
+
+extern void free2d(int** arr, int rows, int columns)
+{
+	int i;
+	for(i=0; i<rows; i++) free(arr[i]);
+	free(arr);
 }
