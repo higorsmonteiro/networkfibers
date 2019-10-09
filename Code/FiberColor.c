@@ -25,9 +25,12 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+//#include <gsl/gsl_matrix.h>
+#include <gsl/gsl_eigen.h>
 #include "graphdef.h" // Personal module containing helpful functions to handle with network data and other common operations.
 
 #define SEQSIZE 200     // It's possible that the size of that string should be larger for larger networks.
+int nfibers;
 
 ////////////////////////////////////////////////////////////////
 struct strseq
@@ -46,6 +49,31 @@ int cmp(const void *a, const void *b)
     return strcmp((*a1).strseq, (*a2).strseq);
 }
 /////////////////////////////////////////////////////////////////
+
+//////////////////////// GRAPH OPERATIONS //////////////////////////
+int COUNT_EXTREGULATORS(Graph* graph, int node, int* nodecolor)
+{
+    int l = 0;
+    NodeAdj* Node = graph->array[node].head_in;
+    while(Node)
+    {
+        if(nodecolor[Node->neighbor]==nodecolor[node]) l++;
+        Node = Node->next_in;
+    }
+    return l;
+}
+
+int CHECKLINK(Graph* graph, int node1, int node2)
+{
+    NodeAdj* Node = graph->array[node1].head_out;
+    while(Node)
+    {
+        if(Node->neighbor==node2) return 1;
+        Node = Node->next_out;
+    }
+    return 0;
+}
+////////////////////////////////////////////////////////////////////
 
 /*  After that all nodes and edges in the network have their colors set correctly, we upgrade 
     the values given in the table structure. */
@@ -117,6 +145,7 @@ int CHECKBALANCE(int ncolors, int** edges, int** table, int* nodecolor, int* edg
     }
     return 0;
 }
+
 /*  We define a string sequence for each node in a current color class. That sequence is all the
     number of inwards links of a node for each color placed side by side in a string. This way, when we
     sort lexicographically a list of the sequences for all nodes in class C_i, if there is different
@@ -212,7 +241,9 @@ int** SETFIBERS(Graph* graph, int** edges, int* edgecolor, int* nodecolor, int**
     }
 
     printf("%d\n", ncolors);
-    for(i=0; i<N; i++) printf("%d ", nodecolor[i]);
+    for(i=0; i<N; i++) printf("%d %d \n", i, nodecolor[i]);
+    printf("\n");
+    nfibers = ncolors;
 }
 
 int main() 
@@ -237,10 +268,10 @@ int main()
     edges = defineNetwork(edges, regulator, graph, net_edges);
     /////////////////////////////////////////////////////////////////////////////
 
-    ///////////// Minimal balanced coloring algorithm //////////////
+    /////////////////////// Minimal balanced coloring algorithm ////////////////////////
 	int M = nlines_file(net_edges, 3);              // Number of edges.  		
     
-    int i, j;
+    int i, j, k;
 
     // INITIAL STATE: ALL NODES AND LINKS HAVE THE SAME COLOR '0' //
     int ncolors = 1;
@@ -248,9 +279,57 @@ int main()
     int* edgecolor = (int*)malloc(M*sizeof(int));
     for(i=0; i<N; i++) nodecolor[i] = 0;        
     for(j=0; j<M; j++) edgecolor[j] = 0;
-    ////////////////////////////////////////////////////////////////        
 
-    int** table;
-    table = SETFIBERS(graph, edges, edgecolor, nodecolor, table, ncolors, N, M);
+    int** table = SETFIBERS(graph, edges, edgecolor, nodecolor, table, ncolors, N, M);
+    ////////////////////////////////////////////////////////////////////////////////////       
+
+    //////////////////////////////// FIBER STATISTICS //////////////////////////////////
+    int* nloop = (int*)malloc(nfibers*sizeof(int));
+    int* lextreg = (int*)malloc(nfibers*sizeof(int));
+
+    // For each fiber C_i, we define its adjacency matrix in order to calculate the vector <n,l|.
+    int* temp_index;
+    double* temp_adjmatrix;
+    int nexternal, nn, neigh;
+    Stack* node_in_class;
+    for(i=0; i<nfibers; i++)
+    {
+        nn = 0;
+        nexternal = 0;
+        node_in_class = NULL;
+        for(j=0; j<N; j++) if(nodecolor[j]==i) { node_in_class = push(node_in_class, j); nn++; }
+
+        temp_index = (int*)malloc(nn*sizeof(int));
+        temp_adjmatrix = (double*)malloc(nn*nn*sizeof(double));
+
+        for(j=0; j<nn; j++) { temp_index[j] = node_in_class->node_ID; node_in_class = pop(node_in_class); }
+
+        int index = 0;
+        for(j=0; j<nn; j++)
+        {
+            int aux = COUNT_EXTREGULATORS(graph, temp_index[j], nodecolor);
+            nexternal += aux;
+            for(k=0; k<nn; k++)
+            {
+                neigh = CHECKLINK(graph, temp_index[j], temp_index[k]);
+                if(neigh==1) temp_adjmatrix[j*nn + k] = 1.0;
+                else temp_adjmatrix[j*nn + k] = 0.0;
+            }
+        }
+
+        gsl_matrix_view m = gsl_matrix_view_array(temp_adjmatrix, nn, nn);
+        gsl_vector_complex *eval = gsl_vector_complex_alloc (nn);
+
+        gsl_eigen_nonsymm_workspace* w = gsl_eigen_nonsymm_alloc(nn);
+        gsl_eigen_nonsymm(&m.matrix, eval, w);
+
+        gsl_eigen_nonsymm_free(w);
+        printf("eigenvalues of fiber %d:", i);
+        for(j=0; j<nn; j++) { double eval_j = gsl_vector_get(eval, j); printf("%lf ", eval_j); }
+        printf("\n");
+        printf("%d\n", nexternal);
+
+        lextreg[i] = nexternal;
+    } 
 
 }
