@@ -1,16 +1,15 @@
-/*  The code given here has the aim to determine the minimal balanced color classes for a 
-    proper identification of the fibration building blocks of a directed network. The theory
-    concerning the graph fibration morphism and its application on biological networks are 
-    detailed, respectively, mainly in the paper of Boldi and Vigna (2001) and in the paper of Morone
-    et. al. (2019, to be published). Concerning the algorithm reproduced in this code, one should refer
-    to the work of Cardon and Crochemore (1982).
+/*  The code given here has the aim to determine the minimal balanced color classes to identify
+    the fibration building blocks of a directed network. The theory concerning the graph fibration
+    morphism and its application on biological networks are detailed, respectively, mainly in the
+    paper of Boldi and Vigna (2001) and in the paper of Morone et. al. (2019, to be published). Concerning
+    the algorithm reproduced in this code, one should refer to the work of Cardon and Crochemore (1982).
 
-    The resulted fibers represent, for each fiber, the set of nodes that are isomorphics under a graph
+    The resulted fibers represent, for each fiber, the set of nodes that are isomorphic under a graph
     fibration morphism, i. e., all nodes belonging to the same fiber has the same information input-tree.
 
     -----------------------------------------------------------------------------------------------------
 
-    The code hasn't any command line arguments, requiring only two files: one single-line file cointaing a
+    The code hasn't any command line arguments, requiring only two files: one single-line file containing a
     integer number representing the number of nodes in the network, and a 'edgelist.dat' file containing all
     the directed links between nodes (3 columns -> Pointing Node/ Pointed Node/ Type of regulation).
 
@@ -25,11 +24,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-//#include <gsl/gsl_matrix.h>
 #include <gsl/gsl_eigen.h>
 #include "graphdef.h" // Personal module containing helpful functions to handle with network data and other common operations.
+#define SEQSIZE 200     // It's possible that the size of the string sequences should be larger for larger networks.
 
-#define SEQSIZE 200     // It's possible that the size of that string should be larger for larger networks.
 int nfibers;
 
 ////////////////////////////////////////////////////////////////
@@ -57,7 +55,7 @@ int COUNT_EXTREGULATORS(Graph* graph, int node, int* nodecolor)
     NodeAdj* Node = graph->array[node].head_in;
     while(Node)
     {
-        if(nodecolor[Node->neighbor]==nodecolor[node]) l++;
+        if(nodecolor[Node->neighbor]!=nodecolor[node]) l++;
         Node = Node->next_in;
     }
     return l;
@@ -169,10 +167,9 @@ int CHECKSTATE(int ncolors, int** edges, int** table, int* nodecolor, int* edgec
         // Stores in a stack all the nodes belonging to C_i.
         for(j=0; j<N; j++)   if(nodecolor[j]==i) { node_in_class = push(node_in_class, j); nn++; }
 
-        seqlist = (STRSEQ*)malloc(nn*sizeof(STRSEQ));
-    
         // Get node at the top of the 'node_in_class' stack until stack is EMPTY.
         nsize = nn;
+        seqlist = (STRSEQ*)malloc(nn*sizeof(STRSEQ));
         while(node_in_class)     
         {
             char strvar[SEQSIZE];
@@ -200,21 +197,17 @@ int CHECKSTATE(int ncolors, int** edges, int** table, int* nodecolor, int* edgec
         // so that we can find the number of partitions inside the class color C_i.
 
         qsort(seqlist, nn, sizeof(seqlist[0]), cmp);
-
         for(j=0; j<(nn-1); j++)
         {
             if(strcmp(seqlist[j].strseq, seqlist[j+1].strseq)!=0) pluscolor++;
-            
             nodecolor[seqlist[j+1].node] = (newncolors-1) + pluscolor;
         }
-        free(seqlist);
-
         newncolors += pluscolor;
+        free(seqlist);
     }
 
     // Upgrades the color of each directed link.
     for(j=0; j<M; j++)  edgecolor[j] = nodecolor[edges[j][0]];
-
     return newncolors;
 }
 
@@ -330,6 +323,9 @@ int main()
         printf("%d\n", nexternal);
 
         lextreg[i] = nexternal;
+        free(temp_index);
+        free(temp_adjmatrix);
     } 
 
+    //printGraph(graph);
 }

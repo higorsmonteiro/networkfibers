@@ -74,16 +74,17 @@ void addEdges(int** edges, Graph* graph, int nE)
         node1 = edges[j][0];
 		node2 = edges[j][1];
 
-		NodeAdj* newnode1 = createNode(node2);
-		NodeAdj* newnode2 = createNode(node1);
+		NodeAdj* newnode1 = createNode(node1);
+		NodeAdj* newnode2 = createNode(node2);
 
 		// The created nodes points to the head of graph and
 		// next become the head itselfs.
-        newnode1->next_out = graph->array[node1].head_out;
-        graph->array[node1].head_out = newnode1;
 
-        newnode2->next_in = graph->array[node2].head_in;
-        graph->array[node2].head_in = newnode2;
+        newnode2->next_out = graph->array[node1].head_out;
+        newnode1->next_in = graph->array[node2].head_in;
+        graph->array[node1].head_out = newnode2;
+        graph->array[node2].head_in = newnode1;
+
 	}
 }
 
@@ -237,18 +238,18 @@ extern void printGraph(Graph* graph)
 	int j;
 	for(j=0; j<graph->size; j++)
 	{
-		printf("Node %d, in:\n", j);
+		printf("NODE %d\nin:", j);
         NodeAdj* SeeAux = graph->array[j].head_in;
         NodeAdj* SeeAux1 = graph->array[j].head_out;
 		while(SeeAux)
 		{
-			printf("<- %d", SeeAux->neighbor);
+			printf("<-%d", SeeAux->neighbor);
 			SeeAux = SeeAux->next_in; 
 		}
-		printf("\nout:\n");
+		printf("\nout:");
         while(SeeAux1)
         {
-            printf("-> %d", SeeAux1->neighbor);
+            printf("->%d", SeeAux1->neighbor);
 			SeeAux1 = SeeAux1->next_out;
         }
         printf("\n");
