@@ -113,9 +113,8 @@ extern int** defineNetwork(int** edges, int* regulator, Graph* graph, char* file
 		r = fscanf(EDGE_FILE, "%d\t%d\t%s\n", &edges[j][0], &edges[j][1], &k);
         if(strcmp("+", k)==0) regulator[j] = 0;
         else if(strcmp("-", k)==0) regulator[j] = 1;
-        else if(strcmp("b", k)==0) regulator[j] = 2;
+        else if(strcmp("+-", k)==0) regulator[j] = 2;
         else regulator[j] = -1;
-        //printf("%d\n", regulator[j]);
 	}
 	fclose(EDGE_FILE);
 	
@@ -274,4 +273,13 @@ extern void free2d(int** arr, int rows, int columns)
 	int i;
 	for(i=0; i<rows; i++) free(arr[i]);
 	free(arr);
+}
+
+extern double largest(double* arr, int N)
+{
+	int i;
+	double max = arr[0];
+	if(N>1) for(i=1; i<N; i++) if(arr[i]>max) max = arr[i];
+	printf("max %lf\n", max);
+	return max;
 }

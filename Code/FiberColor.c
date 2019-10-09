@@ -17,7 +17,7 @@
     component (node or link) and, thus, gives all the information needed, together with the files, for the
     base graph construction.
 
-    Author: Higor da S. Monteiro - Universidade Federal do Ceará
+    Author: Higor da S. Monteiro - Departament of Physics - Universidade Federal do Ceará (UFC)
 */
 
 #include <stdio.h>
@@ -25,8 +25,8 @@
 #include <string.h>
 #include <math.h>
 #include <gsl/gsl_eigen.h>
-#include "graphdef.h" // Personal module containing helpful functions to handle with network data and other common operations.
-#define SEQSIZE 200     // It's possible that the size of the string sequences should be larger for larger networks.
+#include "graphdef.h"   // Personal module containing helpful functions to handle with network data and other common operations.
+#define SEQSIZE 600     // It's possible that the size of the string sequences should be larger for larger networks.
 
 int nfibers;
 
@@ -73,7 +73,7 @@ int CHECKLINK(Graph* graph, int node1, int node2)
 }
 ////////////////////////////////////////////////////////////////////
 
-/*  After that all nodes and edges in the network have their colors set correctly, we upgrade 
+/*  After all nodes and edges in the network have their colors set correctly, we upgrade 
     the values given in the table structure. */
 void UPGRADETABLE(int M, int** table, int** edges, int* edgecolor, int* nodecolor)
 {
@@ -82,7 +82,6 @@ void UPGRADETABLE(int M, int** table, int** edges, int* edgecolor, int* nodecolo
     for(j=0; j<M; j++)
     {
         ind_color = edgecolor[j];
-
         node_pointed = edges[j][1];
         table[node_pointed][ind_color] += 1;
     }
@@ -102,7 +101,6 @@ int CHECKBALANCE(int ncolors, int** edges, int** table, int* nodecolor, int* edg
     STRSEQ* seqlist;
     Stack* node_in_class = NULL;
     
-    int newncolors = ncolors;
     for(i=0; i<ncolors; i++)    // For each color class C_i.
     {
         nn = 0;          // Number of nodes inside the color class 'i'.
@@ -151,18 +149,17 @@ int CHECKBALANCE(int ncolors, int** edges, int** table, int* nodecolor, int* edg
     to define new color classes inside C_i.                                                                 */
 int CHECKSTATE(int ncolors, int** edges, int** table, int* nodecolor, int* edgecolor, int N, int M)
 {
-    int pluscolor;
-    int newncolors;
+    int added_color, newncolor;
     int i, j, nn, nodetemp, nsize;
 
     STRSEQ* seqlist;
-    Stack* node_in_class = NULL;
+    Stack* node_in_class = NULL;    // Stack data structure to store the nodes of a specific color class.  
 
-    newncolors = ncolors;
+    newncolor = ncolors;
     for(i=0; i<ncolors; i++)    // For each color class C_i.
     {
-        nn = 0;          // Number of nodes inside the color class 'i'.
-        pluscolor = 0;   // If the current color class is going to be partitioned, the 'pluscolor' stores the additional number of colors.
+        nn = 0;             // Number of nodes inside the color class 'i'.
+        added_color = 0;   // If the current color class is going to be partitioned, it stores the additional number of colors.
        
         // Stores in a stack all the nodes belonging to C_i.
         for(j=0; j<N; j++)   if(nodecolor[j]==i) { node_in_class = push(node_in_class, j); nn++; }
@@ -199,16 +196,16 @@ int CHECKSTATE(int ncolors, int** edges, int** table, int* nodecolor, int* edgec
         qsort(seqlist, nn, sizeof(seqlist[0]), cmp);
         for(j=0; j<(nn-1); j++)
         {
-            if(strcmp(seqlist[j].strseq, seqlist[j+1].strseq)!=0) pluscolor++;
-            nodecolor[seqlist[j+1].node] = (newncolors-1) + pluscolor;
+            if(strcmp(seqlist[j].strseq, seqlist[j+1].strseq)!=0) added_color++;
+            nodecolor[seqlist[j+1].node] = (newncolor-1) + added_color;
         }
-        newncolors += pluscolor;
+        newncolor += added_color;
         free(seqlist);
     }
 
     // Upgrades the color of each directed link.
     for(j=0; j<M; j++)  edgecolor[j] = nodecolor[edges[j][0]];
-    return newncolors;
+    return newncolor;
 }
 
 int** SETFIBERS(Graph* graph, int** edges, int* edgecolor, int* nodecolor, int** table, int ncolors, int N, int M)
@@ -220,6 +217,8 @@ int** SETFIBERS(Graph* graph, int** edges, int* edgecolor, int* nodecolor, int**
     table = arrint2d(N, ncolors);   
     UPGRADETABLE(M, table, edges, edgecolor, nodecolor);
     minbalance = CHECKBALANCE(ncolors, edges, table, nodecolor, edgecolor, N, M);
+
+
 
     while(minbalance==1)
     {
@@ -233,9 +232,9 @@ int** SETFIBERS(Graph* graph, int** edges, int* edgecolor, int* nodecolor, int**
         minbalance = CHECKBALANCE(ncolors, edges, table, nodecolor, edgecolor, N, M);
     }
 
-    printf("%d\n", ncolors);
-    for(i=0; i<N; i++) printf("%d %d \n", i, nodecolor[i]);
-    printf("\n");
+    //printf("%d\n", ncolors);
+    //for(i=0; i<N; i++) printf("%d %d \n", i, nodecolor[i]);
+    //printf("\n");
     nfibers = ncolors;
 }
 
@@ -243,11 +242,12 @@ int main()
 { 
     int N;                                                  // Number of nodes in the network.
     
-    char netsize[100] = "../Data/Ecoli/ngenes.dat";         // File containing (one line) the number of nodes in the network.
-    char net_edges[100] = "../Data/Ecoli/edgelist.dat";   // File containing all the directed links in the network.
+    char netsize[100] = "../Data/ecoliN.dat";         // File containing (one line) the number of nodes in the network.
+    char net_edges[100] = "../Data/ecoliedgelist.dat";   // File containing all the directed links in the network.
     
     // Defines the size of the network.
     FILE* UTIL = fopen(netsize, "r");
+    if(UTIL==NULL) printf("ERROR IN FILE READING\N");
     fscanf(UTIL, "%d\n", &N);
     fclose(UTIL);
     //////////////////////////////////
@@ -261,12 +261,13 @@ int main()
     edges = defineNetwork(edges, regulator, graph, net_edges);
     /////////////////////////////////////////////////////////////////////////////
 
-    /////////////////////// Minimal balanced coloring algorithm ////////////////////////
+    /////////////////////// MINIMAL BALANCED COLORING ALGORITHM ////////////////////////
+    int i, j, k;
 	int M = nlines_file(net_edges, 3);              // Number of edges.  		
     
-    int i, j, k;
+    //for(i=0; i<M; i++) printf("%d\t%d\t%d\n", i, edges[i][0], edges[i][1]);
 
-    // INITIAL STATE: ALL NODES AND LINKS HAVE THE SAME COLOR '0' //
+    // INITIAL STATE: All nodes and links have the same color '0' //
     int ncolors = 1;
     int* nodecolor = (int*)malloc(N*sizeof(int));
     int* edgecolor = (int*)malloc(M*sizeof(int));
@@ -277,27 +278,29 @@ int main()
     ////////////////////////////////////////////////////////////////////////////////////       
 
     //////////////////////////////// FIBER STATISTICS //////////////////////////////////
-    int* nloop = (int*)malloc(nfibers*sizeof(int));
     int* lextreg = (int*)malloc(nfibers*sizeof(int));
+    double* nloop = (double*)malloc(nfibers*sizeof(double));
 
-    // For each fiber C_i, we define its adjacency matrix in order to calculate the vector <n,l|.
+    // For each fiber C_i, we define its adjacency matrix to calculate the fiber vector <n,l|.
     int* temp_index;
     double* temp_adjmatrix;
-    int nexternal, nn, neigh;
+
     Stack* node_in_class;
+    int nexternal, nn, neigh;
     for(i=0; i<nfibers; i++)
     {
         nn = 0;
         nexternal = 0;
+
+        // Stack all the nodes belonging to the current color class. 
         node_in_class = NULL;
         for(j=0; j<N; j++) if(nodecolor[j]==i) { node_in_class = push(node_in_class, j); nn++; }
 
         temp_index = (int*)malloc(nn*sizeof(int));
         temp_adjmatrix = (double*)malloc(nn*nn*sizeof(double));
-
         for(j=0; j<nn; j++) { temp_index[j] = node_in_class->node_ID; node_in_class = pop(node_in_class); }
 
-        int index = 0;
+        // Now we construct the current fiber adjacency matrix to calculate its eigenvalues.
         for(j=0; j<nn; j++)
         {
             int aux = COUNT_EXTREGULATORS(graph, temp_index[j], nodecolor);
@@ -310,22 +313,28 @@ int main()
             }
         }
 
+        /////////// GSL PACKAGE ROUTINES TO EIGENSYSTEMS PROBLEMS ////////////
         gsl_matrix_view m = gsl_matrix_view_array(temp_adjmatrix, nn, nn);
+        // 'eval' will gonna stores all the 'nn' eigenvalues of the fiber adjacency matrix.
         gsl_vector_complex *eval = gsl_vector_complex_alloc (nn);
 
         gsl_eigen_nonsymm_workspace* w = gsl_eigen_nonsymm_alloc(nn);
         gsl_eigen_nonsymm(&m.matrix, eval, w);
-
         gsl_eigen_nonsymm_free(w);
-        printf("eigenvalues of fiber %d:", i);
-        for(j=0; j<nn; j++) { double eval_j = gsl_vector_get(eval, j); printf("%lf ", eval_j); }
-        printf("\n");
-        printf("%d\n", nexternal);
+        //////////////////////////////////////////////////////////////////////
 
+        double temp;
+        double eigmax = gsl_vector_get(eval, 0);
+        for(j=1; j<nn; j++) { temp = gsl_vector_get(eval, j); if(temp>eigmax) eigmax = temp; }
+        printf("max %lf\n", eigmax);
+
+        nloop[i] = eigmax;
         lextreg[i] = nexternal;
+
         free(temp_index);
         free(temp_adjmatrix);
-    } 
+    }
 
-    //printGraph(graph);
+    for(i=0; i<nfibers; i++) printf("Fiber %d: n = %lf, l = %d \n", i, nloop[i], lextreg[i]); 
+
 }
