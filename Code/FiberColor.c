@@ -218,8 +218,6 @@ int** SETFIBERS(Graph* graph, int** edges, int* edgecolor, int* nodecolor, int**
     UPGRADETABLE(M, table, edges, edgecolor, nodecolor);
     minbalance = CHECKBALANCE(ncolors, edges, table, nodecolor, edgecolor, N, M);
 
-
-
     while(minbalance==1)
     {
         ncolortemp = CHECKSTATE(ncolors, edges, table, nodecolor, edgecolor, N, M);
@@ -231,10 +229,6 @@ int** SETFIBERS(Graph* graph, int** edges, int* edgecolor, int* nodecolor, int**
 
         minbalance = CHECKBALANCE(ncolors, edges, table, nodecolor, edgecolor, N, M);
     }
-
-    //printf("%d\n", ncolors);
-    //for(i=0; i<N; i++) printf("%d %d \n", i, nodecolor[i]);
-    //printf("\n");
     nfibers = ncolors;
 }
 
@@ -242,12 +236,12 @@ int main()
 { 
     int N;                                                  // Number of nodes in the network.
     
-    char netsize[100] = "../Data/ecoliN.dat";         // File containing (one line) the number of nodes in the network.
-    char net_edges[100] = "../Data/ecoliedgelist.dat";   // File containing all the directed links in the network.
+    char netsize[100] = "../Data/EX1Ngenes.dat";         // File containing (one line) the number of nodes in the network.
+    char net_edges[100] = "../Data/EX1edgelist.dat";   // File containing all the directed links in the network.
     
     // Defines the size of the network.
     FILE* UTIL = fopen(netsize, "r");
-    if(UTIL==NULL) printf("ERROR IN FILE READING\N");
+    if(UTIL==NULL) printf("ERROR IN FILE READING\n");
     fscanf(UTIL, "%d\n", &N);
     fclose(UTIL);
     //////////////////////////////////
@@ -263,9 +257,8 @@ int main()
 
     /////////////////////// MINIMAL BALANCED COLORING ALGORITHM ////////////////////////
     int i, j, k;
-	int M = nlines_file(net_edges, 3);              // Number of edges.  		
+    int M = nlines_file(net_edges, 3);              // Number of edges.  		
     
-    //for(i=0; i<M; i++) printf("%d\t%d\t%d\n", i, edges[i][0], edges[i][1]);
 
     // INITIAL STATE: All nodes and links have the same color '0' //
     int ncolors = 1;
