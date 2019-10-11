@@ -26,7 +26,7 @@
 #include <math.h>
 #include <gsl/gsl_eigen.h>
 #include "graphdef.h"   // Personal module containing helpful functions to handle with network data and other common operations.
-#define SEQSIZE 600     // It's possible that the size of the string sequences should be larger for larger networks.
+#define SEQSIZE 2000     // It's possible that the size of the string sequences should be larger for larger networks.
 
 int nfibers;
 
@@ -49,6 +49,48 @@ int cmp(const void *a, const void *b)
 /////////////////////////////////////////////////////////////////
 
 //////////////////////// GRAPH OPERATIONS //////////////////////////
+int INSERT_EXTREGULATORS(Stack* extregul, Stack* block, Graph* graph, int nn, int* nodecolor, int curcolor)
+{
+    int i;
+    int n = nn;
+    Stack* Temp = block;
+    int* temp = (int*)malloc(n*sizeof(int));
+    // 'temp' stores all the nodes of a color class.
+    for(i=0; i<n; i++) { temp[i] = Temp->node_ID; Temp = Temp->next; }
+
+    
+    // We store in 'Temp' all the external nodes that point to any node in the current color class.
+    int extn = 0;
+    extregul = NULL;
+    for(i=0; i<n; i++)
+    {
+        NodeAdj* Node = graph->array[temp[i]].head_in;
+        while(Node)
+        {
+            if(nodecolor[Node->neighbor]!=curcolor) { extregul = push(extregul, Node->neighbor); extn++; }
+            Node = Node->next_in;
+        }
+    }
+
+    // 'extregul' may have repeated elements.
+    int* EXT = (int*)malloc(extn*sizeof(int));
+    int* aux = (int*)malloc(extn*sizeof(int));
+    for(i=0; i<extn; i++) aux[i] = -1;
+    for(i=0; i<extn; i++) { EXT[i] = extregul->node_ID; extregul = pop(extregul); }
+
+    int nn_add = 0;
+    for(i=0; i<extn; i++)
+    {
+        int check = INCHECK(aux, extn, EXT[i]);
+        if(check==0)
+        {
+            aux[nn_add++] = EXT[i];
+            block = push(block, EXT[i]);
+        }
+    }
+    return nn_add;
+}
+
 int COUNT_EXTREGULATORS(Graph* graph, int node, int* nodecolor)
 {
     int l = 0;
@@ -170,7 +212,7 @@ int CHECKSTATE(int ncolors, int** edges, int** table, int* nodecolor, int* edgec
         while(node_in_class)     
         {
             char strvar[SEQSIZE];
-            strcpy(strvar, "");
+            strcpy(strvar, "");                 // Initially an empty sequence.
             nodetemp = node_in_class->node_ID;
            
             //  For each color class C_j.
@@ -197,7 +239,7 @@ int CHECKSTATE(int ncolors, int** edges, int** table, int* nodecolor, int* edgec
         for(j=0; j<(nn-1); j++)
         {
             if(strcmp(seqlist[j].strseq, seqlist[j+1].strseq)!=0) added_color++;
-            nodecolor[seqlist[j+1].node] = (newncolor-1) + added_color;
+            if(added_color>0) nodecolor[seqlist[j+1].node] = (newncolor-1) + added_color;
         }
         newncolor += added_color;
         free(seqlist);
@@ -228,6 +270,15 @@ int** SETFIBERS(Graph* graph, int** edges, int* edgecolor, int* nodecolor, int**
         UPGRADETABLE(M, table, edges, edgecolor, nodecolor);
 
         minbalance = CHECKBALANCE(ncolors, edges, table, nodecolor, edgecolor, N, M);
+        printf("Fibers: %d\n", ncolors);
+        //for(j=0; j<ncolors; j++)
+        //{
+        //    printf("Fiber number %d:", j);
+        //    for(i=0; i<N; i++)
+        //        if(nodecolor[i]==j) printf("%d ", i);
+        //    printf("\n");
+        //}
+        //printf("\n\n");
     }
     nfibers = ncolors;
 }
@@ -235,9 +286,8 @@ int** SETFIBERS(Graph* graph, int** edges, int* edgecolor, int* nodecolor, int**
 int main() 
 { 
     int N;                                                  // Number of nodes in the network.
-    
-    char netsize[100] = "../Data/EX1Ngenes.dat";         // File containing (one line) the number of nodes in the network.
-    char net_edges[100] = "../Data/EX1edgelist.dat";   // File containing all the directed links in the network.
+    char netsize[100] = "../Data/ECOLINgenes.dat";          // File containing (one line) the number of nodes in the network.
+    char net_edges[100] = "../Data/ECOLIedgelist.dat";      // File containing all the directed links in the network.
     
     // Defines the size of the network.
     FILE* UTIL = fopen(netsize, "r");
@@ -278,29 +328,39 @@ int main()
     int* temp_index;
     double* temp_adjmatrix;
 
-    Stack* node_in_class;
-    int nexternal, nn, neigh;
+    Stack* blocknodes;
+    Stack* repeated_extregul;
+    int nn_add, nexternal, nn, neigh;
     for(i=0; i<nfibers; i++)
     {
         nn = 0;
         nexternal = 0;
 
-        // Stack all the nodes belonging to the current color class. 
-        node_in_class = NULL;
-        for(j=0; j<N; j++) if(nodecolor[j]==i) { node_in_class = push(node_in_class, j); nn++; }
+        // Stack all the nodes belonging to the current color class and its external regulators. 
+        printf("%d\n", nexternal);
+        blocknodes = NULL;
+        repeated_extregul = NULL;
+        for(j=0; j<N; j++)
+        {
+            if(nodecolor[j]==i)
+            {
+                nn++;
+                blocknodes = push(blocknodes, j);
+            }
+        }
+        nexternal = INSERT_EXTREGULATORS(repeated_extregul, blocknodes, graph, nn, nodecolor, i);
+        nn += nexternal;
 
         temp_index = (int*)malloc(nn*sizeof(int));
         temp_adjmatrix = (double*)malloc(nn*nn*sizeof(double));
-        for(j=0; j<nn; j++) { temp_index[j] = node_in_class->node_ID; node_in_class = pop(node_in_class); }
+        for(j=0; j<nn; j++) { temp_index[j] = blocknodes->node_ID; blocknodes = pop(blocknodes); }
 
         // Now we construct the current fiber adjacency matrix to calculate its eigenvalues.
         for(j=0; j<nn; j++)
         {
-            int aux = COUNT_EXTREGULATORS(graph, temp_index[j], nodecolor);
-            nexternal += aux;
             for(k=0; k<nn; k++)
             {
-                neigh = CHECKLINK(graph, temp_index[j], temp_index[k]);
+                neigh = CHECKLINK(graph, temp_index[j], temp_index[k]); // A_{jk} = 1 if j -> k
                 if(neigh==1) temp_adjmatrix[j*nn + k] = 1.0;
                 else temp_adjmatrix[j*nn + k] = 0.0;
             }
@@ -319,7 +379,6 @@ int main()
         double temp;
         double eigmax = gsl_vector_get(eval, 0);
         for(j=1; j<nn; j++) { temp = gsl_vector_get(eval, j); if(temp>eigmax) eigmax = temp; }
-        printf("max %lf\n", eigmax);
 
         nloop[i] = eigmax;
         lextreg[i] = nexternal;
