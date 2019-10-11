@@ -49,7 +49,7 @@ int cmp(const void *a, const void *b)
 /////////////////////////////////////////////////////////////////
 
 //////////////////////// GRAPH OPERATIONS //////////////////////////
-int INSERT_EXTREGULATORS(Stack* extregul, Stack* block, Graph* graph, int nn, int* nodecolor, int curcolor)
+Stack* INSERT_EXTREGULATORS(Stack* extregul, Stack* block, Graph* graph, int nn, int* nodecolor, int curcolor)
 {
     int i;
     int n = nn;
@@ -58,8 +58,10 @@ int INSERT_EXTREGULATORS(Stack* extregul, Stack* block, Graph* graph, int nn, in
     // 'temp' stores all the nodes of a color class.
     for(i=0; i<n; i++) { temp[i] = Temp->node_ID; Temp = Temp->next; }
 
-    
     // We store in 'Temp' all the external nodes that point to any node in the current color class.
+    //printf("Fiber %d:", curcolor);
+    for(i=0; i<n; i++) printf("%d ", temp[i]);
+    printf("\n");
     int extn = 0;
     extregul = NULL;
     for(i=0; i<n; i++)
@@ -71,36 +73,29 @@ int INSERT_EXTREGULATORS(Stack* extregul, Stack* block, Graph* graph, int nn, in
             Node = Node->next_in;
         }
     }
+    //printf("External regulators of that fiber: %d\n", extn);
 
     // 'extregul' may have repeated elements.
+    int nn_add = 0;
+
     int* EXT = (int*)malloc(extn*sizeof(int));
     int* aux = (int*)malloc(extn*sizeof(int));
     for(i=0; i<extn; i++) aux[i] = -1;
     for(i=0; i<extn; i++) { EXT[i] = extregul->node_ID; extregul = pop(extregul); }
 
-    int nn_add = 0;
     for(i=0; i<extn; i++)
     {
-        int check = INCHECK(aux, extn, EXT[i]);
+        int check = INCHECK(aux, nn_add+1, EXT[i]);
         if(check==0)
         {
-            aux[nn_add++] = EXT[i];
-            block = push(block, EXT[i]);
+            aux[nn_add] = EXT[i];
+            //printf("%d\n", EXT[i]);
+            block = push(block, aux[nn_add]);
+            nn_add++;
         }
     }
-    return nn_add;
-}
-
-int COUNT_EXTREGULATORS(Graph* graph, int node, int* nodecolor)
-{
-    int l = 0;
-    NodeAdj* Node = graph->array[node].head_in;
-    while(Node)
-    {
-        if(nodecolor[Node->neighbor]!=nodecolor[node]) l++;
-        Node = Node->next_in;
-    }
-    return l;
+    block->extn = nn_add;
+    return block;
 }
 
 int CHECKLINK(Graph* graph, int node1, int node2)
@@ -337,7 +332,7 @@ int main()
         nexternal = 0;
 
         // Stack all the nodes belonging to the current color class and its external regulators. 
-        printf("%d\n", nexternal);
+        //printf("%d\n", nexternal);
         blocknodes = NULL;
         repeated_extregul = NULL;
         for(j=0; j<N; j++)
@@ -348,13 +343,16 @@ int main()
                 blocknodes = push(blocknodes, j);
             }
         }
-        nexternal = INSERT_EXTREGULATORS(repeated_extregul, blocknodes, graph, nn, nodecolor, i);
+        //printf("head of block %d\n", blocknodes->node_ID);
+        blocknodes = INSERT_EXTREGULATORS(repeated_extregul, blocknodes, graph, nn, nodecolor, i);
+        //printf("head of block %d with ext %d\n", blocknodes->node_ID, blocknodes->extn);
+        nexternal = blocknodes->extn;
         nn += nexternal;
+        //printf("%d\n", nexternal);
 
         temp_index = (int*)malloc(nn*sizeof(int));
         temp_adjmatrix = (double*)malloc(nn*nn*sizeof(double));
         for(j=0; j<nn; j++) { temp_index[j] = blocknodes->node_ID; blocknodes = pop(blocknodes); }
-
         // Now we construct the current fiber adjacency matrix to calculate its eigenvalues.
         for(j=0; j<nn; j++)
         {
