@@ -1,11 +1,10 @@
-/*	Code for phase synchronization evaluation on complex brain networks.
-	To study the possible coherence states of the brain we apply the kuramoto
-	model on functional brain networks (constructed by correlation between blood oxygen
-	activity on fMRI measurements) to analyze the synchronization behavior between
-	nodes and modules within the brain.
+/*	This module contains a compilation of utility functions of some
+	type of situations. Specially, here we define the functions necessary
+	to construct directed and undirected networks. 
 
 	Author: Higor da S. Monteiro - Universidade Federal do Ceará
 */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,7 +14,7 @@
 /// Structures to create and define a directed, unweighted graph ///
 ////////////////////////////////////////////////////////////////////
 
-// Define a graph containing N nodes
+// Define a graph containing 'size' nodes
 struct Graph
 {
 	// each node has its adjancency list
@@ -36,18 +35,18 @@ struct NodeAdj
 {
 	int neighbor;
     int regulator;
-	struct NodeAdj* next_in;
-    struct NodeAdj* next_out;
+	struct NodeAdj* next;
+    //struct NodeAdj* next_out;
 };
 typedef struct NodeAdj NodeAdj;
 
-NodeAdj* createNode(int neigh)
+NodeAdj* createNode(int neigh, int type_link)
 {
 	NodeAdj* newnode = (NodeAdj*)malloc(sizeof(NodeAdj));
 	newnode->neighbor = neigh;
-	newnode->next_in = NULL;
-    newnode->next_out = NULL;
-    newnode->regulator = -2;
+	newnode->next = NULL;
+    newnode->regulator = type_link;
+    //newnode->next_out = NULL;
 	return newnode;
 }
 
@@ -64,7 +63,7 @@ extern Graph* createGraph(int N)
 	return graph;
 }
 
-void addEdges(int** edges, Graph* graph, int nE)
+void addEdges(int** edges, Graph* graph, int* regulator, int nE)
 {
 	int index, j, node1, node2, reg;
 	
@@ -73,18 +72,15 @@ void addEdges(int** edges, Graph* graph, int nE)
 		// 'node1' -> 'node2' directed link.
         node1 = edges[j][0];
 		node2 = edges[j][1];
+		reg = regulator[j];
 
-		NodeAdj* newnode1 = createNode(node1);
-		NodeAdj* newnode2 = createNode(node2);
+		NodeAdj* newnode1 = createNode(node1, reg);
+		NodeAdj* newnode2 = createNode(node2, reg);
 
-		// The created nodes points to the head of graph and
-		// next become the head itselfs.
-
-        newnode2->next_out = graph->array[node1].head_out;
-        newnode1->next_in = graph->array[node2].head_in;
-        graph->array[node1].head_out = newnode2;
-        graph->array[node2].head_in = newnode1;
-
+		newnode2->next = graph->array[node1].head_out;
+		newnode1->next = graph->array[node2].head_in;
+		graph->array[node1].head_out = newnode2;
+		graph->array[node2].head_in = newnode1;
 	}
 }
 
@@ -119,9 +115,156 @@ extern int** defineNetwork(int** edges, int* regulator, Graph* graph, char* file
 	fclose(EDGE_FILE);
 	
     // Defines the network structure.
-	addEdges(edges, graph, nlink);
+	addEdges(edges, graph, regulator, nlink);
     
     return edges;
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////// GRAPH OPERATIONS ////////////////////////////////
+
+struct neigh_vector
+{
+	int neigh;
+	int color;
+};
+typedef struct neigh_vector neigh_vector;
+
+// To sort in ascendent order //
+int cmpcolor(const void *a, const void *b)
+{
+    neigh_vector *a1 = (neigh_vector *)a;
+    neigh_vector *a2 = (neigh_vector *)b;
+    if ((*a1).color > (*a2).color)
+        return 1;
+    else if ((*a1).color < (*a2).color)
+        return -1;
+    else
+        return 0;
+}
+
+extern neigh_vector* GET_inNEIGH(Graph* graph, int* nodecolor, int node, int N)
+{
+	int n_in = 0;	
+	NodeAdj* NODE = graph->array[node].head_in;
+	while(NODE)
+	{
+		n_in++;
+		NODE = NODE->next;
+	}
+	neigh_vector* neighbors = (neigh_vector*)malloc((n_in)*sizeof(neigh_vector));
+
+	int n_index = 0;
+	NODE = graph->array[node].head_in;
+	while(NODE)
+	{
+		neighbors[n_index].neigh = NODE->neighbor;
+		neighbors[n_index].color = nodecolor[NODE->neighbor];
+		n_index++;
+		NODE = NODE->next;
+	}
+	qsort(neighbors, n_in, sizeof(neighbors[0]), cmpcolor);
+	return neighbors;
+}
+
+extern neigh_vector* GET_outNEIGH(Graph* graph, int* nodecolor, int node, int N)
+{
+	int n_out = 0;	
+	NodeAdj* NODE = graph->array[node].head_out;
+	while(NODE)
+	{
+		n_out++;
+		NODE = NODE->next;
+	}
+
+	neigh_vector* neighbors = (neigh_vector*)malloc(n_out*sizeof(neigh_vector));
+
+	n_out = 0;
+	NODE = graph->array[node].head_out;
+	while(NODE)
+	{
+		neighbors[n_out].neigh = NODE->neighbor;
+		neighbors[n_out].color = nodecolor[NODE->neighbor];
+		n_out++;
+		NODE = NODE->next;
+	}
+	qsort(neighbors, n_out, sizeof(neighbors[0]), cmpcolor);
+	
+	return neighbors;
+}
+
+extern int GETNin(Graph* graph, int node)
+{
+	int n_in = 0;	
+	NodeAdj* NODE = graph->array[node].head_in;
+	while(NODE)
+	{
+		n_in++;
+		NODE = NODE->next;
+	}
+	return n_in;
+}
+
+extern char* GETSEQUENCE(neigh_vector* vec, int n, const int STRSIZE)
+{
+	int i;	
+	int n_color = 1;
+	for(i=0; i<(n-1); i++)
+		if(vec[i].color!=vec[i+1].color) n_color++;
+
+	int* seq = (int*)malloc(n_color*sizeof(int));
+	for(i=0; i<n_color; i++) seq[i] = 0;
+
+	int index = 0;	
+	int* which_color = (int*)malloc(n_color*sizeof(int));
+	
+	which_color[index] = vec[0].color;
+	for(i=0; i<(n-1); i++)
+	{
+		seq[index]++;
+		if(vec[i].color!=vec[i+1].color) { which_color[++index] = vec[i+1].color; }
+	}
+	seq[index]++;
+
+	char* strvar1 = (char*)malloc(STRSIZE*sizeof(char));
+	strcpy(strvar1, "");
+
+	for(i=0; i<n_color; i++)
+	{
+		char temp[10];
+		char ctemp[10];
+		sprintf(temp, "%d", seq[i]);
+		sprintf(ctemp, "%d", which_color[i]);
+		strcat(strvar1, temp);
+		strcat(strvar1, ctemp);
+	}
+	//printf("%s\n", strvar1);
+	return strvar1;
+}
+
+extern void GetInNeighbors(Graph* graph, int node, int N)
+{
+	NodeAdj* Inode = graph->array[node].head_in;
+	printf("Node %d: ", node);
+	while(Inode)
+	{
+		printf("%d ", Inode->neighbor);
+		Inode = Inode->next;
+	}
+	printf("\n");
+}
+
+extern void GetOutNeighbors(Graph* graph, int node, int N)
+{
+	NodeAdj* Inode = graph->array[node].head_out;
+	printf("Node %d: ", node);
+	while(Inode)
+	{
+		printf("%d ", Inode->neighbor);
+		Inode = Inode->next;
+	}
+	printf("\n");
 }
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
@@ -137,6 +280,7 @@ typedef struct strstack STRSTACK;
 
 struct stack
 {
+	int extn;
 	int node_ID;
 	struct stack *next;
 };
@@ -211,6 +355,106 @@ extern Stack *pop(Stack* top)
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
 
+////////////// LINKED LIST DATA STRUCTURE ////////////////
+
+struct Node
+{
+	int data;
+	struct Node* next;
+}
+typedef struct Node Node;
+
+extern Node* push_data(Node* head, int data)
+{
+	if(head==NULL)
+	{
+		head = (Node*)malloc(sizeof(Node));
+		head->data = data;
+		head->next = NULL;
+	}
+	else
+	{
+		Node* temp = head;		
+		while(temp->next) { temp = temp->next; }
+		temp->next = (Node*)malloc(sizeof(Node));
+		temp = temp->next;
+		temp->data = data;
+		temp->next = NULL;
+	}
+	return head;
+}
+
+extern Node* push_to_head(Node* head, int data)
+{
+	Node* newnode = (Node*)malloc(sizeof(Node));
+	newnode->data = data;
+	newnode->next = head;
+	head = newnode;
+	return head;
+}
+
+extern Node* pop_head(Node* head)
+{
+	if(head==NULL) return NULL;	
+	Node* newhead = head->next;
+	free(head);
+	head = newhead;
+	return head;
+}
+
+extern Node* pop(Node* head)
+{
+	if(head==NULL) return NULL;	
+	if(head->next==NULL) free(head);
+	else
+	{
+		/* get to the second to last node in the list */
+    	Node* current = head;
+    	while (current->next->next != NULL) current = current->next;
+
+    	free(current->next);
+    	current->next = NULL;
+	}
+}
+
+extern Node* remove_by_index(Node* head, int index)
+{
+	int i = 0;
+    Node* current = head;
+    Node* temp_node = NULL;
+
+    if(index==0)	return pop_head(head);
+
+    for (i = 0; i < n-1; i++) 
+	{
+        if (current->next == NULL)	return head;
+        current = current->next;
+    }
+
+    temp_node = current->next;
+    current->next = temp_node->next;
+    free(temp_node);
+	return head;
+}
+
+extern int check_value(Node* head, int value)
+{
+    Node* current = head;
+
+	if(current->data==value) return 1;
+	
+	while(current)
+	{
+		if(current->next==NULL) return 0;		
+		if(current->data==value) return 1;	
+		else
+			current = current->next;
+	}
+	return 0;
+}
+
+//////////////////////////////////////////////////////////
+
 // Reads the number of effective voxels and total number of voxels of the subject map.
 extern int nlines_file(char* filename, int ncolumns)
 {
@@ -243,13 +487,13 @@ extern void printGraph(Graph* graph)
 		while(SeeAux)
 		{
 			printf("<-%d", SeeAux->neighbor);
-			SeeAux = SeeAux->next_in; 
+			SeeAux = SeeAux->next; 
 		}
 		printf("\nout:");
         while(SeeAux1)
         {
             printf("->%d", SeeAux1->neighbor);
-			SeeAux1 = SeeAux1->next_out;
+			SeeAux1 = SeeAux1->next;
         }
         printf("\n");
 	}
@@ -282,4 +526,11 @@ extern double largest(double* arr, int N)
 	if(N>1) for(i=1; i<N; i++) if(arr[i]>max) max = arr[i];
 	printf("max %lf\n", max);
 	return max;
+}
+
+extern int INCHECK(int* arr, int size, int value)
+{
+	int i;
+	for(i=0; i<size; i++) if(arr[i]==value) return 1;
+	return 0;
 }
