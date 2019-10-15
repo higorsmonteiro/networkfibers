@@ -40,61 +40,91 @@ typedef struct aux AUX;
 struct strseq
 {
     int node;
-    char strseq[SEQSIZE];       
+    Node* strseq;       
 };
 typedef struct strseq STRSEQ;
 
-STRSEQ* INITIALIZE(STRSEQ* seqlist, int N)
+// Comparison function to be used in string sorting operation.
+int cmp(const void *a, const void *b)
+{
+    STRSEQ *a1 = (STRSEQ *)a;
+    STRSEQ *a2 = (STRSEQ *)b;
+
+    return strcmp((*a1).strseq, (*a2).strseq);
+}
+
+STRSEQ* INITSEQ(STRSEQ* seqlist, int N)
 {
 	int i;
-	for(i=0; i<N; i++) strcpy(seqlist[i].strseq, "");
-} 
+	for(i=0; i<N; i++) seqlist[i].strseq = NULL;
+	return seqlist;
+}
+/////////////////////////////////////////////////////////////// 
 
-void OPERATION(Graph* graph, Stack* color_index, int* nodecolor, int M, int N)
+void OPERATION(Graph* graph, Stack* color_index, int ncolor, int* nodecolor, int M, int N)
 {
 	int i,j;
 	int n_in, current_color;
 	neigh_vector* inlist;
+	
 	Node* List;
-	Node* ListColor; 
+	Node* ListColor;
 	
 	STRSEQ* seqlist = (STRSEQ*)malloc(N*sizeof(STRSEQ));
-	seqlist = INITIALIZESEQ(seqlist, N);
+	seqlist = INITSEQ(seqlist, N);
 	
+	// Determination of 'List', 'ListColor' and the sequences from 'seqlist'.	
 	while(color_index)	// For each color class.
 	{
 		current_color = color_index->node_ID;
-		color_index = pop(color_index);
-		char ctemp[10];
-		sprintf(ctemp, "%d", current_color);		
+		color_index = pop(color_index);	
 		
 		for(i=0; i<N; i++)
 		{
 			if(nodecolor[i]==current_color)
 			{
-				inlist = GET_inNEIGH(graph, nodecolor, i, N);
-				n_in = GETNin(graph, i);
+				inlist = GET_inNEIGH(graph, nodecolor, i, N);	// Get all the nodes that have outgoing links to the current node 'i'.
+				n_in = GETNin(graph, i);						// Number of inbound links
 				for(j=0; j<n_in; j++)
 				{
-					strcat(seqlist[inlist[j].node], ctemp);
+					seqlist[inlist[j]]->strseq = push_data(seqlist[inlist[j]]->strseq, current_color);	// add 'current_color' to sequence of 'j'.					
 					if(check_value(List, inlist[j].node)==0) List = push_data(List, inlist[j].node)
 				}
 			} 
 		}
 	}
-	int nc = 0;	
+	// At the end of the process above, the linked list 'List' stores all the nodes that have non-empty classes.
+	// From that, the linked list 'ListColor' will stores the color of each node in 'List'.
 	Node* temp = List;
 	while(temp)
-	{
-				
+	{		
 		int w = temp->data;
 		ListColor = push_data(ListColor, nodecolor[w]);
 	}
+	// Sort in ascending order the sequences list for each node. *
+	for(j=0; j<N; j++) SORTLIST(seqlist[j]->strseq, List);
+
 	temp = ListColor;
+	int* nclass = (int*)malloc(ncolor*sizeof(int));	// index 'i' stores the number of nodes in the class 'i'.
+	for(i=0; i<ncolor; i++) nclass[i] = 0;			// Initial setting.
 	while(temp)
 	{
-		int color = temp->data;
-		Node* tempL = List;
+		nclass[temp->data]++;
+		temp = temp->next;
+	}
+
+	while(List)
+	{
+		int vertex = List->data;
+		List = pop_head(List);
+		int i = nodecolor[vertex];
+		if(nclass[i]!=0)
+		{
+			T[i].strseq = seqlist[vertex].strseq;
+			R[i] = push(R[i], i) // wat?
+			if(nclass[i]!=sizecolor[i]) // add a new index to R[i] //
+			nclass[i] = 0;
+		}	
 	}
 	
 	

@@ -361,7 +361,7 @@ struct Node
 {
 	int data;
 	struct Node* next;
-}
+};
 typedef struct Node Node;
 
 extern Node* push_data(Node* head, int data)
@@ -402,7 +402,7 @@ extern Node* pop_head(Node* head)
 	return head;
 }
 
-extern Node* pop(Node* head)
+extern Node* poplist(Node* head)
 {
 	if(head==NULL) return NULL;	
 	if(head->next==NULL) free(head);
@@ -417,6 +417,41 @@ extern Node* pop(Node* head)
 	}
 }
 
+/* swap data field of linked list */
+void swap(Node* p1, Node* p2)
+{
+	int temp = p1->data;
+	p1->data = p2->data;
+	p2->data = temp;
+}
+
+/* To sort the linked list */
+void SelectionSort(Node* head)
+{
+	Node* start = head;
+	Node* traverse;
+	Node* min;
+	
+	while(start->next)
+	{
+		min = start;
+		traverse = start->next;
+		
+		while(traverse)
+		{
+			/* Find minimum element from array */ 
+			if( min->data > traverse->data )
+			{
+				min = traverse;
+			}
+			
+			traverse = traverse->next;
+		}
+		swap(start,min);			// Put minimum element on starting location
+		start = start->next;
+	}
+} 
+
 extern Node* remove_by_index(Node* head, int index)
 {
 	int i = 0;
@@ -425,7 +460,7 @@ extern Node* remove_by_index(Node* head, int index)
 
     if(index==0)	return pop_head(head);
 
-    for (i = 0; i < n-1; i++) 
+    for (i = 0; i < index-1; i++) 
 	{
         if (current->next == NULL)	return head;
         current = current->next;
