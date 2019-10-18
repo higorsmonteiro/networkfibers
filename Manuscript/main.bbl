@@ -1,0 +1,29 @@
+\begin{thebibliography}{1}
+
+\bibitem{fibration2019}
+F.~Morone, I.~Leifer, and H.~A. Makse.
+\newblock Fibration building blocks of information-processing networks.
+\newblock {\em (To be published)}, 2019.
+
+\bibitem{Cardon1982}
+A.~Cardon and M.~Cruchemore.
+\newblock Partitioning a graph in $o(|a|\log_2 |v|)$.
+\newblock {\em Theoretical Computer Science}, 19:85--98, 1982.
+
+\bibitem{Boldi2006}
+P.~Boldi, V.~Lonati, M.~Santini, and S.~Vigna.
+\newblock Graph fibrations, graph isomorphism, and pagerank.
+\newblock {\em Theoretical Informatics and Applications}, 40:227--253, 2006.
+
+\bibitem{Tarjan1987}
+R.~Paige and Robert~E. Tarjan.
+\newblock Three partition refinement algorithms.
+\newblock {\em SIAM Journal on Computing}, 16:973--989, 1987.
+
+\bibitem{Stewart2006}
+M.~Golubitsky and I.~Stewart.
+\newblock Nonlinear dynamics of networks: the groupoid formalism.
+\newblock {\em Bulletin of the American Mathematical Society}, 46:305--365,
+  2006.
+
+\end{thebibliography}
