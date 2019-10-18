@@ -1,0 +1,452 @@
+/*	This module contains a compilation of utility functions of some
+	type of situations. Specially, here we define the functions necessary
+	to construct directed and undirected networks. 
+
+	Author: Higor da S. Monteiro - Universidade Federal do Ceará
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <math.h>
+
+////////////////////////////////////////////////////////////////////
+/// Structures to create and define a directed, unweighted graph ///
+////////////////////////////////////////////////////////////////////
+
+// Define a graph containing 'size' nodes
+struct Graph
+{
+	// each node has its adjancency list
+	int size;
+	struct adjList* array;
+};
+typedef struct Graph Graph;
+
+struct adjList
+{
+	struct NodeAdj* head_in;
+    struct NodeAdj* head_out;
+};
+typedef struct adjList AdjList;
+
+// Structure to define the adjacency list of a node
+struct NodeAdj
+{
+	int neighbor;
+    int regulator;
+	struct NodeAdj* next;
+    //struct NodeAdj* next_out;
+};
+typedef struct NodeAdj NodeAdj;
+
+NodeAdj* createNode(int neigh, int type_link)
+{
+	NodeAdj* newnode = (NodeAdj*)malloc(sizeof(NodeAdj));
+	newnode->neighbor = neigh;
+	newnode->next = NULL;
+    newnode->regulator = type_link;
+	return newnode;
+}
+
+extern Graph* createGraph(int N)
+{
+	Graph* graph = (Graph*)malloc(sizeof(Graph));
+	graph->size = N;
+
+	// Array of NodeAdj's
+	graph->array = (AdjList*)malloc(N*sizeof(AdjList));
+
+	int j;
+	for(j=0; j<N; j++) { graph->array[j].head_in = NULL; graph->array[j].head_out = NULL; }
+	return graph;
+}
+
+void addEdges(int** edges, Graph* graph, int* regulator, int nE)
+{
+	int index, j, node1, node2, reg;
+	
+	for(j=0; j<nE; j++)
+	{
+		// 'node1' -> 'node2' directed link.
+        node1 = edges[j][0];
+		node2 = edges[j][1];
+		reg = regulator[j];
+
+		NodeAdj* newnode1 = createNode(node1, reg);
+		NodeAdj* newnode2 = createNode(node2, reg);
+
+		newnode2->next = graph->array[node1].head_out;
+		newnode1->next = graph->array[node2].head_in;
+		graph->array[node1].head_out = newnode2;
+		graph->array[node2].head_in = newnode1;
+	}
+}
+
+extern int** defineNetwork(int** edges, int* regulator, Graph* graph, char* filename)
+{
+	FILE *EDGE_FILE = fopen(filename, "r");
+	if(EDGE_FILE==NULL) printf("ERROR in file reading");
+
+	int i, j;
+	char k[5];
+	int r = 1;
+	int nlink = 0; // number of links.
+	while(r) // Calculates the number of lines in the file
+	{
+		r = fscanf(EDGE_FILE, "%d\t%d\t%s\n", &i, &j, &k);
+		if(r==EOF) break;
+		nlink++;
+	}
+	rewind(EDGE_FILE);
+
+	edges = (int**)malloc(nlink*sizeof(int*));
+    regulator = (int*)malloc(nlink*sizeof(int));
+	for(j=0; j<nlink; j++)
+	{
+		edges[j] = (int*)malloc(2*sizeof(int));
+		r = fscanf(EDGE_FILE, "%d\t%d\t%s\n", &edges[j][0], &edges[j][1], &k);
+        if(strcmp("+", k)==0) regulator[j] = 0;
+        else if(strcmp("-", k)==0) regulator[j] = 1;
+        else if(strcmp("+-", k)==0) regulator[j] = 2;
+        else regulator[j] = -1;
+	}
+	fclose(EDGE_FILE);
+	
+    // Defines the network structure.
+	addEdges(edges, graph, regulator, nlink);
+    
+    return edges;
+}
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////// GRAPH OPERATIONS ////////////////////////////////
+
+struct neigh_vector
+{
+	int neigh;
+	int color;
+};
+typedef struct neigh_vector neigh_vector;
+
+// To sort in ascendent order //
+int cmpcolor(const void *a, const void *b)
+{
+    neigh_vector *a1 = (neigh_vector *)a;
+    neigh_vector *a2 = (neigh_vector *)b;
+    if ((*a1).color > (*a2).color)
+        return 1;
+    else if ((*a1).color < (*a2).color)
+        return -1;
+    else
+        return 0;
+}
+
+extern neigh_vector* GET_inNEIGH(Graph* graph, int* nodecolor, int node, int N)
+{
+	int n_in = 0;	
+	NodeAdj* NODE = graph->array[node].head_in;
+	while(NODE)
+	{
+		n_in++;
+		NODE = NODE->next;
+	}
+	neigh_vector* neighbors = (neigh_vector*)malloc((n_in)*sizeof(neigh_vector));
+
+	int n_index = 0;
+	NODE = graph->array[node].head_in;
+	while(NODE)
+	{
+		neighbors[n_index].neigh = NODE->neighbor;
+		neighbors[n_index].color = nodecolor[NODE->neighbor];
+		n_index++;
+		NODE = NODE->next;
+	}
+	qsort(neighbors, n_in, sizeof(neighbors[0]), cmpcolor);
+	return neighbors;
+}
+
+extern neigh_vector* GET_outNEIGH(Graph* graph, int* nodecolor, int node, int N)
+{
+	int n_out = 0;	
+	NodeAdj* NODE = graph->array[node].head_out;
+	while(NODE)
+	{
+		n_out++;
+		NODE = NODE->next;
+	}
+
+	neigh_vector* neighbors = (neigh_vector*)malloc(n_out*sizeof(neigh_vector));
+
+	n_out = 0;
+	NODE = graph->array[node].head_out;
+	while(NODE)
+	{
+		neighbors[n_out].neigh = NODE->neighbor;
+		neighbors[n_out].color = nodecolor[NODE->neighbor];
+		n_out++;
+		NODE = NODE->next;
+	}
+	qsort(neighbors, n_out, sizeof(neighbors[0]), cmpcolor);
+	
+	return neighbors;
+}
+
+extern int GETNin(Graph* graph, int node)
+{
+	int n_in = 0;	
+	NodeAdj* NODE = graph->array[node].head_in;
+	while(NODE)
+	{
+		n_in++;
+		NODE = NODE->next;
+	}
+	return n_in;
+}
+
+extern void PrintInNeighbors(Graph* graph, int node, int N)
+{
+	NodeAdj* Inode = graph->array[node].head_in;
+	printf("Node %d: ", node);
+	while(Inode)
+	{
+		printf("%d ", Inode->neighbor);
+		Inode = Inode->next;
+	}
+	printf("\n");
+}
+
+extern void PrintOutNeighbors(Graph* graph, int node, int N)
+{
+	NodeAdj* Inode = graph->array[node].head_out;
+	printf("Node %d: ", node);
+	while(Inode)
+	{
+		printf("%d ", Inode->neighbor);
+		Inode = Inode->next;
+	}
+	printf("\n");
+}
+////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////
+/////////////////// STACK DATA STRUCTURE ////////////////////
+struct stack
+{
+	int extn;
+	int node_ID;
+	struct stack *next;
+};
+typedef struct stack Stack;
+////////////////////////////////
+////// STACK OPERATIONS ///////
+// To insert an element in the stack.
+extern Stack *push(Stack* top, int node)
+{
+	Stack *ptr;
+	ptr = (Stack*)malloc(sizeof(Stack));
+	ptr->node_ID = node;
+	if(top==NULL)
+	{
+		ptr->next = NULL;
+		top = ptr;
+	}
+	else
+	{
+		ptr->next = top;
+		top = ptr;
+	}
+	return top;
+}
+
+// To delete an element in the stack.
+extern Stack *pop(Stack* top)
+{
+	Stack *ptr;
+	ptr = top;
+	if(top!=NULL)
+	{
+		top = top->next;
+		free(ptr);
+	}
+	return top;
+}
+////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////
+
+//////////////////////// GENERAL USE ////////////////////////////
+
+// Reads the number of effective voxels and total number of voxels of the subject map.
+extern int nlines_file(char* filename, int ncolumns)
+{
+	FILE *MODFILE = fopen(filename, "r");
+	if(MODFILE==NULL) printf("ERROR in file reading");
+
+	char ch[5];
+    int i, j, k, m, x, y, z;
+	int ne = 0;
+	int r = 1;
+	while(r) // Calculates the number of lines in the file
+	{
+		if(ncolumns==3) r = fscanf(MODFILE, "%d\t%d\t%s\n", &i, &j, &ch);
+		else if(ncolumns==6) r = fscanf(MODFILE, "%d\t%d\t%d\t%d\t%d\t%d\n", &i, &j, &k, &x, &y, &z);
+		if(r==EOF) break;
+		ne++;
+	}
+	fclose(MODFILE);
+	return ne;
+}
+
+extern void printGraph(Graph* graph)
+{
+	int j;
+	for(j=0; j<graph->size; j++)
+	{
+		printf("NODE %d\nin:", j);
+        NodeAdj* SeeAux = graph->array[j].head_in;
+        NodeAdj* SeeAux1 = graph->array[j].head_out;
+		while(SeeAux)
+		{
+			printf("<-%d", SeeAux->neighbor);
+			SeeAux = SeeAux->next; 
+		}
+		printf("\nout:");
+        while(SeeAux1)
+        {
+            printf("->%d", SeeAux1->neighbor);
+			SeeAux1 = SeeAux1->next;
+        }
+        printf("\n");
+	}
+}
+
+extern int** arrint2d(int lines, int columns)
+{
+    int i, j;
+    int** arr = (int**)malloc(lines*sizeof(int*));
+    for(i=0; i<lines; i++)
+    {
+        arr[i] = (int*)malloc(columns*sizeof(int));
+        for(j=0; j<columns; j++)
+            arr[i][j] = 0;
+    }
+    return arr;
+}
+
+extern void free2d(int** arr, int rows, int columns)
+{
+	int i;
+	for(i=0; i<rows; i++) free(arr[i]);
+	free(arr);
+}
+////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////
+
+////////////////// DOUBLE LINKED LIST DATA STRUCTURE //////////////////
+struct DoublyLinkNode
+{
+    int data;
+    struct DoublyLinkNode* prev;
+    struct DoublyLinkNode* next;
+};
+typedef struct DoublyLinkNode DoublyLinkNode;
+
+struct Block
+{
+    int size;
+    DoublyLinkNode* head;   // The doubly linked list of the block containing the elements on it.
+};
+typedef struct Block BLOCK;
+
+extern void push_doublylist(DoublyLinkNode** head, int insertion)
+{
+    DoublyLinkNode* new_node = (DoublyLinkNode*)malloc(sizeof(DoublyLinkNode));
+    
+    new_node->data = insertion;
+    new_node->next = (*head);
+    new_node->prev = NULL;
+
+    if((*head)!=NULL) (*head)->prev = new_node;
+    (*head) = new_node;
+}
+
+extern void insertAfter(DoublyLinkNode* prev_node, int insertion)
+{
+    if (prev_node == NULL) return; 
+
+    /* 2. allocate new node */
+    DoublyLinkNode* new_node = (DoublyLinkNode*)malloc(sizeof(DoublyLinkNode)); 
+  
+    new_node->data = insertion; 
+    new_node->next = prev_node->next; 
+    prev_node->next = new_node; 
+    new_node->prev = prev_node; 
+  
+    /* Change previous of new_node's next node */
+    if (new_node->next != NULL) 
+        new_node->next->prev = new_node; 
+}
+
+extern void append(DoublyLinkNode** head, int new_data)
+{
+    /* Allocate node */
+    DoublyLinkNode* new_node = (DoublyLinkNode*)malloc(sizeof(DoublyLinkNode)); 
+  
+    DoublyLinkNode* last = *head; /* used in step 5*/
+  
+    new_node->data = new_data;
+    new_node->next = NULL; 
+  
+    /* If the Linked List is empty, then make the new 
+        node as head */
+    if (*head == NULL) 
+    { 
+        new_node->prev = NULL; 
+        *head = new_node; 
+        return; 
+    } 
+  
+    /* Else traverse till the last node */
+    while (last->next != NULL)  last = last->next; 
+  
+    last->next = new_node; 
+    new_node->prev = last; 
+  
+    return; 
+}
+
+void deleteNode(DoublyLinkNode** head_ref, DoublyLinkNode* del) 
+{ 
+    /* base case */
+    if (*head_ref == NULL || del == NULL) 
+        return; 
+  
+    /* If node to be deleted is head node */
+    if (*head_ref == del) 
+        *head_ref = del->next; 
+  
+    /* Change next only if node to be deleted is NOT the last node */
+    if (del->next != NULL) 
+        del->next->prev = del->prev; 
+  
+    /* Change prev only if node to be deleted is NOT the first node */
+    if (del->prev != NULL) 
+        del->prev->next = del->next; 
+  
+    /* Finally, free the memory occupied by del*/
+    free(del); 
+    return; 
+}
+
+void printBlock(BLOCK* P)
+{
+    DoublyLinkNode* List = P->head;
+    while(List)
+    {
+        printf("%d ", List->data);
+        List = List->next;
+    }
+}
+//////////////////////////////////////////////////////////////////////////////////
