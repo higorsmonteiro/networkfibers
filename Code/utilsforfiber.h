@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+//#include "structforfiber.h"
 
 ////////////////////////////////////////////////////////////////////
 /// Structures to create and define a directed, unweighted graph ///
@@ -353,12 +354,59 @@ struct DoublyLinkNode
 };
 typedef struct DoublyLinkNode DoublyLinkNode;
 
-struct Block
+// The doubly linked list of the block containing the elements on it
+struct BLOCK
 {
     int size;
-    DoublyLinkNode* head;   // The doubly linked list of the block containing the elements on it.
+	int index;
+    DoublyLinkNode* head;
 };
-typedef struct Block BLOCK;
+typedef struct BLOCK BLOCK;
+
+struct Partition
+{
+	BLOCK* block;
+	struct Partition* prev;
+	struct Partition* next;
+};
+typedef struct Partition PART;
+///////////////////////////////////////////////////////////
+
+extern int nblock(PART** head)
+{
+	if(*head==NULL) return 0;
+	
+	int i = 0;	
+	PART* temp = *head;
+	while(temp)
+	{
+		i++;
+		temp = temp->next;
+	}
+	return i;
+}
+
+extern void push_block(PART** head, BLOCK* insertion)
+{
+    PART* new_node = (PART*)malloc(sizeof(PART));
+    
+    new_node->block = insertion;
+    new_node->next = (*head);
+    new_node->prev = NULL;
+    if((*head)!=NULL) (*head)->prev = new_node;
+    (*head) = new_node;
+}
+
+extern int doublycheck_element(DoublyLinkNode* head, int element)
+{
+	DoublyLinkNode* temp = head;
+	while(temp)
+	{
+		if(temp->data==element) return 1;
+		temp = temp->next;
+	}
+	return 0;
+}
 
 extern void push_doublylist(DoublyLinkNode** head, int insertion)
 {
@@ -449,4 +497,50 @@ void printBlock(BLOCK* P)
         List = List->next;
     }
 }
-//////////////////////////////////////////////////////////////////////////////////
+
+void printBlockSize(BLOCK* P)
+{
+	printf("Size: %d\n", P->size);
+}
+/////////////////////////////////////////////////////////////
+
+///////// IMPLEMENTATION OF QUEUE DATA STRUCTURE ////////
+/////////////////////////////////////////////////////////
+struct QueueOfBlocks
+{
+    BLOCK* block;
+    struct QueueOfBlocks* next;
+};
+typedef struct QueueOfBlocks QBLOCK;
+
+void enqueue_block(QBLOCK** head, QBLOCK** tail, BLOCK* P)
+{
+	QBLOCK* new_element = (QBLOCK*)malloc(sizeof(QBLOCK));
+	
+	new_element->block = P;
+	new_element->next = NULL;	
+	
+	if(*tail!=NULL) (*tail)->next = new_element;
+	if(*head==NULL) (*head) = new_element;
+	(*tail) = new_element;
+}
+
+void dequeue_block(QBLOCK** head, QBLOCK** tail)
+{
+	QBLOCK* top = *head;
+	QBLOCK* next_qblock = NULL;	
+	if(*head!=*tail) next_qblock = (*head)->next;
+
+	free(top);
+	if(*head==*tail) *tail = next_qblock;
+	*head = next_qblock; 
+}
+
+BLOCK* peek_block(QBLOCK** head)
+{
+	QBLOCK* top = *head;
+	if(top!=NULL) return top->block;
+	else return NULL;
+}
+
+
