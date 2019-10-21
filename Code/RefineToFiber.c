@@ -29,25 +29,68 @@
 
 void Upgrade_partition(PART** new_blocks, PART** old_blocks, PART** partition)
 {
-	BLOCK* tempblock = NULL;	
+	BLOCK* temp_block = NULL;	
 	PART* temp_old = *old_blocks;
 	PART* temp_new = *new_blocks;
-	while(temp_old) { deletePart(old_blocks, *old_blocks); }
+	PART* temp_part;
+	// Erase in 'partition' all the blocks contained in 'old_blocks'.
+	while(temp_old)
+	{
+		temp_part = *partition;
+		while(temp_part)
+		{
+			int check = check_equalBlocks(temp_old->block, temp_part->block);
+			if(check==1) deletePart(partition, temp_part);
+			else temp_part = temp_part->next;
+		}
+	}
+	while(*old_blocks) { deletePart(old_blocks, *old_blocks); }
 	
+	// push all the new blocks into the partition.	
+	while(temp_new)
+	{
+		push_block(partition, temp_new->block);
+		temp_new = temp_new->next;
+	}
 }
 
-void push_on_block(int node, int n_in, PART** phead)
+void EnqueueAllNotLargest(PART** new_blocks, QBLOCK** qhead, QBLOCK** qtail)
 {
-	BLOCK* tempblock = NULL;
-	PART* parttemp = *phead;
-	while(parttemp)
+	int max_index = -1;
+	int size = -1;
+	PART* temp = *new_blocks;
+	BLOCK* tempblock;	
+	// Get the index of the largest block.	
+	while(temp)
 	{
-		tempblock = parttemp->block;
-		if(tempblock->index==n_in) { add_to_block(&tempblock, node); return; }
+		tempblock = temp->block;
+		if(tempblock->size>size) { size = tempblock->size; max_index = tempblock->index; }
+		temp = temp->next;	
+	}
+
+	temp = *new_blocks;
+	while(temp)
+	{
+		tempblock = temp->block;
+		if(tempblock->index!=max_index) enqueue_block(qhead, qtail, tempblock);
+		temp = temp->next;
+	}
+	while(*new_blocks) { deletePart(new_blocks, *new_blocks); }
+}
+
+void push_on_block(int node, int index, PART** phead)
+{
+	BLOCK* temp_block = NULL;
+	PART* part_temp = *phead;
+	while(part_temp)
+	{
+		temp_block = part_temp->block;
+		if((temp_block->index)==index) { add_to_block(&temp_block, node); return; }
+		part_temp = part_temp->next;
 	}
 	// If the function reaches this line, it didnt find any block. So we create a new one.
 	BLOCK* newblock = (BLOCK*)malloc(sizeof(BLOCK));
-	newblock->index = n_in;
+	newblock->index = index;
 	newblock->size = 0;
 	add_to_block(&newblock, node);
 	push_block(phead, newblock);
@@ -68,16 +111,13 @@ int intersection_edges(Graph* graph, int node, BLOCK* Set)
 	return n_in;	
 }
 
-void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, int N, QBLOCK** head, QBLOCK** tail)
-{	
-	PART* subpart1 = NULL;
-	PART* subpart2 = NULL;
-	BLOCK* tempblock = NULL;	
-	PART* temp_part = *partition;
-	DoublyLinkNode* tempdoublylist;
-
-	/*	Given the 'Set' block, now we select all the blocks in the partition that have at 
-		least one inward connection coming from 'Set'. */
+/*	Given the 'Set' block, now we select all the blocks in the 'partition' that have at 
+	least one connection coming from 'Set'. We store these blocks into 'subpart'. */
+void GET_NONSTABLE_BLOCKS(PART** partition, PART** subpart, Graph* graph, BLOCK* Set)
+{
+	BLOCK* tempblock;
+	PART* temp_part = *partition;	
+	DoublyLinkNode* tempdoublylist;	
 	while(temp_part)
 	{
 		tempblock = temp_part->block;		// Get current block of the original partition.
@@ -85,35 +125,58 @@ void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, int N, QBLOCK** head, Q
 		while(tempdoublylist)
 		{
 			int node = tempdoublylist->data;
-			int n_in = intersection_edges(graph, node, Set);	// Get number of incoming links of from 'Set' to 'node'.
-			if(n_in>0) { tempblock->index = n_in; push_block(&subpart1, tempblock); break; }
+			int n_in = intersection_edges(graph, node, Set);	// Get number of incoming links from 'Set' to 'node'.
+			if(n_in>0) { push_block(subpart, tempblock); break; }
 			tempdoublylist = tempdoublylist->next;
 		}
 		temp_part = temp_part->next;
 	}
-	// 'subpart' contains all the blocks that have nonzero pointed nodes from 'Set'.
+}
+
+void BLOCKS_PARTITIONING(PART** subpart1, PART** subpart2, Graph* graph, BLOCK* Set)
+{
+	int n_in;	
+	BLOCK* temp_block = NULL;
+	PART* temp_part = *subpart1;	
+	DoublyLinkNode* nodelist = NULL;		
 	
-	// New blocks creation.	
-	temp_part = subpart1;
 	while(temp_part) // for each block to be splitted.
 	{
-		tempblock = temp_part->block;		
-		tempdoublylist = tempblock->head;
-		while(tempdoublylist)	// for each node in the current block.
-		{
-			int node = tempdoublylist->data;			
-			int n_in = intersection_edges(graph, node, Set);
-			push_on_block(node, n_in, &subpart2);	// put 'node' in its proper new block.
+		temp_block = temp_part->block;		
+		nodelist = temp_block->head;
+		printf("Block %d: ", temp_block->index);
+		printBlock(temp_block);
+		printf("Block %d: ", temp_block->index);		
+		while(nodelist)	// for each node in the current block.
+		{		
+			n_in = intersection_edges(graph, nodelist->data, Set);
+			printf("%d ", n_in);			
+			push_on_block(nodelist->data, n_in, subpart2);	// put 'node' in its proper new block.
+			nodelist = nodelist->next;
 		}
 		temp_part = temp_part->next;
 	}
+	printPartitionSize(*subpart2);
+}	
+
+void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK** qtail)
+{	
+	PART* subpart1 = NULL;
+	PART* subpart2 = NULL;
+
+	/*	Given the 'Set' block, now we select all the blocks in the partition that have at 
+		least one connection coming from 'Set'. */
+	GET_NONSTABLE_BLOCKS(partition, &subpart1, graph, Set);
+	// 'subpart1' contains all the blocks that have nonzero pointed nodes from 'Set'.
 	
+	// New blocks creation.
+	BLOCKS_PARTITIONING(&subpart1, &subpart2, graph, Set);	
 	/*	After the process above, 'subpart2' contains the new splitted blocks. And now we
 		delele all 'subpart1' blocks from partition and then we push all those 'subpart2' 
 		blocks to the 'partition'. Before deleting 'subpart2', we enqueue all the blocks
 		in the queue of refining blocks, except the largest one. */
 	 
-	Upgrade_partition(&subpart2, &subpart1, partition);
+	//Upgrade_partition(&subpart2, &subpart1, partition);
 	//EnqueueAllNotLargest(&subpart2, qhead, qtail);
 }
 
@@ -164,28 +227,30 @@ int main(int argv, char** argc)
 
 	/////////////////////// COARSEST REFINEMENT PARTITION ALGORITHM ////////////////////////
 	int i, j, k;  		
-    
-    // INITIAL STATE: All nodes and links have the same color '0' //        
-	// Put aside from the algorithm (color -1) all nodes that don't receive any information.    
+           
+	// Put aside from the algorithm (index -1) all nodes that don't receive any information.    
 	BLOCK* P = (BLOCK*)malloc(sizeof(BLOCK));
-	BLOCK* NonP = (BLOCK*)malloc(sizeof(BLOCK));	
+	BLOCK* NonP = (BLOCK*)malloc(sizeof(BLOCK));
 	PREPROCESSING(&P, &NonP, graph, N);
 
 	// Define the initial partition as one block containing all operating nodes. 
 	PART* partition = NULL;    
 	push_block(&partition, P);	// Push initial block to the partition.
-
+	
 	// Initialize the queue of blocks with the initial block above.
 	QBLOCK* qhead = NULL;
 	QBLOCK* qtail = NULL;
 	enqueue_block(&qhead, &qtail, P);
 
 	// Until L is empty, we procedure the splitting process.
-	//while(qhead)
-	//{
-		//BLOCK* Set = peek_block(&qhead);
-		//S_SPLIT(&partition, Set, graph, N, &qhead, &qtail);
-	//}
+	BLOCK* CurrentSet;	
+	while(qhead)
+	{
+		CurrentSet = peek_block(&qhead);
+		dequeue_block(&qhead, &qtail);
+		//printPartitionSize(partition);		
+		S_SPLIT(&partition, CurrentSet, graph, &qhead, &qtail);
+	}
     ////////////////////////////////////////////////////////////////////////////////////
 
 }

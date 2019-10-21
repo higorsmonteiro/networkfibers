@@ -471,7 +471,7 @@ extern void append(DoublyLinkNode** head, int new_data)
     return; 
 }
 
-void check_equalBlock(Block* block1, Block* block2)
+int check_equalBlocks(BLOCK* block1, BLOCK* block2)
 {
 	if(block1->size!=block2->size) return -1;
 	
@@ -546,16 +546,31 @@ void printBlock(BLOCK* P)
         printf("%d ", List->data);
         List = List->next;
     }
+	printf("\n");
 }
 
 void printPartition(PART* P)
 {
     PART* part = P;
+	BLOCK* tempblock;
     while(part)
     {
-        printf("%d ", part->block->index);
+		tempblock = part->block;       
+		printf("%d ", tempblock->index);
         part = part->next;
     }
+}
+
+void printPartitionSize(PART* part)
+{
+	int i = 0;
+	PART* temp = part;
+	while(temp)
+	{
+		i++;
+		temp = temp->next;
+	}
+	printf("\nPartition size: %d\n", i);
 }
 
 void printBlockSize(BLOCK* P)
