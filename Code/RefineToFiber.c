@@ -27,147 +27,165 @@
 #include <gsl/gsl_eigen.h>
 #include "utilsforfiber.h"   // Personal module containing helpful functions to handle with network data and other common operations.
 
+void Upgrade_partition(PART** new_blocks, PART** old_blocks, PART** partition)
+{
+	BLOCK* tempblock = NULL;	
+	PART* temp_old = *old_blocks;
+	PART* temp_new = *new_blocks;
+	while(temp_old) { deletePart(old_blocks, *old_blocks); }
+	
+}
+
+void push_on_block(int node, int n_in, PART** phead)
+{
+	BLOCK* tempblock = NULL;
+	PART* parttemp = *phead;
+	while(parttemp)
+	{
+		tempblock = parttemp->block;
+		if(tempblock->index==n_in) { add_to_block(&tempblock, node); return; }
+	}
+	// If the function reaches this line, it didnt find any block. So we create a new one.
+	BLOCK* newblock = (BLOCK*)malloc(sizeof(BLOCK));
+	newblock->index = n_in;
+	newblock->size = 0;
+	add_to_block(&newblock, node);
+	push_block(phead, newblock);
+}
+
 int intersection_edges(Graph* graph, int node, BLOCK* Set)
 {
 	int i, check;	
 	NodeAdj* Node = graph->array[node].head_in;
-	BLOCK* SetHead = Set->head;
 
 	int n_in = 0;
 	while(Node)
 	{
-		check = doublycheck_element(SetHead, Node->neighbor);
+		check = doublycheck_element(Set->head, Node->neighbor);
 		if(check==1) n_in++;
 		Node = Node->next;
 	}
 	return n_in;	
 }
 
-void SPLIT(PART** partition, BLOCK* Set, Graph* graph, int N, QBLOCK** head, QBLOCK** tail)
+void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, int N, QBLOCK** head, QBLOCK** tail)
 {	
 	PART* subpart1 = NULL;
 	PART* subpart2 = NULL;
-	PART* temp = partition;
 	BLOCK* tempblock = NULL;	
+	PART* temp_part = *partition;
 	DoublyLinkNode* tempdoublylist;
-	int* nedges = (int*)malloc(N*sizeof(int));
 
 	/*	Given the 'Set' block, now we select all the blocks in the partition that have at 
 		least one inward connection coming from 'Set'. */
-	
-	// 'subpart' will contains all the blocks that have nonzero	pointed nodes from 'Set'.
-	while(temp)
+	while(temp_part)
 	{
-		tempdoublylist = temp->block->head;
+		tempblock = temp_part->block;		// Get current block of the original partition.
+		tempdoublylist = tempblock->head;	// Get the list of node of the current block.
 		while(tempdoublylist)
 		{
 			int node = tempdoublylist->data;
-			int n_in = intersection_edges(graph, node, Set);
-			nedges[node] = n_in;
-			if(n_in>0) { push_block(&subpart1, temp->block); break; }
+			int n_in = intersection_edges(graph, node, Set);	// Get number of incoming links of from 'Set' to 'node'.
+			if(n_in>0) { tempblock->index = n_in; push_block(&subpart1, tempblock); break; }
 			tempdoublylist = tempdoublylist->next;
 		}
-		temp = temp->next;
+		temp_part = temp_part->next;
 	}
+	// 'subpart' contains all the blocks that have nonzero pointed nodes from 'Set'.
 	
-	temp = subpart1;
-	while(temp) // for each block to be splitted.
+	// New blocks creation.	
+	temp_part = subpart1;
+	while(temp_part) // for each block to be splitted.
 	{
-		tempdoublylist = temp->block->head;
-		while(tempdoublylist)	// for each node in block.
+		tempblock = temp_part->block;		
+		tempdoublylist = tempblock->head;
+		while(tempdoublylist)	// for each node in the current block.
 		{
 			int node = tempdoublylist->data;			
 			int n_in = intersection_edges(graph, node, Set);
-			push_on(node, n_in, &subpart2);
+			push_on_block(node, n_in, &subpart2);	// put 'node' in its proper new block.
 		}
+		temp_part = temp_part->next;
 	}
 	
-	/*	After the process above, 'subpart2' contains the splitted blocks. And now we
+	/*	After the process above, 'subpart2' contains the new splitted blocks. And now we
 		delele all 'subpart1' blocks from partition and then we push all those 'subpart2' 
 		blocks to the 'partition'. Before deleting 'subpart2', we enqueue all the blocks
 		in the queue of refining blocks, except the largest one. */
 	 
-	Upgrade_partition();
-	EnqueueAllNotLargest();
+	Upgrade_partition(&subpart2, &subpart1, partition);
+	//EnqueueAllNotLargest(&subpart2, qhead, qtail);
 }
 
-BLOCK* DEFINEBLOCKS(BLOCK* P, int* nodecolor, int N)
+void PREPROCESSING(BLOCK** P, BLOCK** NonP, Graph* graph, int N)
 {
-    int i;
-    for(i=0; i<N; i++) if(nodecolor[i]>-1) { push_doublylist(&P->head, i); P->size++; }
-    return P;
-}
+	(*P)->size = 0;
+	(*NonP)->size = 0;
+	(*P)->index = 0;
+	(*NonP)->index = -1;
+	(*P)->head = NULL;
+	(*NonP)->head = NULL;    
 
-void PREPROCESSING(Graph* graph, int* nodecolor, int N)
-{
-    int n_in, i;
+	int n_in, i;
     for(i=0; i<N; i++)
     {
         n_in = GETNin(graph, i);
-        if(n_in==0) nodecolor[i] = -1;
+        if(n_in>0) add_to_block(P, i);
+		else add_to_block(NonP, i);
     }
 }
 
 int main(int argv, char** argc) 
 { 
-    int N, M;                         	// Number of nodes and edges of the network.
-    char netsize[100] = "../Data/";     // File containing (one line) the number of nodes in the network.
-    char net_edges[100] = "../Data/";   // File containing all the directed links in the network.
-    strcat(netsize, argc[1]);
-    strcat(netsize, "Ngenes.dat");
-    strcat(net_edges, argc[1]);
-    strcat(net_edges, "edgelist.dat");
+	int N, M;                         	// Number of nodes and edges of the network.
+	char netsize[100] = "../Data/";     // File containing (one line) the number of nodes in the network.
+	char net_edges[100] = "../Data/";   // File containing all the directed links in the network.
+	strcat(netsize, argc[1]);
+	strcat(netsize, "Ngenes.dat");
+	strcat(net_edges, argc[1]);
+	strcat(net_edges, "edgelist.dat");
                                                           
     // Defines the size of the network.
-    FILE* UTIL = fopen(netsize, "r");
-    if(UTIL==NULL) printf("ERROR IN FILE READING\n");
-    fscanf(UTIL, "%d\n", &N);
-    fclose(UTIL);
+	FILE* UTIL = fopen(netsize, "r");
+	if(UTIL==NULL) printf("ERROR IN FILE READING\n");
+	fscanf(UTIL, "%d\n", &N);
+	fclose(UTIL);
 	M = nlines_file(net_edges, 3);	// Number of edges.
     ///////////////////////////////////////////////////
 
     // Creates the graph structure for N nodes
-    Graph* graph = createGraph(N);
+	Graph* graph = createGraph(N);
 
     // Properly defines the network structure with the given 'edgelist.dat' file.
-    int** edges;
-    int* regulator;
-    edges = defineNetwork(edges, regulator, graph, net_edges);
+	int** edges;
+	int* regulator;
+	edges = defineNetwork(edges, regulator, graph, net_edges);
 	///////////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////// COARSEST REFINEMENT PARTITION ALGORITHM ////////////////////////
-    int i, j, k;  		
+	int i, j, k;  		
     
-    // INITIAL STATE: All nodes and links have the same color '0' //
-	int ncolors = 1;
-    int* nodecolor = (int*)malloc(N*sizeof(int));
-    for(i=0; i<N; i++) nodecolor[i] = 0;        
-	
+    // INITIAL STATE: All nodes and links have the same color '0' //        
 	// Put aside from the algorithm (color -1) all nodes that don't receive any information.    
-	PREPROCESSING(graph, nodecolor, N);
+	BLOCK* P = (BLOCK*)malloc(sizeof(BLOCK));
+	BLOCK* NonP = (BLOCK*)malloc(sizeof(BLOCK));	
+	PREPROCESSING(&P, &NonP, graph, N);
 
 	// Define the initial partition as one block containing all operating nodes. 
 	PART* partition = NULL;    
-	BLOCK* P = (BLOCK*)malloc(sizeof(BLOCK));
-    
-	P->size = 0;
-	P->index = 0;
-    P->head = NULL;
-    P = DEFINEBLOCKS(P, nodecolor, N);
-    push_block(&partition, P);	// Push initial block to the partition.
+	push_block(&partition, P);	// Push initial block to the partition.
 
 	// Initialize the queue of blocks with the initial block above.
-	QBLOCK* head = NULL;
-	QBLOCK* tail = NULL;
-	enqueue_block(&head, &tail, P);
+	QBLOCK* qhead = NULL;
+	QBLOCK* qtail = NULL;
+	enqueue_block(&qhead, &qtail, P);
 
 	// Until L is empty, we procedure the splitting process.
-	while(head)
-	{
-		BLOCK* Set = peek_block(&head);
-		SPLIT(&partition, Set, graph, N, &head, &tail);
-	}
-    
+	//while(qhead)
+	//{
+		//BLOCK* Set = peek_block(&qhead);
+		//S_SPLIT(&partition, Set, graph, N, &qhead, &qtail);
+	//}
     ////////////////////////////////////////////////////////////////////////////////////
 
 }

@@ -420,6 +420,12 @@ extern void push_doublylist(DoublyLinkNode** head, int insertion)
     (*head) = new_node;
 }
 
+extern void add_to_block(BLOCK** block, int node)
+{
+	push_doublylist(&(*block)->head, node);
+	(*block)->size++;
+}
+
 extern void insertAfter(DoublyLinkNode* prev_node, int insertion)
 {
     if (prev_node == NULL) return; 
@@ -465,9 +471,53 @@ extern void append(DoublyLinkNode** head, int new_data)
     return; 
 }
 
+void check_equalBlock(Block* block1, Block* block2)
+{
+	if(block1->size!=block2->size) return -1;
+	
+	DoublyLinkNode* head1 = block1->head;
+	DoublyLinkNode* head2 = block2->head;	
+	while(head1)
+	{
+		if(head1->data!=head2->data) return -1;
+		head1 = head1->next;
+		head2 = head2->next;
+	}
+	return 1;
+}
+
 void deleteNode(DoublyLinkNode** head_ref, DoublyLinkNode* del) 
 { 
     /* base case */
+    if (*head_ref == NULL || del == NULL) 
+        return; 
+  
+    /* If node to be deleted is head node */
+    if (*head_ref == del) 
+        *head_ref = del->next; 
+  
+    /* Change next only if node to be deleted is NOT the last node */
+    if (del->next != NULL) 
+        del->next->prev = del->prev; 
+  
+    /* Change prev only if node to be deleted is NOT the first node */
+    if (del->prev != NULL) 
+        del->prev->next = del->next; 
+  
+    /* Finally, free the memory occupied by del*/
+    free(del); 
+    return; 
+}
+
+void deletePart(PART** head_ref, PART* del) 
+{ 
+	BLOCK* tempblock = del->block;    
+	if(tempblock!=NULL)	// First delete all the nodes of the block.
+	{
+		DoublyLinkNode* temp = tempblock->head;
+		while(temp) { deleteNode(&temp, temp); }
+	}
+  
     if (*head_ref == NULL || del == NULL) 
         return; 
   
@@ -495,6 +545,16 @@ void printBlock(BLOCK* P)
     {
         printf("%d ", List->data);
         List = List->next;
+    }
+}
+
+void printPartition(PART* P)
+{
+    PART* part = P;
+    while(part)
+    {
+        printf("%d ", part->block->index);
+        part = part->next;
     }
 }
 
