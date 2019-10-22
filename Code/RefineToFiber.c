@@ -130,7 +130,7 @@ void GET_NONSTABLE_BLOCKS(PART** partition, PART** subpart, int* n_fromSet, Grap
 	this block and then adds to 'subpart2'. */
 void SPLIT_BLOCK(BLOCK* block, int* n_fromSet, PART** subpart2)
 {
-	PART* splitted_blocks;
+	PART* splitted_blocks = NULL;
 	PART* current_part;
 	DoublyLinkNode* nodelist = block->head;
 	
@@ -177,9 +177,14 @@ void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK*
 /*	Now 'subpart1' contains all the blocks that have nonzero pointed nodes from 'Set'. 
 	Then, for each of these blocks, we split the ones that have different number of pointed
 	links from 'Set' between their nodes. */
+	//printf("Divide:\n");
+	//printf("Number of blocks selected to be splitted -> ");
+	//printPartitionSize(subpart1);
+	//printAllPartition(subpart1);
 	BLOCKS_PARTITIONING(&subpart1, &subpart2, n_fromSet, graph, Set);	// *error -> fixed* //
-	printf("Divide: Number of splitted blocks -> ");
-	printPartitionSize(subpart2);
+	//printf("Number of splitted blocks -> ");
+	//printPartitionSize(subpart2);
+	//printAllPartition(subpart2);
 	
 
 /*	After the process above, 'subpart2' contains the resulted splitted blocks. And now we
@@ -191,9 +196,10 @@ void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK*
 		UPGRADE_PARTITION(&subpart2, &subpart1, partition);
 		PUTALL_NOTLARGER(&subpart2, qhead, qtail);
 	}
-	printAllPartition(*partition);
-	printf("Queue After Divide:\n");
-	printQueue(*qhead);
+	//printf("All Partition:\n");
+	//printAllPartition(*partition);
+	//printf("Queue After Divide:\n");
+	//printQueue(*qhead);
 	// obs: 'subpart1' and 'subpart2' are erased by scope.
 }
 
@@ -287,7 +293,6 @@ int main(int argv, char** argc)
 	QBLOCK* qtail = NULL;
 	enqueue_block(&qhead, &qtail, P);
 	ENQUEUE_SOLITAIRE(&null_partition, &qhead, &qtail);
-	printQueue(qhead);
 
 	// Until L is empty, we procedure the splitting process.	
 	int time = 0;		
@@ -297,17 +302,17 @@ int main(int argv, char** argc)
 		time++;		
 		CurrentSet = dequeue_block(&qhead, &qtail);
 		printf("Time %d\n", time);
-		printf("Current Refinement Block: ");
-		printBlock(CurrentSet);
-		printf("Queue Before Divide:\n");
-		printQueue(qhead);
+		//printf("Current Refinement Block: ");
+		//printBlock(CurrentSet);
+		//printf("Queue Before Divide:\n");
+		//printQueue(qhead);
 		S_SPLIT(&partition, CurrentSet, graph, &qhead, &qtail);
 	}
 
 	int size = GetPartitionSize(partition);
 	int presize = GetPartitionSize(null_partition);
 	printf("Number of fiber: %d\n", size+presize);
-	printAllPartition(partition);
+	//printAllPartition(partition);
     ////////////////////////////////////////////////////////////////////////////////////
 
 }

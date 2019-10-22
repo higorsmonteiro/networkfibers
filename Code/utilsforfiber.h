@@ -624,6 +624,7 @@ void printPartition(PART* P)
 		printf("%d ", tempblock->index);
         part = part->next;
     }
+	printf("\n");
 }
 
 void printPartitionSize(PART* part)
