@@ -30,23 +30,21 @@
 void UPGRADE_PARTITION(PART** new_blocks, PART** old_blocks, PART** partition)
 {
 	BLOCK* temp_block = NULL;	
-	PART* temp_old = *old_blocks;
-	PART* temp_new = *new_blocks;
-	PART* temp_part;
+	PART* current_old = *old_blocks;
+	PART* current_new = *new_blocks;
+	PART* current_part;
 	// Erase in 'partition' all the blocks contained in 'old_blocks'.
-	
-	while(temp_old)
+	while(current_old)
 	{
-		DeleteBlockInPartition(partition, temp_old->block);
-		temp_old = temp_old->next;
+		DeleteBlockInPartition(partition, current_old->block);
+		current_old = current_old->next;
 	}
-	printAllPartition(*old_blocks);
 	// push all the new blocks into the partition.	
-	//while(temp_new)
-	//{
-		//push_block(partition, temp_new->block);
-		//temp_new = temp_new->next;
-	//}
+	while(current_new)
+	{
+		push_block(partition, current_new->block);
+		current_new = current_new->next;
+	}
 }
 
 void EnqueueAllNotLargest(PART** new_blocks, QBLOCK** qhead, QBLOCK** qtail)
@@ -72,41 +70,34 @@ void EnqueueAllNotLargest(PART** new_blocks, QBLOCK** qhead, QBLOCK** qtail)
 	}
 }
 
-void push_on_block(int node, int index, PART** subpart2)
+/*	given a node and its index, adds it on a block that has the same index
+	or create a new block in case there isn't any block with the given index. */
+void Push_On_Block(int node, int nodeindex, PART** subpart2)
 {
-	int check = 0;	
-	BLOCK* temp_block = NULL;
-	PART* part_temp = *subpart2;
-	while(part_temp)
+/*	First thing, we need to loop over the blocks of the given partition
+	and check if there is a block with the same index. */
+	PART* current_part = *subpart2;
+	DoublyLinkNode* nodelist = NULL;
+	
+	while(current_part)
 	{
-		temp_block = part_temp->block;
-		if((temp_block->index)==index) { add_to_block(&temp_block, node); check = 1; }
-		part_temp = part_temp->next;
+		if(current_part->block->index==nodeindex)
+		{
+			push_doublylist(&(current_part->block->head), node);
+			current_part->block->size += 1;
+			return;
+		}
+		current_part = current_part->next;
 	}
-	// If the function reaches this line, it didnt find any block. So we create a new one.
-	if(check==0)
-	{
-		BLOCK* newblock = (BLOCK*)malloc(sizeof(BLOCK));
-		newblock->index = index;
-		newblock->size = 0;
-		add_to_block(&newblock, node);
-		push_block(subpart2, newblock);
-	}		
-}
 
-int intersection_edges(Graph* graph, int node, BLOCK* Set)
-{
-	int i, check;	
-	NodeAdj* Node = graph->array[node].head_in;
-
-	int n_in = 0;
-	while(Node)
-	{
-		check = doublycheck_element(Set->head, Node->neighbor);
-		if(check==1) n_in++;
-		Node = Node->next;
-	}
-	return n_in;	
+/*	If there isn't a block with the same index, then we create a new one. */
+	BLOCK* new_block = (BLOCK*)malloc(sizeof(BLOCK));
+	new_block->index = nodeindex;
+	new_block->size = 0;
+	new_block->head = NULL;
+	push_doublylist(&(new_block->head), node);
+	push_block(subpart2, new_block);
+	return;
 }
 
 /*	Given the 'Set' block, now we select all the blocks in the 'partition' that have at 
@@ -133,27 +124,24 @@ void GET_NONSTABLE_BLOCKS(PART** partition, PART** subpart, Graph* graph, BLOCK*
 
 void BLOCKS_PARTITIONING(PART** subpart1, PART** subpart2, Graph* graph, BLOCK* Set)
 {
-	int n_in;	
+	int node, n_in;	
 	BLOCK* temp_block = NULL;
 	PART* temp_part = *subpart1;	
 	DoublyLinkNode* nodelist = NULL;		
 	
-	printAllPartition(*subpart2);
 	while(temp_part) // for each block to be splitted.
 	{
 		temp_block = temp_part->block;		
 		nodelist = temp_block->head;	
 		while(nodelist)	// for each node in the current block.
 		{		
-			n_in = intersection_edges(graph, nodelist->data, Set);
-			push_on_block((nodelist->data), n_in, subpart2);	// *error* put 'node' in its proper new block.
+			node = nodelist->data;			
+			n_in = intersection_edges(graph, node, Set);
+			Push_On_Block(node, n_in, subpart2);	// *error* put 'node' in its proper new block.
 			nodelist = nodelist->next;
 		}
 		temp_part = temp_part->next;
 	}
-	printPartitionSize(*subpart2);
-	//printBlock((*subpart2)->block);
-	//printf("%d\t%d\n", (*subpart2)->next->block->size, (*subpart2)->next->block->index);
 }	
 
 void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK** qtail)
@@ -165,23 +153,41 @@ void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK*
 	GET_NONSTABLE_BLOCKS(partition, &subpart1, graph, Set);
 /* 'subpart1' contains all the blocks that have nonzero pointed nodes from 'Set'. */
 	
-	printAllPartition(subpart1);
 	BLOCKS_PARTITIONING(&subpart1, &subpart2, graph, Set);
-	printAllPartition(subpart1);
-	//printAllPartition(subpart2);	
+
 /*	After the process above, 'subpart2' contains the resulted splitted blocks. And now we
 	delele all 'subpart1' blocks from partition and then we push all those 'subpart2' 
 	blocks to the 'partition'. Before deleting 'subpart2', we enqueue all the blocks
 	in the queue of refining blocks, except the largest one. */
 	//printAllPartition(*partition);	
-	//UPGRADE_PARTITION(&subpart2, &subpart1, partition);
+	UPGRADE_PARTITION(&subpart2, &subpart1, partition);
 	//printAllPartition(*partition);	
-	//EnqueueAllNotLargest(&subpart2, qhead, qtail);
+	EnqueueAllNotLargest(&subpart2, qhead, qtail);
 	
 	// obs: 'subpart1' and 'subpart2' are erased by scope.
 }
 
-void PREPROCESSING(BLOCK** P, BLOCK** NonP, Graph* graph, int N)
+void ENQUEUE_ALONE_NODES(PART** null_partition, QBLOCK** qhead, QBLOCK** qtail)
+{
+	PART* current_part = *null_partition;
+	while(current_part)
+	{
+		enqueue_block(qhead, qtail, current_part->block);
+		current_part = current_part->next;
+	}
+}
+
+void InitiateBlock(PART** Null_Part, int node)
+{
+	BLOCK* new_block = (BLOCK*)malloc(sizeof(BLOCK));
+	new_block->index = -1;
+	new_block->size = 0;
+	new_block->head = NULL;
+	add_to_block(&new_block, node);
+	push_block(Null_Part, new_block);
+}
+
+void PREPROCESSING(BLOCK** P, BLOCK** NonP, PART** Null_Part, Graph* graph, int N)
 {
 	(*P)->size = 0;
 	(*NonP)->size = 0;
@@ -193,10 +199,17 @@ void PREPROCESSING(BLOCK** P, BLOCK** NonP, Graph* graph, int N)
 	int n_in, i;
     for(i=0; i<N; i++)
     {
-        n_in = GETNin(graph, i);
+		n_in = GETNin(graph, i);
         if(n_in>0) add_to_block(P, i);
 		else add_to_block(NonP, i);
     }
+
+	DoublyLinkNode* nodelist = (*NonP)->head;
+	while(nodelist)
+	{
+		InitiateBlock(Null_Part, nodelist->data);
+		nodelist = nodelist->next;
+	}
 }
 
 int main(int argv, char** argc) 
@@ -232,10 +245,11 @@ int main(int argv, char** argc)
 	// Put aside from the algorithm (index -1) all nodes that don't receive any information.    
 	BLOCK* P = (BLOCK*)malloc(sizeof(BLOCK));
 	BLOCK* NonP = (BLOCK*)malloc(sizeof(BLOCK));
-
-	PREPROCESSING(&P, &NonP, graph, N);
-
+	
+	PART* null_partition = NULL;
+	PREPROCESSING(&P, &NonP, &null_partition, graph, N);
 	// Define the initial partition as one block containing all operating nodes. 
+		
 	PART* partition = NULL;    
 	push_block(&partition, P);	// Push initial block to the partition.
 	
@@ -243,16 +257,27 @@ int main(int argv, char** argc)
 	QBLOCK* qhead = NULL;
 	QBLOCK* qtail = NULL;
 	enqueue_block(&qhead, &qtail, P);
+	ENQUEUE_ALONE_NODES(&null_partition, &qhead, &qtail);
 
-	// Until L is empty, we procedure the splitting process.
-	//printAllPartition(partition);		
+	// Until L is empty, we procedure the splitting process.	
+	int time = 0;
+	printf("Time %d\n", time);
+		
 	BLOCK* CurrentSet;	
+	//printAllPartition(partition);	
 	while(qhead)
 	{
+		time++;		
 		CurrentSet = peek_block(&qhead);
 		dequeue_block(&qhead, &qtail);		
 		S_SPLIT(&partition, CurrentSet, graph, &qhead, &qtail);
+		printf("Time %d\n", time);
+		printAllPartition(partition);
 	}
+
+	int size = GetPartitionSize(partition);
+	int presize = GetPartitionSize(null_partition);
+	printf("Number of fiber: %d\n", size+presize);
 	//printAllPartition(partition);
     ////////////////////////////////////////////////////////////////////////////////////
 

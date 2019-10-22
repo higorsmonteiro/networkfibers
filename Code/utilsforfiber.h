@@ -397,6 +397,21 @@ extern int doublycheck_element(DoublyLinkNode* head, int element)
 	return 0;
 }
 
+extern int intersection_edges(Graph* graph, int node, BLOCK* Set)
+{
+	int i, check;	
+	NodeAdj* Node = graph->array[node].head_in;
+
+	int n_in = 0;
+	while(Node)
+	{
+		check = doublycheck_element(Set->head, Node->neighbor);
+		if(check==1) n_in++;
+		Node = Node->next;
+	}
+	return n_in;	
+}
+
 extern void push_doublylist(DoublyLinkNode** head, int insertion)
 {
     DoublyLinkNode* new_node = (DoublyLinkNode*)malloc(sizeof(DoublyLinkNode));
@@ -461,7 +476,7 @@ extern void append(DoublyLinkNode** head, int new_data)
     return; 
 }
 
-int check_equalBlocks(BLOCK* block1, BLOCK* block2)
+int EqualBlocks(BLOCK* block1, BLOCK* block2)
 {
 	if(block1->size!=block2->size) return -1;
 	
@@ -473,6 +488,7 @@ int check_equalBlocks(BLOCK* block1, BLOCK* block2)
 		head1 = head1->next;
 		head2 = head2->next;
 	}
+	if(head1==NULL && head2!=NULL) return -1;
 	return 1;
 }
 
@@ -499,7 +515,7 @@ void deleteNode(DoublyLinkNode** head_ref, DoublyLinkNode* del)
     return; 
 }
 
-void deletePart(PART** head_ref, PART* del) 
+void DeletePart(PART** head_ref, PART* del) 
 { 
 	BLOCK* tempblock = (del)->block;    
 	if(tempblock!=NULL)	// First delete all the nodes of the block.
@@ -528,17 +544,6 @@ void deletePart(PART** head_ref, PART* del)
     return; 
 }
 
-void printBlock(BLOCK* P)
-{
-    DoublyLinkNode* List = P->head;
-    while(List)
-    {
-        printf("%d ", List->data);
-        List = List->next;
-    }
-	printf("\n");
-}
-
 extern void push_block(PART** head, BLOCK* insertion)
 {
     PART* new_node = (PART*)malloc(sizeof(PART));
@@ -552,27 +557,48 @@ extern void push_block(PART** head, BLOCK* insertion)
 
 extern void DeleteBlockInPartition(PART** part, BLOCK* P)
 {
-	PART* temp_part = *part;
-	BLOCK* temp_block = NULL;	
-	while(temp_part)
+	int equal;	
+	PART* current_part = *part;
+	while(current_part)
 	{
-		temp_block = temp_part->block;
-		int check = check_equalBlocks(P, temp_block);
-		if(check==1) break;
-		temp_part = temp_part->next;
+		equal = EqualBlocks(P, current_part->block);
+		if(equal==1) break;
+		current_part = current_part->next;
 	}
 	
-	if(temp_part!=NULL) deletePart(part, temp_part);
+	if(current_part!=NULL) DeletePart(part, current_part);
+}
+
+void printBlock(BLOCK* P)
+{
+    DoublyLinkNode* List = P->head;
+    while(List)
+    {
+        printf("%d ", List->data);
+        List = List->next;
+    }
+	printf("\n");
+}
+
+void printBlockSize(BLOCK* P)
+{
+	printf("Size: %d\n", P->size);
+}
+
+int GetBlockSize(BLOCK* P)
+{
+	return P->size;
 }
 
 void printAllPartition(PART* head)
 {
+	if(head==NULL) printf("EMPTY\n");	
 	PART* temp = head;
 	BLOCK* aux_block = NULL;
 	while(temp)
 	{
 		aux_block = temp->block;
-		printf("Block %d: ", aux_block->index);
+		printf("Block %d with size %d: ", aux_block->index, aux_block->size);
 		printBlock(aux_block);
 		temp = temp->next;
 	}
@@ -602,9 +628,16 @@ void printPartitionSize(PART* part)
 	printf("\nPartition size: %d\n", i);
 }
 
-void printBlockSize(BLOCK* P)
+int GetPartitionSize(PART* part)
 {
-	printf("Size: %d\n", P->size);
+	int i = 0;
+	PART* temp = part;
+	while(temp)
+	{
+		i++;
+		temp = temp->next;
+	}
+	return i;
 }
 /////////////////////////////////////////////////////////////
 
