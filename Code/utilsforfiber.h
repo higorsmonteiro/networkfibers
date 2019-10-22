@@ -388,11 +388,11 @@ extern int nblock(PART** head)
 
 extern int doublycheck_element(DoublyLinkNode* head, int element)
 {
-	DoublyLinkNode* temp = head;
-	while(temp)
+	DoublyLinkNode* nodelist = head;
+	while(nodelist)
 	{
-		if(temp->data==element) return 1;
-		temp = temp->next;
+		if(nodelist->data==element) return 1;
+		nodelist = nodelist->next;
 	}
 	return 0;
 }
@@ -429,6 +429,16 @@ extern void add_to_block(BLOCK** block, int node)
 	BLOCK* temp = *block;	
 	push_doublylist(&(temp->head), node);
 	(*block)->size++;
+}
+
+extern void Copy_NodeList(DoublyLinkNode** dest, DoublyLinkNode* source)
+{
+	DoublyLinkNode* aux = source;
+	while(aux)
+	{
+		push_doublylist(dest, aux->data);
+		aux = aux->next;
+	}
 }
 
 extern void insertAfter(DoublyLinkNode* prev_node, int insertion)
@@ -625,7 +635,7 @@ void printPartitionSize(PART* part)
 		i++;
 		temp = temp->next;
 	}
-	printf("\nPartition size: %d\n", i);
+	printf("Partition size: %d\n", i);
 }
 
 int GetPartitionSize(PART* part)
@@ -650,27 +660,55 @@ struct QueueOfBlocks
 };
 typedef struct QueueOfBlocks QBLOCK;
 
-void enqueue_block(QBLOCK** head, QBLOCK** tail, BLOCK* P)
+BLOCK* COPYBLOCK(BLOCK* P)
 {
+	
+	BLOCK* new = (BLOCK*)malloc(sizeof(BLOCK));
+
+	int size = P->size;
+	int index = P->index;
+	new->size = size;
+	new->index = index;
+	new->head = NULL;
+
+	DoublyLinkNode* current_node = P->head;
+	while(current_node)
+	{
+		push_doublylist(&(new)->head, current_node->data);
+		current_node = current_node->next;
+	}
+	return new;
+}
+
+extern void enqueue_block(QBLOCK** head, QBLOCK** tail, BLOCK* P)
+{
+	BLOCK* current_block = COPYBLOCK(P);
 	QBLOCK* new_element = (QBLOCK*)malloc(sizeof(QBLOCK));
 	
-	new_element->block = P;
-	new_element->next = NULL;	
+	new_element->next = NULL;
+	new_element->block = current_block;
 	
-	if(*tail!=NULL) (*tail)->next = new_element;
-	if(*head==NULL) (*head) = new_element;
+	if(*head==NULL)
+	{
+		(*head) = new_element;
+		(*tail) = new_element;
+		return;
+	}
+	(*tail)->next = new_element;
 	(*tail) = new_element;
 }
 
-void dequeue_block(QBLOCK** head, QBLOCK** tail)
+extern BLOCK* dequeue_block(QBLOCK** head, QBLOCK** tail)
 {
+	BLOCK* block = NULL;
+	
+	if(*head==NULL) return NULL;
 	QBLOCK* top = *head;
-	QBLOCK* next_qblock = NULL;	
-	if(*head!=*tail) next_qblock = (*head)->next;
-
+	(*head) = (*head)->next;
+	block = top->block;
 	free(top);
-	if(*head==*tail) *tail = next_qblock;
-	*head = next_qblock; 
+	if(*head==NULL) (*tail) = NULL;
+	return block;
 }
 
 BLOCK* peek_block(QBLOCK** head)
@@ -692,4 +730,15 @@ void printQueueSize(QBLOCK* head)
 	printf("%d\n", i);
 }
 
+void printQueue(QBLOCK* head)
+{
+	if(head==NULL) printf("EMPTY\n");	
+	QBLOCK* temp = head;
+	while(temp)
+	{
+		printf("Block %d with size %d: ", temp->block->index, temp->block->size);
+		printBlock(temp->block);
+		temp = temp->next;
+	}
+}
 
