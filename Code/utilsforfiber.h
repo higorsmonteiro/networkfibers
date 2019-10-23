@@ -371,43 +371,24 @@ struct Partition
 };
 typedef struct Partition PART;
 ///////////////////////////////////////////////////////////
-
-extern int nblock(PART** head)
-{
-	if(*head==NULL) return 0;
-	
-	int i = 0;	
-	PART* temp = *head;
-	while(temp)
-	{
-		i++;
-		temp = temp->next;
-	}
-	return i;
-}
-
 extern int doublycheck_element(DoublyLinkNode* head, int element)
 {
 	DoublyLinkNode* nodelist = head;
-	while(nodelist)
-	{
+	for(nodelist=head; nodelist!=NULL; nodelist=nodelist->next)
 		if(nodelist->data==element) return 1;
-		nodelist = nodelist->next;
-	}
 	return 0;
 }
 
-extern int intersection_edges(Graph* graph, int node, BLOCK* Set)
+extern int edgesfromSet(Graph* graph, int node, BLOCK* Set)
 {
-	int i, check;	
-	NodeAdj* Node = graph->array[node].head_in;
+	int check;	
+	NodeAdj* Node;
 
 	int n_in = 0;
-	while(Node)
+	for(Node=graph->array[node].head_in; Node!=NULL; Node=Node->next)
 	{
 		check = doublycheck_element(Set->head, Node->neighbor);
 		if(check==1) n_in++;
-		Node = Node->next;
 	}
 	return n_in;	
 }
@@ -552,6 +533,18 @@ void DeletePart(PART** head_ref, PART* del)
     /* Finally, free the memory occupied by del*/
     free(del); 
     return; 
+}
+
+void freePart(PART** head_ref)
+{
+	PART* AUX;
+	while(head_ref)
+	{
+		AUX = *head_ref;
+		*head_ref = (*head_ref)->next;
+		DeletePart(&AUX, AUX);
+		if(AUX==NULL) printf("okay\n");
+	}
 }
 
 extern void push_block(PART** head, BLOCK* insertion)
