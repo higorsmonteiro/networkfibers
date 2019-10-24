@@ -26,7 +26,36 @@
 #include <math.h>
 #include <gsl/gsl_eigen.h>
 #include "utilsforfiber.h"   // Personal module containing helpful functions to handle with network data and other common operations.
-#define BIGGERFLAG -96
+#define SENTINEL -96
+
+void CALCULATE_REGULATORS(PART** partition, Graph* graph)
+{
+	int* in_neighbors;	
+	int i, current_node, boolean_in, boolean_out;
+	
+	PART* current_part;
+	DoublyLinkNode* nodelist;
+	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
+	{
+		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+		{
+			current_node = nodelist->data;
+			int n_in = GETNin(graph, current_node);
+			in_neighbors = GET_INNEIGH(graph, current_node);
+			for(i=0; i<n_in; i++)
+			{
+				boolean_in = doublycheck_element(current_part->block->head, in_neighbors[i]);				
+				boolean_out = doublycheck_element(current_part->regulators, in_neighbors[i]);
+				if(boolean_out==0 && boolean_in==0)
+				{ 
+					push_doublylist(&(current_part->regulators), in_neighbors[i]); 
+					current_part->number_regulators += 1;
+				}
+			}
+		}
+		free(in_neighbors);
+	}
+}
 
 void UPGRADE_PARTITION(PART** new_blocks, PART** old_blocks, PART** partition)
 {
@@ -50,27 +79,27 @@ void UPGRADE_PARTITION(PART** new_blocks, PART** old_blocks, PART** partition)
 
 /*	given a node and its index, adds it on a block that has the same index
 	or create a new block in case there isn't any block with the given index. */
-void Push_On_Block(int node, int nodeindex, PART** subpart2)
+void Push_On_Block(int node, int nodeindex1, int nodeindex2, PART** subpart2)
 {
 /*	First thing, we need to loop over the blocks of the given partition
 	and check if there is a block with the same index. */
 	PART* current_part = *subpart2;
 	DoublyLinkNode* nodelist = NULL;
 	
-	while(current_part)
+	for(current_part=(*subpart2); current_part!=NULL; current_part=current_part->next)
 	{
-		if(current_part->block->index==nodeindex)
+		if(current_part->block->aux1==nodeindex1 && current_part->block->aux2==nodeindex2)
 		{
 			push_doublylist(&(current_part->block->head), node);
 			current_part->block->size += 1;
 			return;
 		}
-		current_part = current_part->next;
 	}
-
 /*	If there isn't a block with the same index, then we create a new one. */
 	BLOCK* new_block = (BLOCK*)malloc(sizeof(BLOCK));
-	new_block->index = nodeindex;
+	new_block->index = -1;
+	new_block->aux1 = nodeindex1;
+	new_block->aux2 = nodeindex2;
 	new_block->size = 1;
 	new_block->head = NULL;
 	push_doublylist(&(new_block->head), node);
@@ -79,10 +108,11 @@ void Push_On_Block(int node, int nodeindex, PART** subpart2)
 }
 
 /*	Given the 'Set' block, now we select all the blocks in the 'partition' that aren't 
-	stable with respect to 'Set'. We store these blocks into 'subpart'. */
-void GET_NONSTABLE_BLOCKS(PART** partition, PART** subpart, int* n_fromSet, Graph* graph, BLOCK* Set)
+	stable with respect to 'Set'. We store these blocks into 'subpart' partition structure. */
+void GET_NONSTABLE_BLOCKS(PART** partition, PART** subpart, int* pos_fromSet, int* neg_fromSet, Graph* graph, BLOCK* Set)
 {
-	int node, nextnode, nin_node, nin_nextnode;
+	int node, nextnode;
+	int npos_node, npos_nextnode, nneg_node, nneg_nextnode;
 	
 	PART* current_part;
 	DoublyLinkNode* nodelist;
@@ -95,9 +125,11 @@ void GET_NONSTABLE_BLOCKS(PART** partition, PART** subpart, int* n_fromSet, Grap
 			{
 				node = nodelist->data;
 				nextnode = nodelist->next->data;
-				nin_node = n_fromSet[node];				// Number of 'Set' edges received by 'node'
-				nin_nextnode = n_fromSet[nextnode];		// Number of 'Set' edges received by 'nextnode'
-				if(nin_node!=nin_nextnode) { push_block(subpart, current_part->block); break; }
+				npos_node = pos_fromSet[node];				// Number of 'Set' positive edges received by 'node'
+				npos_nextnode = pos_fromSet[nextnode];		// Number of 'Set' positive edges received by 'nextnode'
+				nneg_node = neg_fromSet[node];				// Number of 'Set' negatives edges received by 'node'
+				nneg_nextnode = neg_fromSet[nextnode];		// Number of 'Set' negatives edges received by 'nextnode'
+				if((npos_node!=npos_nextnode) || (nneg_node!=nneg_nextnode)) { push_block(subpart, current_part->block); break; }
 			}
 		}
 	}
@@ -105,17 +137,15 @@ void GET_NONSTABLE_BLOCKS(PART** partition, PART** subpart, int* n_fromSet, Grap
 
 /*	Given a block and the number of edges coming from 'Set', it splits
 	this block and then adds to 'subpart2'. */
-void SPLIT_BLOCK(BLOCK* block, int* n_fromSet, PART** subpart2)
+void SPLIT_BLOCK(BLOCK* block, int* pos_fromSet, int* neg_fromSet, PART** subpart2)
 {
 	PART* current_part;
 	PART* splitted_blocks = NULL;
 
 	DoublyLinkNode* nodelist;
 	for(nodelist=block->head; nodelist!=NULL; nodelist=nodelist->next)
-		Push_On_Block(nodelist->data, n_fromSet[nodelist->data], &splitted_blocks);
+		Push_On_Block(nodelist->data, pos_fromSet[nodelist->data], neg_fromSet[nodelist->data], &splitted_blocks);
 
-/*	'splitted' has all the splitted blocks from 'block'. Now we find the largest
-	block on it, and assigned its index as '-10' to the enqueue operation. */
 	int index = 0;
 	current_part = splitted_blocks;
 	for(current_part=splitted_blocks; current_part!=NULL; current_part=current_part->next)
@@ -123,29 +153,28 @@ void SPLIT_BLOCK(BLOCK* block, int* n_fromSet, PART** subpart2)
 		current_part->block->index = index;
 		index++;
 	}
-
+/*	'splitted' has all the splitted blocks from 'block'. Now we find the largest
+	block on it, and assigned its index as 'SENTINEL' to a proper enqueue operation. */
 	int max_index = -1;
 	int size = -1;
-	current_part = splitted_blocks;
 	for(current_part=splitted_blocks; current_part!=NULL; current_part=current_part->next)
 		if((current_part->block->size)>size) { size = current_part->block->size; max_index = current_part->block->index; }
 
-	current_part = splitted_blocks;
 	for(current_part=splitted_blocks; current_part!=NULL; current_part=current_part->next)
-		if(current_part->block->index==max_index) current_part->block->index = BIGGERFLAG;
-/*	///////////////////////////////////////////////////////////////////////////	*/
+		if(current_part->block->index==max_index) current_part->block->index = SENTINEL;
+/*	////////////////////////////////////////////////////////////////////////////////	*/
 
-	current_part = splitted_blocks;
-	for(current_part=splitted_blocks; current_part!=NULL; current_part=current_part->next)	push_block(subpart2, current_part->block);
+	for(current_part=splitted_blocks; current_part!=NULL; current_part=current_part->next)
+		push_block(subpart2, current_part->block);
 }
 
-void BLOCKS_PARTITIONING(PART** subpart1, PART** subpart2, int* n_fromSet, Graph* graph, BLOCK* Set)
+void BLOCKS_PARTITIONING(PART** subpart1, PART** subpart2, int* pos_fromSet, int* neg_fromSet, Graph* graph, BLOCK* Set)
 {
 	PART* part_to_split = *subpart1;	
 	DoublyLinkNode* nodelist = NULL;		
 	
 	for(part_to_split=(*subpart1); part_to_split!=NULL; part_to_split = part_to_split->next)
-		SPLIT_BLOCK(part_to_split->block, n_fromSet, subpart2);
+		SPLIT_BLOCK(part_to_split->block, pos_fromSet, neg_fromSet, subpart2);
 }
 
 void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK** qtail, int* onset)
@@ -155,35 +184,29 @@ void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK*
 	PART* subpart2 = NULL;
 	PART* current_part = NULL;
 
-	int size = Set->size;
-	//int* test = (int*)malloc(size*sizeof(int));
-	//for(i=0; i<size; i++) test[i] = 0;
-
-	N = 0;
-	DoublyLinkNode* nodelist;
-	for(nodelist=Set->head; nodelist!=NULL; nodelist = nodelist->next) if(onset[nodelist->data]==1) N++;
-	if(N==size) return;
+	//N = 0;
+	//DoublyLinkNode* nodelist;
+	//for(nodelist=Set->head; nodelist!=NULL; nodelist = nodelist->next) if(onset[nodelist->data]==1) N=1;
+	//if(N==1) return;
 	
 /*	Precompute the number of edges coming from 'Set' for each node in the network. */
-	int* n_fromSet = (int*)malloc((graph->size)*sizeof(int));
-	for(i=0; i<(graph->size); i++) n_fromSet[i] = edgesfromSet(graph, i, Set);
-
+	int* pos_fromSet = (int*)malloc((graph->size)*sizeof(int));
+	int* neg_fromSet = (int*)malloc((graph->size)*sizeof(int));
+	for(i=0; i<(graph->size); i++)
+	{
+		pos_fromSet[i] = edgesfromSet(graph, i, Set, 0);
+		neg_fromSet[i] = edgesfromSet(graph, i, Set, 1);
+		//pos_fromSet[i] += edgesfromSet(graph, i, Set, 2);
+		//neg_fromSet[i] += edgesfromSet(graph, i, Set, 2);
+	} 
 /*	Given the 'Set' block, now we select all the blocks in the partition that have at 
 	least one connection coming from 'Set'. */
-	GET_NONSTABLE_BLOCKS(partition, &subpart1, n_fromSet, graph, Set);
+	GET_NONSTABLE_BLOCKS(partition, &subpart1, pos_fromSet, neg_fromSet, graph, Set);
 
 /*	Now 'subpart1' contains all the blocks that have nonzero pointed nodes from 'Set'. 
 	Then, for each of these blocks, we split the ones that have different number of pointed
 	links from 'Set' between their nodes. */
-	//printf("Divide:\n");
-	//printf("Number of blocks selected to be splitted -> ");
-	//printPartitionSize(subpart1);
-	//printAllPartition(subpart1);
-	BLOCKS_PARTITIONING(&subpart1, &subpart2, n_fromSet, graph, Set);	// *error -> fixed* //
-	//printf("Number of splitted blocks -> ");
-	//printPartitionSize(subpart2);
-	//printAllPartition(subpart2);
-	
+	BLOCKS_PARTITIONING(&subpart1, &subpart2, pos_fromSet, neg_fromSet, graph, Set);
 
 /*	After the process above, 'subpart2' contains the resulted splitted blocks. And now we
 	delele all 'subpart1' blocks from partition and then we push all those 'subpart2' 
@@ -196,18 +219,8 @@ void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK*
 		the queue of refining blocks. */
 		current_part = subpart2;
 		for(current_part=subpart2; current_part!=NULL; current_part=current_part->next)
-			if(current_part->block->index!=(BIGGERFLAG)) enqueue_block(qhead, qtail, current_part->block);
+			if(current_part->block->index!=(SENTINEL)) enqueue_block(qhead, qtail, current_part->block);
 	}
-
-	//printf("All Partition:\n");
-	//printAllPartition(*partition);
-	//printf("Queue After Divide:\n");
-	//printQueue(*qhead);
-	//printPartitionSize(*partition);
-	//printQueueSize(*qhead);
-	//freePart(&subpart1);
-	//freePart(&subpart2);
-	//free(n_fromSet);
 }
 
 int STABILITYCHECKER(PART** partition, BLOCK* Set, Graph* graph)
@@ -215,12 +228,21 @@ int STABILITYCHECKER(PART** partition, BLOCK* Set, Graph* graph)
 	int i;
 	PART* subpart1 = NULL;
 /*	Precompute the number of edges coming from 'Set' for each node in the network. */
-	int* n_fromSet = (int*)malloc((graph->size)*sizeof(int));
-	for(i=0; i<(graph->size); i++) n_fromSet[i] = edgesfromSet(graph, i, Set);
-
-	GET_NONSTABLE_BLOCKS(partition, &subpart1, n_fromSet, graph, Set);
+	int* pos_fromSet = (int*)malloc((graph->size)*sizeof(int));
+	int* neg_fromSet = (int*)malloc((graph->size)*sizeof(int));
+	for(i=0; i<(graph->size); i++)
+	{
+		pos_fromSet[i] = edgesfromSet(graph, i, Set, 0);
+		neg_fromSet[i] = edgesfromSet(graph, i, Set, 1);
+		//pos_fromSet[i] += edgesfromSet(graph, i, Set, 2);
+		//neg_fromSet[i] += edgesfromSet(graph, i, Set, 2);
+	} 
+/*	Given the 'Set' block, now we select all the blocks in the partition that have at 
+	least one connection coming from 'Set'. */
+	GET_NONSTABLE_BLOCKS(partition, &subpart1, pos_fromSet, neg_fromSet, graph, Set);
 	
-	free(n_fromSet);
+	free(pos_fromSet);
+	free(neg_fromSet);
 	if(GetPartitionSize(subpart1)>0) return -1;
 	else return 1;
 }
@@ -296,8 +318,7 @@ int main(int argv, char** argc)
 
     // Properly defines the network structure with the given 'edgelist.dat' file.
 	int** edges;
-	int* regulator;
-	edges = defineNetwork(edges, regulator, graph, net_edges);
+	edges = defineNetwork(edges, graph, net_edges);
 	///////////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////// COARSEST REFINEMENT PARTITION ALGORITHM ////////////////////////
@@ -334,11 +355,35 @@ int main(int argv, char** argc)
 		//f(stability==1) continue;
 		//printf("%d\n", stability);
 		//printPartitionSize(partition);
-		if(time>1) UPGRADE_SET(CurrentSet, onset);
+		//if(time>1) UPGRADE_SET(CurrentSet, onset);
 	}
 	int size = GetPartitionSize(partition);
 	int presize = GetPartitionSize(null_partition);
-	//printf("%d\n", presize);
+	// Partition contains all the fibers, including the trivial ones.
+
+	/////////////////////// FIBER STATISTICS //////////////////////////
+	PART* current_part;
+	int index = 0;					// Proper block indexing.
+	int total_nodes = 0;			// Number of nodes in fibers.
+	int non_trivial_fibers = 0;		// Number of non-trivial fibers (size larger than one).
+	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
+	{
+		current_part->regulators = NULL;	// Initialize the list of external regulators for each block.		
+		current_part->number_regulators = 0;		
+		current_part->block->index = index++;		
+		//if(current_part->block->size>1) { non_trivial_fibers++; total_nodes += current_part->block->size; }
+	}
+	
+	CALCULATE_REGULATORS(&partition, graph);
+	CALCULATE_REGULATORS(&null_partition, graph);
+	//printPartitionReg(partition);
+	//printPartitionReg(null_partition);
+
+	printAllPartition(partition);
+	
+
+	//printPartitionSize(null_partition);
+	//printf("%d %d\n", non_trivial_fibers, total_nodes);
 	printf("Number of fiber: %d\n", size+presize);
 	//printAllPartition(partition);
     ////////////////////////////////////////////////////////////////////////////////////

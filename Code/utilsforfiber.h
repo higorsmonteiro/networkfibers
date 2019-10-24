@@ -35,7 +35,7 @@ typedef struct adjList AdjList;
 struct NodeAdj
 {
 	int neighbor;
-    int regulator;
+    int type_link;
 	struct NodeAdj* next;
     //struct NodeAdj* next_out;
 };
@@ -46,7 +46,7 @@ NodeAdj* createNode(int neigh, int type_link)
 	NodeAdj* newnode = (NodeAdj*)malloc(sizeof(NodeAdj));
 	newnode->neighbor = neigh;
 	newnode->next = NULL;
-    newnode->regulator = type_link;
+    newnode->type_link = type_link;
 	return newnode;
 }
 
@@ -55,7 +55,7 @@ extern Graph* createGraph(int N)
 	Graph* graph = (Graph*)malloc(sizeof(Graph));
 	graph->size = N;
 
-	// Array of NodeAdj's
+	// Array of NodeAdj's //
 	graph->array = (AdjList*)malloc(N*sizeof(AdjList));
 
 	int j;
@@ -72,8 +72,7 @@ void addEdges(int** edges, Graph* graph, int* regulator, int nE)
 		// 'node1' -> 'node2' directed link.
         node1 = edges[j][0];
 		node2 = edges[j][1];
-		//reg = regulator[j];
-		reg = 1;
+		reg = regulator[j];
 
 		NodeAdj* newnode1 = createNode(node1, reg);
 		NodeAdj* newnode2 = createNode(node2, reg);
@@ -85,32 +84,33 @@ void addEdges(int** edges, Graph* graph, int* regulator, int nE)
 	}
 }
 
-extern int** defineNetwork(int** edges, int* regulator, Graph* graph, char* filename)
+extern int** defineNetwork(int** edges, Graph* graph, char* filename)
 {
 	FILE *EDGE_FILE = fopen(filename, "r");
 	if(EDGE_FILE==NULL) printf("ERROR in file reading");
 
 	int i, j;
+	char type[20];
 	int r = 1;
 	int nlink = 0; // number of links.
 	while(r) // Calculates the number of lines in the file
 	{
-		r = fscanf(EDGE_FILE, "%d\t%d\n", &i, &j);
+		r = fscanf(EDGE_FILE, "%d\t%d\t%s\n", &i, &j, &type);
 		if(r==EOF) break;
 		nlink++;
 	}
 	rewind(EDGE_FILE);
 
 	edges = (int**)malloc(nlink*sizeof(int*));
-    //regulator = (int*)malloc(nlink*sizeof(int));
+    int* regulator = (int*)malloc(nlink*sizeof(int));
 	for(j=0; j<nlink; j++)
 	{
 		edges[j] = (int*)malloc(2*sizeof(int));
-		r = fscanf(EDGE_FILE, "%d\t%d\n", &edges[j][0], &edges[j][1]);
-        //if(strcmp("+", k)==0) regulator[j] = 0;
-        //else if(strcmp("-", k)==0) regulator[j] = 1;
-        //else if(strcmp("+-", k)==0) regulator[j] = 2;
-        //else regulator[j] = -1;
+		r = fscanf(EDGE_FILE, "%d\t%d\t%s\n", &edges[j][0], &edges[j][1], &type);
+        if(strcmp("positive", type)==0) regulator[j] = 0;
+        else if(strcmp("negative", type)==0) regulator[j] = 1;
+        else if(strcmp("dual", type)==0) regulator[j] = 2;
+        else regulator[j] = -1;
 	}
 	fclose(EDGE_FILE);
 	
@@ -123,87 +123,55 @@ extern int** defineNetwork(int** edges, int* regulator, Graph* graph, char* file
 ///////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////// GRAPH OPERATIONS ////////////////////////////////
-
-struct neigh_vector
-{
-	int neigh;
-	int color;
-};
-typedef struct neigh_vector neigh_vector;
-
-// To sort in ascendent order //
-int cmpcolor(const void *a, const void *b)
-{
-    neigh_vector *a1 = (neigh_vector *)a;
-    neigh_vector *a2 = (neigh_vector *)b;
-    if ((*a1).color > (*a2).color)
-        return 1;
-    else if ((*a1).color < (*a2).color)
-        return -1;
-    else
-        return 0;
-}
-
-extern neigh_vector* GET_inNEIGH(Graph* graph, int* nodecolor, int node, int N)
+extern int* GET_INNEIGH(Graph* graph, int node)
 {
 	int n_in = 0;	
-	NodeAdj* NODE = graph->array[node].head_in;
-	while(NODE)
-	{
-		n_in++;
-		NODE = NODE->next;
-	}
-	neigh_vector* neighbors = (neigh_vector*)malloc((n_in)*sizeof(neigh_vector));
+	NodeAdj* NODE;
+	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next) n_in++;
 
 	int n_index = 0;
-	NODE = graph->array[node].head_in;
-	while(NODE)
-	{
-		neighbors[n_index].neigh = NODE->neighbor;
-		neighbors[n_index].color = nodecolor[NODE->neighbor];
-		n_index++;
-		NODE = NODE->next;
-	}
-	qsort(neighbors, n_in, sizeof(neighbors[0]), cmpcolor);
-	return neighbors;
+	int* in_neighbors = (int*)malloc(n_in*sizeof(int));
+	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next)
+		in_neighbors[n_index++] = NODE->neighbor;
+	return in_neighbors; 
 }
 
-extern neigh_vector* GET_outNEIGH(Graph* graph, int* nodecolor, int node, int N)
+extern int* GET_OUTNEIGH(Graph* graph, int node)
 {
-	int n_out = 0;	
-	NodeAdj* NODE = graph->array[node].head_out;
-	while(NODE)
-	{
-		n_out++;
-		NODE = NODE->next;
-	}
+	int n_in = 0;	
+	NodeAdj* NODE;
+	for(NODE=graph->array[node].head_out; NODE!=NULL; NODE=NODE->next) n_in++;
 
-	neigh_vector* neighbors = (neigh_vector*)malloc(n_out*sizeof(neigh_vector));
-
-	n_out = 0;
-	NODE = graph->array[node].head_out;
-	while(NODE)
-	{
-		neighbors[n_out].neigh = NODE->neighbor;
-		neighbors[n_out].color = nodecolor[NODE->neighbor];
-		n_out++;
-		NODE = NODE->next;
-	}
-	qsort(neighbors, n_out, sizeof(neighbors[0]), cmpcolor);
-	
-	return neighbors;
+	int n_index = 0;
+	int* in_neighbors = (int*)malloc(n_in*sizeof(int));
+	for(NODE=graph->array[node].head_out; NODE!=NULL; NODE=NODE->next)
+		in_neighbors[n_index++] = NODE->neighbor;
+	return in_neighbors; 
 }
 
 extern int GETNin(Graph* graph, int node)
 {
 	int n_in = 0;	
-	NodeAdj* NODE = graph->array[node].head_in;
-	while(NODE)
-	{
-		n_in++;
-		NODE = NODE->next;
-	}
-	return n_in;
+	NodeAdj* NODE;
+	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next) n_in++;
+	return n_in;	
+}
+
+extern int NinREG(Graph* graph, int node, int type)
+{
+	int n_in = 0;	
+	NodeAdj* NODE;
+	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next)
+		if(NODE->type_link==type) n_in++;
+	return n_in;	
+}
+
+extern int GETNout(Graph* graph, int node)
+{
+	int n_out = 0;	
+	NodeAdj* NODE;
+	for(NODE=graph->array[node].head_out; NODE!=NULL; NODE=NODE->next) n_out++;
+	return n_out;	
 }
 
 extern void PrintInNeighbors(Graph* graph, int node, int N)
@@ -335,13 +303,6 @@ extern int** arrint2d(int lines, int columns)
     }
     return arr;
 }
-
-extern void free2d(int** arr, int rows, int columns)
-{
-	int i;
-	for(i=0; i<rows; i++) free(arr[i]);
-	free(arr);
-}
 ////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////
 
@@ -359,6 +320,8 @@ struct BLOCK
 {
     int size;
 	int index;
+	int aux1;
+	int aux2;
     DoublyLinkNode* head;
 };
 typedef struct BLOCK BLOCK;
@@ -368,6 +331,8 @@ struct Partition
 	BLOCK* block;
 	struct Partition* prev;
 	struct Partition* next;
+	int number_regulators;	
+	DoublyLinkNode* regulators;
 };
 typedef struct Partition PART;
 ///////////////////////////////////////////////////////////
@@ -379,7 +344,7 @@ extern int doublycheck_element(DoublyLinkNode* head, int element)
 	return 0;
 }
 
-extern int edgesfromSet(Graph* graph, int node, BLOCK* Set)
+extern int edgesfromSet(Graph* graph, int node, BLOCK* Set, int type)
 {
 	int check;	
 	NodeAdj* Node;
@@ -387,6 +352,7 @@ extern int edgesfromSet(Graph* graph, int node, BLOCK* Set)
 	int n_in = 0;
 	for(Node=graph->array[node].head_in; Node!=NULL; Node=Node->next)
 	{
+		if(Node->type_link!=type) continue;		
 		check = doublycheck_element(Set->head, Node->neighbor);
 		if(check==1) n_in++;
 	}
@@ -630,6 +596,13 @@ void printPartitionSize(PART* part)
 		temp = temp->next;
 	}
 	printf("Partition size: %d\n", i);
+}
+
+void printPartitionReg(PART* part)
+{
+	PART* temp;
+	for(temp=part; temp!=NULL; temp=temp->next)
+		if(temp->block->size>1) printf("Number of external regulators of block %d: %d\n", temp->block->index, temp->number_regulators);
 }
 
 int GetPartitionSize(PART* part)
