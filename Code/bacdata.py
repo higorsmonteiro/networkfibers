@@ -3,13 +3,14 @@ import pandas as pd
 from collections import defaultdict
 
 name_relation = defaultdict(list)
-table = pd.read_csv("../Data/rawData/interactions_bacilus.txt", sep=" ", names=['Source', 'Target'])
+#table = pd.read_csv("../Data/rawData/interactions_bacilus.txt", sep=" ", names=['Source', 'Target'])
+table = pd.read_csv("../Data/Ecoli/Ecoli.txt", sep=" ", names=['Source', 'Target', 'Regulation'])
 
 number_lines = len(table.index)
 edgelist = np.zeros([number_lines, 2], int)
 
-sources = list(table['Source'][1:])
-targets = list(table['Target'][1:])
+sources = list(table['Source'][:])
+targets = list(table['Target'][:])
 sources = sources + targets
 sources = list(set(sources))
 
@@ -22,5 +23,6 @@ for index, row in table.iterrows():
     edgelist[index, 0] = labels[sources.index(src)]
     edgelist[index, 1] = labels[sources.index(dest)]
 
-np.savetxt("../Data/BacillusNgenes.dat", [labels.shape[0]], fmt="%d")
-np.savetxt("../Data/Bacillusedgelist.dat", edgelist[1:,:], fmt="%d")
+print(edgelist.shape)
+np.savetxt("../Data/ECOLINgenes.dat", [labels.shape[0]], fmt="%d")
+np.savetxt("../Data/ECOLIedgelist.dat", edgelist, fmt="%d")

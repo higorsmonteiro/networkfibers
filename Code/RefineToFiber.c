@@ -155,10 +155,14 @@ void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK*
 	PART* subpart2 = NULL;
 	PART* current_part = NULL;
 
+	int size = Set->size;
+	//int* test = (int*)malloc(size*sizeof(int));
+	//for(i=0; i<size; i++) test[i] = 0;
+
 	N = 0;
 	DoublyLinkNode* nodelist;
-	for(nodelist=Set->head; nodelist!=NULL; nodelist = nodelist->next) if(onset[nodelist->data]==1) N = 1;
-	if(N==1) return;
+	for(nodelist=Set->head; nodelist!=NULL; nodelist = nodelist->next) if(onset[nodelist->data]==1) N++;
+	if(N==size) return;
 	
 /*	Precompute the number of edges coming from 'Set' for each node in the network. */
 	int* n_fromSet = (int*)malloc((graph->size)*sizeof(int));
@@ -241,11 +245,11 @@ void InitiateBlock(PART** Null_Part, int node)
 	push_block(Null_Part, new_block);
 }
 
-int* UPGRADE_SET(BLOCK* block, int* onset)
+int UPGRADE_SET(BLOCK* block, int* onset)
 {
 	DoublyLinkNode* nodelist;
 	for(nodelist=block->head; nodelist!=NULL; nodelist=nodelist->next)	onset[nodelist->data] = 1;
-	return onset;
+	//return onset;
 }
 
 void PREPROCESSING(BLOCK** P, BLOCK** NonP, PART** Null_Part, Graph* graph, int N)
@@ -285,7 +289,6 @@ int main(int argv, char** argc)
 	if(UTIL==NULL) printf("ERROR IN FILE READING\n");
 	fscanf(UTIL, "%d\n", &N);
 	fclose(UTIL);
-	M = nlines_file(net_edges, 3);	// Number of edges.
     ///////////////////////////////////////////////////
 
     // Creates the graph structure for N nodes
@@ -326,26 +329,15 @@ int main(int argv, char** argc)
 	{
 		time++;		
 		CurrentSet = dequeue_block(&qhead, &qtail);
-		stability = STABILITYCHECKER(&partition, CurrentSet, graph);
-		if(stability==1) continue;
 		S_SPLIT(&partition, CurrentSet, graph, &qhead, &qtail, onset);
-		printf("%d\n", stability);
-		//if(time>1) onset = UPGRADE_SET(CurrentSet, onset);
+		//stability = STABILITYCHECKER(&partition, CurrentSet, graph);
+		//f(stability==1) continue;
+		//printf("%d\n", stability);
+		//printPartitionSize(partition);
+		if(time>1) UPGRADE_SET(CurrentSet, onset);
 	}
 	int size = GetPartitionSize(partition);
 	int presize = GetPartitionSize(null_partition);
-
-	
-	
-	//PART* temp;
-	//for(temp=partition; temp!=NULL; temp = temp->next)
-	//{
-	//	printf("%d\n", temp->block->size);
-	//	printf("block: "); printBlock(temp->block);
-	//}
-	
-
-
 	//printf("%d\n", presize);
 	printf("Number of fiber: %d\n", size+presize);
 	//printAllPartition(partition);

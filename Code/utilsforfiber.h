@@ -72,7 +72,8 @@ void addEdges(int** edges, Graph* graph, int* regulator, int nE)
 		// 'node1' -> 'node2' directed link.
         node1 = edges[j][0];
 		node2 = edges[j][1];
-		reg = regulator[j];
+		//reg = regulator[j];
+		reg = 1;
 
 		NodeAdj* newnode1 = createNode(node1, reg);
 		NodeAdj* newnode2 = createNode(node2, reg);
@@ -90,27 +91,26 @@ extern int** defineNetwork(int** edges, int* regulator, Graph* graph, char* file
 	if(EDGE_FILE==NULL) printf("ERROR in file reading");
 
 	int i, j;
-	char k[5];
 	int r = 1;
 	int nlink = 0; // number of links.
 	while(r) // Calculates the number of lines in the file
 	{
-		r = fscanf(EDGE_FILE, "%d\t%d\t%s\n", &i, &j, &k);
+		r = fscanf(EDGE_FILE, "%d\t%d\n", &i, &j);
 		if(r==EOF) break;
 		nlink++;
 	}
 	rewind(EDGE_FILE);
 
 	edges = (int**)malloc(nlink*sizeof(int*));
-    regulator = (int*)malloc(nlink*sizeof(int));
+    //regulator = (int*)malloc(nlink*sizeof(int));
 	for(j=0; j<nlink; j++)
 	{
 		edges[j] = (int*)malloc(2*sizeof(int));
-		r = fscanf(EDGE_FILE, "%d\t%d\t%s\n", &edges[j][0], &edges[j][1], &k);
-        if(strcmp("+", k)==0) regulator[j] = 0;
-        else if(strcmp("-", k)==0) regulator[j] = 1;
-        else if(strcmp("+-", k)==0) regulator[j] = 2;
-        else regulator[j] = -1;
+		r = fscanf(EDGE_FILE, "%d\t%d\n", &edges[j][0], &edges[j][1]);
+        //if(strcmp("+", k)==0) regulator[j] = 0;
+        //else if(strcmp("-", k)==0) regulator[j] = 1;
+        //else if(strcmp("+-", k)==0) regulator[j] = 2;
+        //else regulator[j] = -1;
 	}
 	fclose(EDGE_FILE);
 	
@@ -292,7 +292,7 @@ extern int nlines_file(char* filename, int ncolumns)
 	while(r) // Calculates the number of lines in the file
 	{
 		if(ncolumns==3) r = fscanf(MODFILE, "%d\t%d\t%s\n", &i, &j, &ch);
-		else if(ncolumns==6) r = fscanf(MODFILE, "%d\t%d\t%d\t%d\t%d\t%d\n", &i, &j, &k, &x, &y, &z);
+		else if(ncolumns==2) r = fscanf(MODFILE, "%d\t%d\n", &i, &j);
 		if(r==EOF) break;
 		ne++;
 	}
