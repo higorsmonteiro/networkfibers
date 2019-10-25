@@ -53,21 +53,22 @@ void CALCULATE_FUNDAMENTAL(PART** partition, Graph* graph)
 		n_nodes = current_part->block->size;
 		nregulators = current_part->number_regulators;
 		nn = n_nodes+nregulators;
-		printf("%d\n", nn);
 
 		index = 0;
 		temp_index = (int*)malloc(nn*sizeof(int));
     	temp_adjmatrix = (double*)malloc(nn*nn*sizeof(double));
 		for(nodelist=current_part->regulators; nodelist!=NULL; nodelist=nodelist->next)
 		{
-			temp_index[index++] = nodelist->data;
-			//index++;
+			temp_index[index] = nodelist->data;
+			index++;
 		}
 		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
 		{
-			temp_index[index++] = nodelist->data;
-			//index++;
+			temp_index[index] = nodelist->data;
+			index++;
 		}
+		//for(i=0; i<nn; i++) printf("%d ", temp_index[i]);
+		//printf("\n");
 		//Now we construct the current fiber adjacency matrix to calculate its eigenvalues.
 		for(j=0; j<nn; j++)
     	{
@@ -78,6 +79,7 @@ void CALCULATE_FUNDAMENTAL(PART** partition, Graph* graph)
 				else temp_adjmatrix[j*nn + k] = 0.0;
 			}
 		}
+		//for(i=0; i<(nn*nn); i++) printf("%lf ", temp_adjmatrix[i]);
 		/////////// GSL PACKAGE ROUTINES TO EIGENSYSTEMS PROBLEMS ////////////
         gsl_matrix_view m = gsl_matrix_view_array(temp_adjmatrix, nn, nn);
         // 'eval' will gonna stores all the 'nn' eigenvalues of the fiber adjacency matrix.
@@ -118,7 +120,7 @@ void CALCULATE_REGULATORS(PART** partition, Graph* graph)
 				if(boolean_out==0 && boolean_in==0)
 				{ 
 					push_doublylist(&(current_part->regulators), in_neighbors[i]); 
-					current_part->number_regulators += 1;
+					current_part->number_regulators++;
 				}
 			}
 		}
@@ -431,12 +433,19 @@ int main(int argv, char** argc)
 	CALCULATE_REGULATORS(&partition, graph);
 	CALCULATE_REGULATORS(&null_partition, graph);
 	// Calculates fundamental class number for each fiber block.
-	//CALCULATE_FUNDAMENTAL(&partition, graph);
+	CALCULATE_FUNDAMENTAL(&partition, graph);
 	////////////////////////////////////////////////////////////////////////////////////////////
 	//printPartitionReg(partition);
 	//printPartitionReg(null_partition);
-	//ShowMainInfo(partition);
+	ShowMainInfo(partition);
 
+	nfibers = 0;
+	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
+	{
+		if(current_part->block->size>1) nfibers++;
+		if(current_part->block->size==1) if((current_part->fundamental_number)>3.0) nfibers++;
+	}
+	printf("%d\n", nfibers);
 	//printAllPartition(partition);
 	
 

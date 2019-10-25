@@ -156,7 +156,7 @@ extern int NinREG(Graph* graph, int node, int type)
 extern int CHECKLINK(Graph* graph, int pointing_node, int pointed_node)
 {
 	NodeAdj* Node;
-	for(Node=graph->array[pointed_node].head_out; Node!=NULL; Node=Node->next)
+	for(Node=graph->array[pointing_node].head_out; Node!=NULL; Node=Node->next)
 		if(Node->neighbor==pointed_node) return 1;
 	return 0;
 }

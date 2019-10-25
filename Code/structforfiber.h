@@ -1,11 +1,8 @@
 #ifndef FSTRUCTS_H
 #define FSTRUCTS_H
 
-<<<<<<< HEAD
 #include <stdio.h>
 
-=======
->>>>>>> 5ed1a80eec686b9c985f6885cace800e635c0890
 /////////////////////////////////////////////////////////////////////
 /// Structures to create and define a directed, unweighted graph ///
 ////////////////////////////////////////////////////////////////////
@@ -193,20 +190,12 @@ void printPartitionReg(PART* part)
 		if(temp->block->size>1) printf("Number of external regulators of block %d: %d\n", temp->block->index, temp->number_regulators);
 }
 
-void printPartitionReg(PART* part)
-{
-	int valid_fibers = 0;
-	PART* temp;
-	for(temp=part; temp!=NULL; temp=temp->next)
-		if(temp->block->size>1) printf("Number of external regulators of block %d: %d\n", temp->block->index, temp->number_regulators);
-}
-
 void ShowMainInfo(PART* partition)
 {
 	PART* current_part;
 	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	{
-		printf("Fiber %d: Size %d - Fundamental Class %d - Subclass %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
+		printf("Fiber %d: Size %d - Fundamental Class %lf - Subclass %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
 	}
 }
 #endif
