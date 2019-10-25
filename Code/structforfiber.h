@@ -1,8 +1,10 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#ifndef FSTRUCTS_H
+#define FSTRUCTS_H
 
+////////////////////////// DATA STRUCTS //////////////////////////////////
+/////////////////////////////////////////////////////////////////////
+/// Structures to create and define a directed, unweighted graph ///
+////////////////////////////////////////////////////////////////////
 // Define a graph containing 'size' nodes
 struct Graph
 {
@@ -23,18 +25,14 @@ typedef struct adjList AdjList;
 struct NodeAdj
 {
 	int neighbor;
-    int regulator;
+    int type_link;
 	struct NodeAdj* next;
 };
 typedef struct NodeAdj NodeAdj;
+//////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////
 
-struct neigh_vector
-{
-	int neigh;
-	int color;
-};
-typedef struct neigh_vector neigh_vector;
-
+////////////////////// STACK DATA STRUCTURE ///////////////////////
 struct stack
 {
 	int extn;
@@ -42,7 +40,9 @@ struct stack
 	struct stack *next;
 };
 typedef struct stack Stack;
+/////////////////////////////////////////////////////////////////////
 
+////////////////// DOUBLE LINKED LIST DATA STRUCTURE //////////////////
 struct DoublyLinkNode
 {
     int data;
@@ -51,12 +51,26 @@ struct DoublyLinkNode
 };
 typedef struct DoublyLinkNode DoublyLinkNode;
 
-struct Block
+struct BLOCK
 {
     int size;
-    DoublyLinkNode* head;   // The doubly linked list of the block containing the elements on it.
+	int index;
+	int aux1;
+	int aux2;
+    DoublyLinkNode* head;
 };
-typedef struct Block BLOCK;
+typedef struct BLOCK BLOCK;
+
+struct Partition
+{
+	BLOCK* block;
+	struct Partition* prev;
+	struct Partition* next;
+	int number_regulators;	
+	DoublyLinkNode* regulators;
+};
+typedef struct Partition PART;
+////////////////////////////////////////////////////////////////////////
 
 struct QueueOfBlocks
 {
@@ -64,3 +78,121 @@ struct QueueOfBlocks
     struct QueueOfBlocks* next;
 };
 typedef struct QueueOfBlocks QBLOCK;
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+extern void PrintInNeighbors(Graph* graph, int node, int N)
+{
+	NodeAdj* Inode = graph->array[node].head_in;
+	printf("Node %d: ", node);
+	while(Inode)
+	{
+		printf("%d ", Inode->neighbor);
+		Inode = Inode->next;
+	}
+	printf("\n");
+}
+
+extern void PrintOutNeighbors(Graph* graph, int node, int N)
+{
+	NodeAdj* Inode = graph->array[node].head_out;
+	printf("Node %d: ", node);
+	while(Inode)
+	{
+		printf("%d ", Inode->neighbor);
+		Inode = Inode->next;
+	}
+	printf("\n");
+}
+
+extern void printGraph(Graph* graph)
+{
+	int j;
+	for(j=0; j<graph->size; j++)
+	{
+		printf("NODE %d\nin:", j);
+        NodeAdj* SeeAux = graph->array[j].head_in;
+        NodeAdj* SeeAux1 = graph->array[j].head_out;
+		while(SeeAux)
+		{
+			printf("<-%d", SeeAux->neighbor);
+			SeeAux = SeeAux->next; 
+		}
+		printf("\nout:");
+        while(SeeAux1)
+        {
+            printf("->%d", SeeAux1->neighbor);
+			SeeAux1 = SeeAux1->next;
+        }
+        printf("\n");
+	}
+}
+
+void printBlock(BLOCK* P)
+{
+    DoublyLinkNode* List = P->head;
+    while(List)
+    {
+        printf("%d ", List->data);
+        List = List->next;
+    }
+	printf("\n");
+}
+
+void printBlockSize(BLOCK* P)
+{
+	printf("Size: %d\n", P->size);
+}
+
+int GetBlockSize(BLOCK* P)
+{
+	return P->size;
+}
+
+void printAllPartition(PART* head)
+{
+	if(head==NULL) printf("EMPTY\n");	
+	PART* temp = head;
+	BLOCK* aux_block = NULL;
+	while(temp)
+	{
+		aux_block = temp->block;
+		printf("Block %d with size %d: ", aux_block->index, aux_block->size);
+		printBlock(aux_block);
+		temp = temp->next;
+	}
+}
+
+void printPartition(PART* P)
+{
+    PART* part = P;
+	BLOCK* tempblock;
+    while(part)
+    {
+		tempblock = part->block;       
+		printf("%d ", tempblock->index);
+        part = part->next;
+    }
+	printf("\n");
+}
+
+void printPartitionSize(PART* part)
+{
+	int i = 0;
+	PART* temp = part;
+	while(temp)
+	{
+		i++;
+		temp = temp->next;
+	}
+	printf("Partition size: %d\n", i);
+}
+
+void printPartitionReg(PART* part)
+{
+	PART* temp;
+	for(temp=part; temp!=NULL; temp=temp->next)
+		if(temp->block->size>1) printf("Number of external regulators of block %d: %d\n", temp->block->index, temp->number_regulators);
+}
+
+#endif
