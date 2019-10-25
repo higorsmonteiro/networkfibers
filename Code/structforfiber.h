@@ -1,8 +1,11 @@
 #ifndef FSTRUCTS_H
 #define FSTRUCTS_H
 
+<<<<<<< HEAD
 #include <stdio.h>
 
+=======
+>>>>>>> 5ed1a80eec686b9c985f6885cace800e635c0890
 /////////////////////////////////////////////////////////////////////
 /// Structures to create and define a directed, unweighted graph ///
 ////////////////////////////////////////////////////////////////////

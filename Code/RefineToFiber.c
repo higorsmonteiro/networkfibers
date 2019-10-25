@@ -32,6 +32,7 @@
 // Separated personal constructed modules for graph data and fibration specific functions.
 #include "utilsforfiber.h"
 #include "structforfiber.h"
+/////////////////////////////////////////////////////////////////////////////////////////
 #define SENTINEL -96
 
 void CALCULATE_FUNDAMENTAL(PART** partition, Graph* graph)
@@ -430,11 +431,11 @@ int main(int argv, char** argc)
 	CALCULATE_REGULATORS(&partition, graph);
 	CALCULATE_REGULATORS(&null_partition, graph);
 	// Calculates fundamental class number for each fiber block.
-	CALCULATE_FUNDAMENTAL(&partition, graph);
+	//CALCULATE_FUNDAMENTAL(&partition, graph);
 	////////////////////////////////////////////////////////////////////////////////////////////
 	//printPartitionReg(partition);
 	//printPartitionReg(null_partition);
-	ShowMainInfo(partition);
+	//ShowMainInfo(partition);
 
 	//printAllPartition(partition);
 	
