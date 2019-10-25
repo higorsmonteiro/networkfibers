@@ -1,8 +1,11 @@
-/*	This module contains a compilation of utility functions of some
-	type of situations. Specially, here we define the functions necessary
-	to construct directed and undirected networks. 
+/*	In this module, I define all the functions that are, direct or indirectly, useful
+	for the main fibration routines needed to a correct implementation for the partition
+	refinement algorithm. Also, here I define my own functions to construct undirected 
+	networks. All the handmade data structures used are defined in 'structforfiber.h'.
 
 	Author: Higor da S. Monteiro - Universidade Federal do Ceará
+	Email: higor.monteiro@fisica.ufc.br
+	Complex System Lab - Departament of Physics/Universidade Federal do Ceará (UFC)
 */
 
 #ifndef UTILS_H
@@ -149,6 +152,14 @@ extern int NinREG(Graph* graph, int node, int type)
 		if(NODE->type_link==type) n_in++;
 	return n_in;	
 }
+
+extern int CHECKLINK(Graph* graph, int pointing_node, int pointed_node)
+{
+	NodeAdj* Node;
+	for(Node=graph->array[pointed_node].head_out; Node!=NULL; Node=Node->next)
+		if(Node->neighbor==pointed_node) return 1;
+	return 0;
+}
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
@@ -190,9 +201,9 @@ extern Stack *pop(Stack* top)
 
 ///////////////////////////////////////////////////////////////////////
 ////////////////// DOUBLE LINKED LIST DATA STRUCTURE //////////////////
-extern int doublycheck_element(DoublyLinkNode* head, int element)
+extern int doublycheck_element(NODELIST* head, int element)
 {
-	DoublyLinkNode* nodelist = head;
+	NODELIST* nodelist = head;
 	for(nodelist=head; nodelist!=NULL; nodelist=nodelist->next)
 		if(nodelist->data==element) return 1;
 	return 0;
@@ -213,9 +224,9 @@ extern int edgesfromSet(Graph* graph, int node, BLOCK* Set, int type)
 	return n_in;	
 }
 
-extern void push_doublylist(DoublyLinkNode** head, int insertion)
+extern void push_doublylist(NODELIST** head, int insertion)
 {
-    DoublyLinkNode* new_node = (DoublyLinkNode*)malloc(sizeof(DoublyLinkNode));
+    NODELIST* new_node = (NODELIST*)malloc(sizeof(NODELIST));
     
     new_node->data = insertion;
     new_node->next = (*head);
@@ -232,9 +243,9 @@ extern void add_to_block(BLOCK** block, int node)
 	(*block)->size++;
 }
 
-extern void Copy_NodeList(DoublyLinkNode** dest, DoublyLinkNode* source)
+extern void Copy_NodeList(NODELIST** dest, NODELIST* source)
 {
-	DoublyLinkNode* aux = source;
+	NODELIST* aux = source;
 	while(aux)
 	{
 		push_doublylist(dest, aux->data);
@@ -242,12 +253,12 @@ extern void Copy_NodeList(DoublyLinkNode** dest, DoublyLinkNode* source)
 	}
 }
 
-extern void insertAfter(DoublyLinkNode* prev_node, int insertion)
+extern void insertAfter(NODELIST* prev_node, int insertion)
 {
     if (prev_node == NULL) return; 
 
     /* 2. allocate new node */
-    DoublyLinkNode* new_node = (DoublyLinkNode*)malloc(sizeof(DoublyLinkNode)); 
+    NODELIST* new_node = (NODELIST*)malloc(sizeof(NODELIST)); 
   
     new_node->data = insertion; 
     new_node->next = prev_node->next; 
@@ -259,12 +270,12 @@ extern void insertAfter(DoublyLinkNode* prev_node, int insertion)
         new_node->next->prev = new_node; 
 }
 
-extern void append(DoublyLinkNode** head, int new_data)
+extern void append(NODELIST** head, int new_data)
 {
     /* Allocate node */
-    DoublyLinkNode* new_node = (DoublyLinkNode*)malloc(sizeof(DoublyLinkNode)); 
+    NODELIST* new_node = (NODELIST*)malloc(sizeof(NODELIST)); 
   
-    DoublyLinkNode* last = *head; /* used in step 5*/
+    NODELIST* last = *head; /* used in step 5*/
   
     new_node->data = new_data;
     new_node->next = NULL; 
@@ -291,8 +302,8 @@ int EqualBlocks(BLOCK* block1, BLOCK* block2)
 {
 	if(block1->size!=block2->size) return -1;
 	
-	DoublyLinkNode* head1 = block1->head;
-	DoublyLinkNode* head2 = block2->head;	
+	NODELIST* head1 = block1->head;
+	NODELIST* head2 = block2->head;	
 	while(head1)
 	{
 		if(head1->data!=head2->data) return -1;
@@ -303,7 +314,7 @@ int EqualBlocks(BLOCK* block1, BLOCK* block2)
 	return 1;
 }
 
-void deleteNode(DoublyLinkNode** head_ref, DoublyLinkNode* del) 
+void deleteNode(NODELIST** head_ref, NODELIST* del) 
 { 
     /* base case */
     if (*head_ref == NULL || del == NULL) 
@@ -331,7 +342,7 @@ void DeletePart(PART** head_ref, PART* del)
 	BLOCK* tempblock = (del)->block;    
 	if(tempblock!=NULL)	// First delete all the nodes of the block.
 	{
-		DoublyLinkNode* temp = tempblock->head;
+		NODELIST* temp = tempblock->head;
 		while(temp) { deleteNode(&temp, temp); }
 	}
   
@@ -403,6 +414,36 @@ int GetPartitionSize(PART* part)
 	}
 	return i;
 }
+
+int GetBlockSize(BLOCK* P)
+{
+	return P->size;
+}
+
+int GetFiberNumber(PART* part)
+{
+	int nfibers = 0;
+	PART* current_part;
+	for(current_part=part; current_part!=NULL; current_part=current_part->next)
+		if(current_part->block->size>1) nfibers++;
+	return nfibers;
+}
+
+int GetFiberNumber1(PART* part, PART* nullpart)
+{
+	int nfibers = 0;
+	PART* current_part;
+	NODELIST* nodelist;
+	for(current_part=part; current_part!=NULL; current_part=current_part->next)
+	{
+		int ntemp = 0;
+		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next) ntemp++;
+		if(ntemp>1) nfibers++;
+	}
+	return nfibers;
+}
+
+
 /////////////////////////////////////////////////////////////
 
 ///////// IMPLEMENTATION OF QUEUE DATA STRUCTURE ////////
@@ -418,7 +459,7 @@ BLOCK* COPYBLOCK(BLOCK* P)
 	new->index = index;
 	new->head = NULL;
 
-	DoublyLinkNode* current_node = P->head;
+	NODELIST* current_node = P->head;
 	while(current_node)
 	{
 		push_doublylist(&(new)->head, current_node->data);
@@ -488,5 +529,6 @@ void printQueue(QBLOCK* head)
 		temp = temp->next;
 	}
 }
+//////////////////////////////////////////////////////////////////////////////////////////
 
 #endif

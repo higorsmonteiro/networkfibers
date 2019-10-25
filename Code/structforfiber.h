@@ -1,7 +1,8 @@
 #ifndef FSTRUCTS_H
 #define FSTRUCTS_H
 
-////////////////////////// DATA STRUCTS //////////////////////////////////
+#include <stdio.h>
+
 /////////////////////////////////////////////////////////////////////
 /// Structures to create and define a directed, unweighted graph ///
 ////////////////////////////////////////////////////////////////////
@@ -43,21 +44,22 @@ typedef struct stack Stack;
 /////////////////////////////////////////////////////////////////////
 
 ////////////////// DOUBLE LINKED LIST DATA STRUCTURE //////////////////
-struct DoublyLinkNode
+struct NODELIST
 {
     int data;
-    struct DoublyLinkNode* prev;
-    struct DoublyLinkNode* next;
+    struct NODELIST* prev;
+    struct NODELIST* next;
 };
-typedef struct DoublyLinkNode DoublyLinkNode;
+typedef struct NODELIST NODELIST;
 
 struct BLOCK
 {
     int size;
 	int index;
-	int aux1;
-	int aux2;
-    DoublyLinkNode* head;
+	int pos;
+	int neg;
+	int dual;
+    NODELIST* head;
 };
 typedef struct BLOCK BLOCK;
 
@@ -67,7 +69,8 @@ struct Partition
 	struct Partition* prev;
 	struct Partition* next;
 	int number_regulators;	
-	DoublyLinkNode* regulators;
+	double fundamental_number;
+	NODELIST* regulators;
 };
 typedef struct Partition PART;
 ////////////////////////////////////////////////////////////////////////
@@ -130,7 +133,7 @@ extern void printGraph(Graph* graph)
 
 void printBlock(BLOCK* P)
 {
-    DoublyLinkNode* List = P->head;
+    NODELIST* List = P->head;
     while(List)
     {
         printf("%d ", List->data);
@@ -142,11 +145,6 @@ void printBlock(BLOCK* P)
 void printBlockSize(BLOCK* P)
 {
 	printf("Size: %d\n", P->size);
-}
-
-int GetBlockSize(BLOCK* P)
-{
-	return P->size;
 }
 
 void printAllPartition(PART* head)
@@ -179,20 +177,33 @@ void printPartition(PART* P)
 void printPartitionSize(PART* part)
 {
 	int i = 0;
-	PART* temp = part;
-	while(temp)
-	{
-		i++;
-		temp = temp->next;
-	}
+	PART* temp;
+	for(temp=part; temp!=NULL; temp=temp->next) i++;
 	printf("Partition size: %d\n", i);
 }
 
 void printPartitionReg(PART* part)
 {
+	int valid_fibers = 0;
 	PART* temp;
 	for(temp=part; temp!=NULL; temp=temp->next)
 		if(temp->block->size>1) printf("Number of external regulators of block %d: %d\n", temp->block->index, temp->number_regulators);
 }
 
+void printPartitionReg(PART* part)
+{
+	int valid_fibers = 0;
+	PART* temp;
+	for(temp=part; temp!=NULL; temp=temp->next)
+		if(temp->block->size>1) printf("Number of external regulators of block %d: %d\n", temp->block->index, temp->number_regulators);
+}
+
+void ShowMainInfo(PART* partition)
+{
+	PART* current_part;
+	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
+	{
+		printf("Fiber %d: Size %d - Fundamental Class %d - Subclass %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
+	}
+}
 #endif
