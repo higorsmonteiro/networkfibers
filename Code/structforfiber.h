@@ -17,6 +17,7 @@ typedef struct Graph Graph;
 
 struct adjList
 {
+	char gene_name[60];	
 	struct NodeAdj* head_in;
     struct NodeAdj* head_out;
 };
@@ -142,6 +143,14 @@ void printBlock(BLOCK* P)
 	printf("\n");
 }
 
+void printBlockGene(BLOCK* P, Graph* graph)
+{
+    NODELIST* List = P->head;
+	for(List=P->head; List!=NULL; List=List->next)
+		printf("%s, ", graph->array[List->data].gene_name);
+	printf("\n");
+}
+
 void printBlockSize(BLOCK* P)
 {
 	printf("Size: %d\n", P->size);
@@ -157,6 +166,20 @@ void printAllPartition(PART* head)
 		aux_block = temp->block;
 		printf("Block %d with size %d: ", aux_block->index, aux_block->size);
 		printBlock(aux_block);
+		temp = temp->next;
+	}
+}
+
+void printGenesPartition(PART* head, Graph* graph)
+{
+	if(head==NULL) printf("EMPTY\n");	
+	PART* temp = head;
+	BLOCK* aux_block = NULL;
+	while(temp)
+	{
+		aux_block = temp->block;
+		printf("Block %d with size %d: ", aux_block->index, aux_block->size);
+		printBlockGene(aux_block, graph);
 		temp = temp->next;
 	}
 }

@@ -5,7 +5,7 @@ from collections import defaultdict
 
 name_relation = defaultdict(list)
 #table = pd.read_csv("../Data/rawData/interactions_bacilus.txt", sep=" ", names=['Source', 'Target'])
-table = pd.read_csv("../Data/Ecoli/Ecoli.txt", sep=" ", names=['Source', 'Target', 'Regulation'])
+table = pd.read_csv("../Data/Ecoli.txt", sep=" ", names=['Source', 'Target', 'Regulation'])
 
 destname = "../Data/ECOLINgenes.dat"
 edgelistname = "../Data/ECOLIedgelist.dat"
@@ -18,6 +18,7 @@ targets = list(table['Target'][:])
 types = list(table['Regulation'][:])
 sources = sources + targets
 sources = list(set(sources))
+sources.sort()
 
 print(set(types))
 
@@ -33,6 +34,11 @@ for index, row in table.iterrows():
     edgelist[index, 1] = labels[sources.index(dest)]
     type_reg.append(types[index])
 
+file = open("../Data/ECOLInameID.dat", "w")
+for index, name_str in enumerate(sources):
+	file.write("%s\t%d\n" % (name_str, labels[index]))
+file.close()
+
 file = open(destname, "w")
 file.write("%d\n" % ngenes)
 file.close()
@@ -41,3 +47,4 @@ file = open(edgelistname, "w")
 for index, type_str in enumerate(type_reg):
     file.write("%d\t%d\t%s\n" % (edgelist[index,0], edgelist[index,1], type_str))
 file.close()
+

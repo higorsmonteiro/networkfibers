@@ -16,7 +16,7 @@
 	file ('ARG1edgelist.dat') containing all the directed links between nodes (3 columns: "%d\t%d\t%s\n" -> Pointing Node/ Pointed Node/ 
 	Type of regulation). For gene regulatory networks, the type of the regulation can be positive, negative or dual.
 
-	The result is stored in two arrays: 'nodecolor' and 'edgecolor'. Each array store the color of each component (node or 
+	The result is stored in two arrays: 'nodefiber'. Each array store the color of each component (node or 
 	link) and, thus, gives all the information needed, together with the files, for the base graph construction.
 
 	Author: Higor da S. Monteiro
@@ -35,64 +35,64 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 #define SENTINEL -96
 
+
+/*	Calculates the fundamental class number. For that, for each fiber block, we select
+	all the nodes belonging to the block and all the external nodes that regulates that 
+	same fiber.	After that, construct the adjacency matrix for that set and obtain its
+	largest eigenvalue. */
 void CALCULATE_FUNDAMENTAL(PART** partition, Graph* graph)
 {
 	int i, j, k;
-	int neigh, index, nn;
-	int nregulators;
-	int n_nodes;
+	int check, index, nn;
+	int all_nodes;	
+	int number_fnodes;
+	int number_regulators;
 
-	int* temp_index;
-	double* temp_adjmatrix;
+	int* temp_index;			// Temporary indexation for each node in the circuit set.
+	double* temp_adjmatrix;		// n*n array to define the adjacency matrix.
 
-	int h = 0;
 	PART* current_part;
 	NODELIST* nodelist;
+	// Loop over all the fiber blocks.
 	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
 	{
-		n_nodes = current_part->block->size;
-		nregulators = current_part->number_regulators;
-		nn = n_nodes+nregulators;
+		number_fnodes = current_part->block->size;
+		number_regulators = current_part->number_regulators;
+		all_nodes = number_fnodes+number_regulators;
 
 		index = 0;
-		temp_index = (int*)malloc(nn*sizeof(int));
-    	temp_adjmatrix = (double*)malloc(nn*nn*sizeof(double));
-		for(nodelist=current_part->regulators; nodelist!=NULL; nodelist=nodelist->next)
-		{
-			temp_index[index] = nodelist->data;
-			index++;
-		}
+		temp_index = (int*)malloc(all_nodes*sizeof(int));
+    	temp_adjmatrix = (double*)malloc(all_nodes*all_nodes*sizeof(double));
+		// Get the correct nodes.		
 		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
-		{
-			temp_index[index] = nodelist->data;
-			index++;
-		}
-		//for(i=0; i<nn; i++) printf("%d ", temp_index[i]);
-		//printf("\n");
-		//Now we construct the current fiber adjacency matrix to calculate its eigenvalues.
-		for(j=0; j<nn; j++)
+			temp_index[index++] = nodelist->data;
+		for(nodelist=current_part->regulators; nodelist!=NULL; nodelist=nodelist->next)
+			temp_index[index++] = nodelist->data;
+		
+		//Now we construct the current circuit fiber adjacency matrix to calculate its eigenvalues.
+		for(j=0; j<all_nodes; j++)
     	{
-			for(k=0; k<nn; k++)
+			for(k=0; k<all_nodes; k++)
 			{
-				neigh = CHECKLINK(graph, temp_index[j], temp_index[k]); // A_{jk} = 1 if j -> k
-				if(neigh==1) temp_adjmatrix[j*nn + k] = 1.0;
-				else temp_adjmatrix[j*nn + k] = 0.0;
+				check = CHECKLINK(graph, temp_index[j], temp_index[k]); // A_{jk} = 1 if j -> k
+				if(check==1) temp_adjmatrix[j*all_nodes + k] = 1.0;
+				else temp_adjmatrix[j*all_nodes + k] = 0.0;
 			}
 		}
-		//for(i=0; i<(nn*nn); i++) printf("%lf ", temp_adjmatrix[i]);
+		
 		/////////// GSL PACKAGE ROUTINES TO EIGENSYSTEMS PROBLEMS ////////////
-        gsl_matrix_view m = gsl_matrix_view_array(temp_adjmatrix, nn, nn);
+        gsl_matrix_view m = gsl_matrix_view_array(temp_adjmatrix, all_nodes, all_nodes);
         // 'eval' will gonna stores all the 'nn' eigenvalues of the fiber adjacency matrix.
-        gsl_vector_complex *eval = gsl_vector_complex_alloc (nn);
+        gsl_vector_complex *eval = gsl_vector_complex_alloc (all_nodes);
 
-        gsl_eigen_nonsymm_workspace* w = gsl_eigen_nonsymm_alloc(nn);
+        gsl_eigen_nonsymm_workspace* w = gsl_eigen_nonsymm_alloc(all_nodes);
         gsl_eigen_nonsymm(&m.matrix, eval, w);
         gsl_eigen_nonsymm_free(w);
         //////////////////////////////////////////////////////////////////////
 
         double temp;
         double eigmax = gsl_vector_get(eval, 0);
-        for(j=1; j<nn; j++) { temp = gsl_vector_get(eval, j); if(temp>eigmax) eigmax = temp; }
+        for(j=1; j<all_nodes; j++) { temp = gsl_vector_get(eval, j); if(temp>eigmax) eigmax = temp; }
 		current_part->fundamental_number = eigmax;
 		free(temp_index);
 		free(temp_adjmatrix);
@@ -179,6 +179,44 @@ void Push_On_Block(int node, int nodeindex1, int nodeindex2, int nodeindex3, PAR
 	return;
 }
 
+void GET_NONSTABLE_BLOCKS1(PART** partition, PART** subpart, int* pos_fromSet, int* neg_fromSet, int* dual_fromSet, Graph* graph, BLOCK* Set)
+{
+	int node, nextnode;
+	int npos_node, npos_nextnode;
+	int nneg_node, nneg_nextnode;
+	int ndual_node, ndual_nextnode;
+	
+	PART* current_part;
+	NODELIST* nodelist;
+	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
+	{
+		nodelist = current_part->block->head;
+		if(nodelist!=NULL)
+		{
+			node = nodelist->data;
+			npos_node = pos_fromSet[node];
+			nneg_node = neg_fromSet[node];
+			ndual_node = dual_fromSet[node];
+		} 		
+		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+		{
+			//node = nodelist->data;
+			nextnode = nodelist->data;
+			//npos_node = pos_fromSet[node];				// Number of 'Set' positive edges received by 'node'
+			npos_nextnode = pos_fromSet[nextnode];		// Number of 'Set' positive edges received by 'nextnode'
+			//nneg_node = neg_fromSet[node];				// Number of 'Set' negatives edges received by 'node'
+			nneg_nextnode = neg_fromSet[nextnode];		// Number of 'Set' negatives edges received by 'nextnode'
+			//ndual_node = dual_fromSet[node];				// Number of 'Set' dual edges received by 'node'
+			ndual_nextnode = dual_fromSet[nextnode];		// Number of 'Set' dual edges received by 'nextnode'
+			if(((npos_node!=npos_nextnode) || (nneg_node!=nneg_nextnode)) || (ndual_node!=ndual_nextnode)) 
+			{
+				push_block(subpart, current_part->block); 
+				break; 
+			}
+		}
+	}
+}
+
 /*	Given the 'Set' block, now we select all the blocks in the 'partition' that aren't 
 	stable with respect to 'Set'. We store these blocks into 'subpart' partition structure. */
 void GET_NONSTABLE_BLOCKS(PART** partition, PART** subpart, int* pos_fromSet, int* neg_fromSet, int* dual_fromSet, Graph* graph, BLOCK* Set)
@@ -206,7 +244,10 @@ void GET_NONSTABLE_BLOCKS(PART** partition, PART** subpart, int* pos_fromSet, in
 				ndual_node = dual_fromSet[node];				// Number of 'Set' dual edges received by 'node'
 				ndual_nextnode = dual_fromSet[nextnode];		// Number of 'Set' dual edges received by 'nextnode'
 				if((npos_node!=npos_nextnode) || (nneg_node!=nneg_nextnode) || (ndual_node!=ndual_nextnode)) 
-				{ push_block(subpart, current_part->block); break; }
+				{
+					push_block(subpart, current_part->block); 
+					break; 
+				}
 			}
 		}
 	}
@@ -274,7 +315,7 @@ void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK*
 	} 
 /*	Given the 'Set' block, now we select all the blocks in the partition that have at 
 	least one connection coming from 'Set'. */
-	GET_NONSTABLE_BLOCKS(partition, &subpart1, pos_fromSet, neg_fromSet, dual_fromSet, graph, Set);
+	GET_NONSTABLE_BLOCKS1(partition, &subpart1, pos_fromSet, neg_fromSet, dual_fromSet, graph, Set);
 
 /*	Now 'subpart1' contains all the blocks that have nonzero pointed nodes from 'Set'. 
 	Then, for each of these blocks, we split the ones that have different number of pointed
@@ -294,6 +335,9 @@ void S_SPLIT(PART** partition, BLOCK* Set, Graph* graph, QBLOCK** qhead, QBLOCK*
 		for(current_part=subpart2; current_part!=NULL; current_part=current_part->next)
 			if(current_part->block->index!=(SENTINEL)) enqueue_block(qhead, qtail, current_part->block);
 	}
+	//free(pos_fromSet);
+	//free(neg_fromSet);
+	//free(dual_fromSet);
 }
 
 int STABILITYCHECKER(PART** partition, BLOCK* Set, Graph* graph)
@@ -303,7 +347,7 @@ int STABILITYCHECKER(PART** partition, BLOCK* Set, Graph* graph)
 /*	Precompute the number of edges coming from 'Set' for each node in the network. */
 	int* pos_fromSet = (int*)malloc((graph->size)*sizeof(int));
 	int* neg_fromSet = (int*)malloc((graph->size)*sizeof(int));
-	int* dual_fromSet = (int*)malloc((graph->size)*sizeof(int));
+	int* dual_fromSet = (int*)malloc((graph->size)*sizeof(int));	
 	for(i=0; i<(graph->size); i++)
 	{
 		pos_fromSet[i] = edgesfromSet(graph, i, Set, 0);
@@ -312,10 +356,11 @@ int STABILITYCHECKER(PART** partition, BLOCK* Set, Graph* graph)
 	} 
 /*	Given the 'Set' block, now we select all the blocks in the partition that have at 
 	least one connection coming from 'Set'. */
-	GET_NONSTABLE_BLOCKS(partition, &subpart1, pos_fromSet, neg_fromSet, dual_fromSet, graph, Set);
+	GET_NONSTABLE_BLOCKS1(partition, &subpart1, pos_fromSet, neg_fromSet, dual_fromSet, graph, Set);
 	
 	free(pos_fromSet);
 	free(neg_fromSet);
+	free(dual_fromSet);
 	if(GetPartitionSize(subpart1)>0) return -1;
 	else return 1;
 }
@@ -366,10 +411,13 @@ int main(int argv, char** argc)
 	int N, M;                         	// Number of nodes and edges of the network.
 	char netsize[100] = "../Data/";     // File containing (one line) the number of nodes in the network.
 	char net_edges[100] = "../Data/";   // File containing all the directed links in the network.
+	char nodename[100] = "../Data/";	// File containing all the nodes name.
 	strcat(netsize, argc[1]);
 	strcat(netsize, "Ngenes.dat");
 	strcat(net_edges, argc[1]);
 	strcat(net_edges, "edgelist.dat");
+	strcat(nodename, argc[1]);
+	strcat(nodename, "nameID.dat");
                                                           
     // Defines the size of the network.
 	FILE* UTIL = fopen(netsize, "r");
@@ -380,8 +428,9 @@ int main(int argv, char** argc)
 
     // Creates the network for N nodes and defines its structure with the given 'edgelist.dat' file.
 	int** edges;
-	Graph* graph = createGraph(N);
+	Graph* graph = createGraph(N, nodename);
 	edges = defineNetwork(edges, graph, net_edges);
+	printf("%d\n", graph->size);
 	///////////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////// COARSEST REFINEMENT PARTITION ALGORITHM ////////////////////////
@@ -435,18 +484,63 @@ int main(int argv, char** argc)
 	// Calculates fundamental class number for each fiber block.
 	CALCULATE_FUNDAMENTAL(&partition, graph);
 	////////////////////////////////////////////////////////////////////////////////////////////
-	//printPartitionReg(partition);
-	//printPartitionReg(null_partition);
-	ShowMainInfo(partition);
+	//ShowMainInfo(partition);
 
+	int* nodefibers = (int*)malloc(N*sizeof(int));
+	for(i=0; i<N; i++) nodefibers[i] = -1;
+
+	int infibers = 0;	
 	nfibers = 0;
+	NODELIST* nodelist;	
 	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	{
-		if(current_part->block->size>1) nfibers++;
-		if(current_part->block->size==1) if((current_part->fundamental_number)>3.0) nfibers++;
+		if(current_part->block->size>1) { nfibers++; infibers+=current_part->block->size; }
+		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+			nodefibers[nodelist->data] = current_part->block->index;
 	}
-	printf("%d\n", nfibers);
-	//printAllPartition(partition);
+	
+	int t;
+	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
+	{
+		t = STABILITYCHECKER(&partition, current_part->block, graph);
+		if(t==-1) { printf("Not stable\n"); break; }		
+	}
+	for(current_part=null_partition; current_part!=NULL; current_part=current_part->next)
+	{
+		t = STABILITYCHECKER(&partition, current_part->block, graph);
+		if(t==-1) { printf("Not stable\n"); break; }		
+	}
+
+	printf("%d\t%d\n", nfibers, infibers);
+
+	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
+	{
+		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+		{
+			t = GETinType(graph, nodelist->data, 0);
+			printf("%d ", t);
+		}
+		printf("\n");
+		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+		{
+			t = GETinType(graph, nodelist->data, 1);
+			printf("%d ", t);
+		}
+		printf("\n");
+		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+		{
+			t = GETinType(graph, nodelist->data, 2);
+			printf("%d ", t);
+		}
+		printf("\nother\n");	
+	}
+	//printGenesPartition(partition, graph);
+	//for(i=0; i<N; i++)
+	//{
+		//printf("%s\t%d\t%d\n", graph->array[i].gene_name, i, nodefibers[i]);
+	//}
+
+	//printf("%d\n", nfibers);
 	
 
 	//printPartitionSize(null_partition);

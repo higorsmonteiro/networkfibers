@@ -29,7 +29,7 @@ NodeAdj* createNode(int neigh, int type_link)
 	return newnode;
 }
 
-extern Graph* createGraph(int N)
+extern Graph* createGraph(int N, char* nodenames)
 {
 	Graph* graph = (Graph*)malloc(sizeof(Graph));
 	graph->size = N;
@@ -38,7 +38,21 @@ extern Graph* createGraph(int N)
 	graph->array = (AdjList*)malloc(N*sizeof(AdjList));
 
 	int j;
-	for(j=0; j<N; j++) { graph->array[j].head_in = NULL; graph->array[j].head_out = NULL; }
+	for(j=0; j<N; j++)
+	{ 
+		graph->array[j].head_in = NULL; 
+		graph->array[j].head_out = NULL; 
+	}
+
+	int nodeID;
+	char tempname[60];
+	FILE* NAMES = fopen(nodenames, "r");
+	for(j=0; j<N; j++)
+	{		
+		fscanf(NAMES, "%s\t%d\n", &tempname, &nodeID);
+		strcpy(graph->array[nodeID].gene_name, tempname);
+	}
+	fclose(NAMES);
 	return graph;
 }
 
@@ -133,6 +147,15 @@ extern int GETNin(Graph* graph, int node)
 	int n_in = 0;	
 	NodeAdj* NODE;
 	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next) n_in++;
+	return n_in;	
+}
+
+extern int GETinType(Graph* graph, int node, int type)
+{
+	int n_in = 0;	
+	NodeAdj* NODE;
+	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next)
+		if(NODE->type_link==type) n_in++;
 	return n_in;	
 }
 
