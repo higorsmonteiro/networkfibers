@@ -61,11 +61,6 @@ Fibration building blocks of a information flow network represent the sets of no
 
 %\renewcommand{\abstractname}{Summary} % Uncomment to change the name of the abstract to something else
 
-%\begin{abstract}
-%	Fibration building blocks of a information flow network represent the sets of nodes that are symmetric with respect to the processing of information, that is, the sets of nodes that process equivalent information. Here, we have reproduced important results concerning the identification and classification of the fibration building blocks of directed networks, constructed from real network data. More specifically, using the transcriptional regulatory network data of the \textit{Escherichia Coli} bacteria, we quantify the clusters of nodes that synchronously process equivalent information and then we classify these clusters, called network fibers, based on its specific topological features. This way, in order to consistently present the obtained results, in this report we first give a brief description of the theory concerning the graph fibration morphism and its main definitions related to information flow symmetries. Next, we detail the methods adopted to correctly identify and classify the network fibers. More specifically, to establish an optimal framework, I show the implementation details of the Minimal Balanced Coloring algorithm used to find the corresponding fibers in the network, presenting a slightly improvement for the algorithm complexity and its implementation. At last, showing the proper methods for data preparation, I describe the results obtained concerning the fiber statistics for the specific case of the \textit{Escherichia Coli} regulatory network, to properly compare with the recent results presented at \textit{Morone et. al.} (2019).
-%\end{abstract}
-
-
 
 \vspace{30pt} % Vertical whitespace between the abstract and first section
 
@@ -111,7 +106,7 @@ The algorithm used in this project is a slightly modified version of the algorit
 
 A network $G$ is completely defined as $G(V, E)$ by the sets of nodes $V$ and of the connections $E$. The network has then $N = |V|$ nodes that can have connections with one another defined by the set $E$ containing $M = |E|$ ordered pair of nodes, denoting the directed connections between the network nodes. Over the network, we can define a graph partition $P$ of $V$ as a set of pairwise disjoints subsets of $V$ whose union is all $V$
 \begin{equation}
-	P = \cup_{i=1}^{N_P} P_i
+	P = \bigcup_{i} P_i
 \end{equation}
 where $P_i$ are the elements of the partition $P$, in which we call it blocks. Within this context, if we consider an additional graph partition $Q$ that has the property that all the block of $Q$ is contained in a block of $P$, we say that $Q$ is a refinement partition of $P$.
 
@@ -153,66 +148,104 @@ Considering this context, we explain now how the algorithm should proper be impl
 
 Given a directed network $G(V, E)$ to be partitioned in fibers, it is very important for the correctness of the algorithm that the nodes that do not receive any information, that is, the nodes that do not have any inward connections, be preprocessing as isolated blocks. This means that the initial graph partition $P$ is divided in two different partition $P'$ e $P''$, the first one contained all the single-node blocks containing the solitaire nodes $v$ in which $| E^{-1}(\{v\}) | = 0$, and the second one containing initialing a single block containing all the other nodes $w$ in which $| E^{-1}(\{w\}) | \geq 1$. The importance of this preprocessing is to guarantee that solitaire nodes do not be put on the same fibers during the refinement steps. Even though the blocks of $P'$ are used as refinement sets, $P'$ is not used by the algorithm. Thus, the final partition is the union of $P'$ and the result of the refinement partitioning of $P''$.
 
-After the above preprocessing we define the data structures for the partition $Q$ for its blocks $B$. A partition is a doubly linked list of blocks, which allows that deletion of blocks be made in constante time $O(1)$ as long we have the block memory address during the procedure. A block is just a structure containing indexing data along with a doubly linked list containg all the nodes that belongs to it. Together with a queue of blocks $L$, these constructions are the main data structures necessary for an efficient implementation of the refinement partitioning algorithm. At the beginning of the algorithm, we enqueue all the blocks of $P'$ e $P''$ to $L$. Then, we start the algorithm initializing a partition $Q = P''$ and by removing the top element set $S$ of $L$, then we apply the \textit{I-split($S$, $Q$)} to identify the input-tree unstable blocks of $Q$ and split them into input-tree stable blocks with respect to  $S$. This way, all the splitted blocks are push to the end of $L$, with exception the largest resulted blocks for each splitted block. As we have mentioned, the algorithm terminates when there is no more sets in $L$. Even though this is the whole algorithm, the implementation of the \textit{I-split} function is not so straightforward, since a given block $B$ can be splitted into an arbitrary number of blocks. So, we detail the implementation of this function below.
+After the above preprocessing we define the data structures for the partition $Q$ for its blocks $B$. A partition is a doubly linked list of blocks, which allows that deletion of blocks be made in constante time $O(1)$ as long we have the block memory address during the procedure. A block is just a structure containing indexing data along with a doubly linked list containg all the nodes that belongs to it. Together with a queue of blocks $L$, these constructions are the main data structures necessary for an efficient implementation of the refinement partitioning algorithm. At the beginning of the algorithm, we enqueue all the blocks of $P'$ e $P''$ to $L$. Then, we start the algorithm initializing a partition $Q = P''$ and by removing the top element set $S$ of $L$, then we apply the \textit{I-split($S$, $Q$)} to identify the input-tree unstable blocks of $Q$ and split them into input-tree stable blocks with respect to  $S$. This way, all the splitted blocks are push to the end of $L$, with exception the largest resulted blocks for each splitted block. As we have mentioned, the algorithm terminates when there is no more sets in $L$. Even though this is the whole algorithm, the implementation of the \textit{I-split} function might not be so straightforward, since a given block $B$ can be splitted into an arbitrary number of blocks. In respect to that below we propose the following implementation construction to the splitting function:
 
-In the algorithm recipe below, the structures $U$ and $S$ are initially empty partitions and are used to store, respectively, all the input-tree unstable blocks of $Q$ and all the splitted blocks from $U$.
-
-\begin{algorithm}
-   \caption{Input-tree split function}
-    \begin{algorithmic}[1]
-      \Function{\textit{I-split}}{$S, Q$}
-        \State Initialize the empties partitions $U, T$
-        \For{$\forall B \in Q$}
-			\For{$\forall x \in B$}
-            	\State Calculates $| E^{-1}(\{x\})\cap S |$
-			\EndFor 
-			\If {$| E^{-1}(\{x\})\cap S | \neq | E^{-1}(\{y\})\cap S |$} \Comment{$x, y \in B$}
-				\State insert block $B$ in $U$.
-			\EndIf       
-		\EndFor
-        \For{$\forall B \in U$}
-			%\State defines an empty partition $Z$
-			\For{$\forall x \in B$}
-				\If{$\exists \ X \in T : | E^{-1}(\{x\})\cap S | = T(E)$ }
-					\State insert $x$ in $X$
-				\Else				
-					\State create a new block $X$
-					\State insert $x$ in $X$
-					\State $X(E) \leftarrow | E^{-1}(\{x\})\cap S |$
-					\State insert block $X$ in $T$ 
-				\EndIf
-			\EndFor
-			\State enqueue all blocks $X \in T$ to $L$, except $Larger(T)$
-        \EndFor
-       \EndFunction
-
-\end{algorithmic}
+\begin{algorithm}[h]
+	\SetAlgoLined
+	\SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+	\Input{A set $S$ and a partition $\bar{Q}$}
+    \Output{Input tree stable partition $\bar{Q}$ with respect to $S$}
+	%\KwResult{}
+	Initialize $\bar{U}$ as an empty partition\;
+	\For{$\forall B \in \bar{Q}$}
+	{
+		\If{$\exists \ \{ w_i, w_j \} \subseteq B : | E^{-1}(\{w_i\})\cap S | \neq | E^{-1}(\{w_j\})\cap S |$}
+		{
+			\textit{push} $B$ to $\bar{U}$\;
+			Initialize $\bar{T}$ as an empty partition\;
+			\For{$\forall w_i \in B$}
+			{
+				\eIf{$\exists \ X \in \bar{T} : | E^{-1}(\{w_i\})\cap S | = X(E)$ }
+				{
+					insert $w_i$ in $X$\;
+					
+				}
+				{
+					create a new block $X$\;
+					insert $w_i$ in $X$\;
+					$X(E) \leftarrow | E^{-1}(\{w_i\})\cap S |$\;
+					push block $X$ to $\bar{T}$ 
+				}
+			}
+		}
+		\textit{enqueue} all blocks $X \in \bar{T}$ in $L$, except the largest one\;
+		\textit{push} all blocks $X \in \bar{T}$ to $\bar{Q}$\;
+	}
+	\textit{delete} all blocks $B \in \bar{U}$ in $\bar{Q}$
+	\caption{\textit{I-split} $(S,\bar{Q}, L)$}
 \end{algorithm}
+
+In the algorithm recipe above, our \textit{I-split} function receives a set $S$ and the partition $\bar{Q}$ as input and returns a input-tree stable $\bar{Q}$ with respect to $S$ as output. Besides its list of nodes, a block $X$ has another attribute acessed as $X(E)$, which receives, during the splitting process, the number of inward links coming from the current refinement set $S$. This way, a node $w$ belonging to the block to be splitted can be put in the block $X \in \bar{T}$ that has the same attribute value, like stated in the conditional expression at line $7$ of the algorithm above.
+
+Finally, considering all the discussion above, we can explicit the complete algorithm in just a few steps.
+
+\begin{algorithm}[h]
+	\SetAlgoLined
+	\SetKwInOut{Input}{Input}
+	\Input{A network $G(V, E)$}
+	%\KwResult{}
+	Initialize $S$ as an empty set\;
+	Initialize $L$ as an empty queue\;
+	Initialize $\bar{P}$, $\bar{P'}$, $\bar{P''}$, $\bar{Q}$ as empty partitions\;
+	$B' = \{ \{ w \} \in V : |E^{-1}(\{w\})|=0 \}$\;
+	$B'' = \{ v \in V : |E^{-1}(\{v\})| \geq 1 \}$\;
+	\textit{push} all $B'$ to $\bar{P'}$\;
+	\textit{push} $B''$ to $\bar{P''}$\;
+	\textit{enqueue} $B'' \in \bar{P''}$ to $L$\;
+	\textit{enqueue} all blocks $B' \in \bar{P'}$ to $L$\;
+	$\bar{Q} \leftarrow \bar{P''}$\;
+	\While{$|L| \neq 0$}
+	{
+		$S \leftarrow \text{\textit{dequeue}}(L)$\;
+		$\bar{Q} \leftarrow \text{\textit{I-input}}(S, \bar{Q}, L)$
+	}
+	\caption{Coarsest Refinement Graph Partitioning}
+\end{algorithm}
+
+A concrete implementation of the algorithm in a programming language is presented at the link \url{https://github.com/higorsmonteiro/fiberblocks} together with \textit{E. Coli} prepared data and another examples. Further information about the application of the codes in other genetic regulatory network data can be found at the same link given.
 
 %------------------------------------------------
 
 \section*{Results}
 
-Fusce in nibh augue. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. In dictum accumsan sapien, ut hendrerit nisi. Phasellus ut nulla mauris. Phasellus sagittis nec odio sed posuere. Vestibulum porttitor dolor quis suscipit bibendum. Mauris risus lectus, cursus vitae hendrerit posuere, congue ac est. Suspendisse commodo eu eros non cursus. Mauris ultrices venenatis dolor, sed aliquet odio tempor pellentesque. Duis ultricies, mauris id lobortis vulputate, tellus turpis eleifend elit, in gravida leo tortor ultricies est. Maecenas vitae ipsum at dui sodales condimentum a quis dui. Nam mi sapien, lobortis ac blandit eget, dignissim quis nunc.
-
-Donec luctus tincidunt mauris, non ultrices ligula aliquam id. Sed varius, magna a faucibus congue, arcu tellus pellentesque nisl, vel laoreet magna eros et magna. Vivamus lobortis elit eu dignissim ultrices. Fusce erat nulla, ornare at dolor quis, rhoncus venenatis velit. Donec sed elit mi. Sed semper tellus a convallis viverra. Maecenas mi lorem, placerat sit amet sem quis, adipiscing tincidunt turpis. Cras a urna et tellus dictum eleifend. Fusce dignissim lectus risus, in bibendum tortor lacinia interdum.
-
-\begin{table}[h] % [h] forces the table to be output where it is defined in the code (it suppresses floating)
-	\caption{Example table.}
+\begin{figure}[h]
 	\centering
-	\begin{tabular}{l l r}
-		\toprule
-		\multicolumn{2}{c}{Name} \\
-		\cmidrule(r){1-2}
-		First Name & Last Name & Grade \\
-		\midrule
-		John & Doe & $7.5$ \\
-		Richard & Miles & $5$ \\
-		\bottomrule
-	\end{tabular}
-\end{table}
+	\includegraphics[scale=0.3]{Figures/result1.png}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.3]{Figures/result1-1.png}
+\end{figure}
 
-Fusce eleifend porttitor arcu, id accumsan elit pharetra eget. Mauris luctus velit sit amet est sodales rhoncus. Donec cursus suscipit justo, sed tristique ipsum fermentum nec. Ut tortor ex, ullamcorper varius congue in, efficitur a tellus. Vivamus ut rutrum nisi. Phasellus sit amet enim efficitur, aliquam nulla id, lacinia mauris. Quisque viverra libero ac magna maximus efficitur. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum mollis eros in tellus fermentum, vitae tristique justo finibus. Sed quis vehicula nibh. Etiam nulla justo, pellentesque id sapien at, semper aliquam arcu. Integer at commodo arcu. Quisque dapibus ut lacus eget vulputate.
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.3]{Figures/result2.png}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.3]{Figures/result2-1.png}
+\end{figure}
+
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.3]{Figures/result3.png}
+\end{figure}
+\begin{figure}[h]
+	\centering
+	\includegraphics[scale=0.3]{Figures/result3-1.png}
+\end{figure}
+
 
 \section{Conclusion}
 

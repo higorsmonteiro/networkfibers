@@ -37,11 +37,12 @@
 \graphicspath{{Figures/}{./}} % Specifies where to look for included images (trailing slash required)
 
 \usepackage{wrapfig} % Allows in-line images
-
+\usepackage{amsmath}
 \usepackage{booktabs} % Required for better horizontal rules in tables
 \usepackage{hyperref}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
+%\usepackage{algorithm}
+\usepackage[linesnumbered,ruled]{algorithm2e}
+%\usepackage{algpseudocode}
 
 \usepackage{enumitem} % Required for list customisation
 \setlist{noitemsep} % No spacing between list items
