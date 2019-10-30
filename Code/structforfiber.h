@@ -91,7 +91,7 @@ extern void PrintInNeighbors(Graph* graph, int node, int N)
 	printf("Node %d: ", node);
 	while(Inode)
 	{
-		printf("%d ", Inode->neighbor);
+		printf("%d(type:%d) ", Inode->neighbor, Inode->type_link);
 		Inode = Inode->next;
 	}
 	printf("\n");

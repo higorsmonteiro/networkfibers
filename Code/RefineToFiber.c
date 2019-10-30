@@ -409,28 +409,27 @@ void PREPROCESSING(BLOCK** P, BLOCK** NonP, PART** Null_Part, Graph* graph, int 
 int main(int argv, char** argc) 
 { 
 	int N, M;                         	// Number of nodes and edges of the network.
-	char netsize[100] = "../Data/";     // File containing (one line) the number of nodes in the network.
 	char net_edges[100] = "../Data/";   // File containing all the directed links in the network.
 	char nodename[100] = "../Data/";	// File containing all the nodes name.
-	strcat(netsize, argc[1]);
-	strcat(netsize, "Ngenes.dat");
 	strcat(net_edges, argc[1]);
 	strcat(net_edges, "edgelist.dat");
 	strcat(nodename, argc[1]);
 	strcat(nodename, "nameID.dat");
-                                                          
-    // Defines the size of the network.
-	FILE* UTIL = fopen(netsize, "r");
-	if(UTIL==NULL) printf("ERROR IN FILE READING\n");
-	fscanf(UTIL, "%d\n", &N);
-	fclose(UTIL);
-    ///////////////////////////////////////////////////
+
+	// From the edgelist get the number of nodes in the network.
+	N = GetNodeNumber(net_edges);
+
+	//// Check if it is necessary to check for the file containing names for the nodes ////
+	int nodename_bool;
+	if(strcmp(argc[2], "-y")==0) nodename_bool = 1;
+	else nodename_bool = 0;
+	///////////////////////////////////////////////////////////////////////////////////////
 
     // Creates the network for N nodes and defines its structure with the given 'edgelist.dat' file.
 	int** edges;
-	Graph* graph = createGraph(N, nodename);
+	Graph* graph = createGraph(N, nodename, nodename_bool);
 	edges = defineNetwork(edges, graph, net_edges);
-	printf("%d\n", graph->size);
+	//printf("%d\n", graph->size);
 	///////////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////// COARSEST REFINEMENT PARTITION ALGORITHM ////////////////////////
@@ -460,15 +459,13 @@ int main(int argv, char** argc)
 		S_SPLIT(&partition, CurrentSet, graph, &qhead, &qtail);
 	}
 	int size = GetPartitionSize(partition) + GetPartitionSize(null_partition);
-	int nfibers = GetFiberNumber1(partition, null_partition);
-	// Partition contains all the fibers, including the trivial ones.
+	int nontrivial_fibers = GetFiberNumber1(partition, null_partition);
+	// 'partition' contains all the fibers, except the solitaire ones.
 
 	/////////////////////////////// FIBER STATISTICS ////////////////////////////////////
 	// Proper block unique indexation and external regulators initialization.
 	PART* current_part;
 	int index = 0;					
-	int total_nodes = 0;			// Number of nodes in fibers.
-	int non_trivial_fibers = 0;		// Number of non-trivial fibers (size larger than one).
 	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	{
 		current_part->regulators = NULL;	// Initialize the list of external regulators for each block.		
@@ -476,77 +473,50 @@ int main(int argv, char** argc)
 		current_part->fundamental_number = 0.0;		
 		current_part->block->index = index++;		
 	}
-	////////////////////////////////////////////////////////////////////////
-	
+
 	// Defines number of external regulators and set list of external regulators for each block.
 	CALCULATE_REGULATORS(&partition, graph);
 	CALCULATE_REGULATORS(&null_partition, graph);
 	// Calculates fundamental class number for each fiber block.
 	CALCULATE_FUNDAMENTAL(&partition, graph);
 	////////////////////////////////////////////////////////////////////////////////////////////
-	//ShowMainInfo(partition);
-
+	////////////////////////////////////////////////////////////////////////
+	
+	////// 'nodefibers' directly relates nodes with their fiber index ///////
 	int* nodefibers = (int*)malloc(N*sizeof(int));
 	for(i=0; i<N; i++) nodefibers[i] = -1;
 
-	int infibers = 0;	
-	nfibers = 0;
 	NODELIST* nodelist;	
+	int total_nodes = 0;	// Number of nodes inside non-trivial fibers.
 	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	{
-		if(current_part->block->size>1) { nfibers++; infibers+=current_part->block->size; }
+		if(current_part->block->size>1) { total_nodes+=current_part->block->size; }
 		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
 			nodefibers[nodelist->data] = current_part->block->index;
 	}
-	
-	int t;
-	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
-	{
-		t = STABILITYCHECKER(&partition, current_part->block, graph);
-		if(t==-1) { printf("Not stable\n"); break; }		
-	}
-	for(current_part=null_partition; current_part!=NULL; current_part=current_part->next)
-	{
-		t = STABILITYCHECKER(&partition, current_part->block, graph);
-		if(t==-1) { printf("Not stable\n"); break; }		
-	}
+	//////////////////////////////////////////////////////////////////////////
 
-	printf("%d\t%d\n", nfibers, infibers);
-
-	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
-	{
-		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
-		{
-			t = GETinType(graph, nodelist->data, 0);
-			printf("%d ", t);
-		}
-		printf("\n");
-		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
-		{
-			t = GETinType(graph, nodelist->data, 1);
-			printf("%d ", t);
-		}
-		printf("\n");
-		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
-		{
-			t = GETinType(graph, nodelist->data, 2);
-			printf("%d ", t);
-		}
-		printf("\nother\n");	
-	}
-	//printGenesPartition(partition, graph);
-	//for(i=0; i<N; i++)
+	int n;
+	STORETYPE* tempx;
+	int* temp;
+	printf("%d\n", total_nodes);
+	//for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	//{
-		//printf("%s\t%d\t%d\n", graph->array[i].gene_name, i, nodefibers[i]);
+	//	if(current_part->block->size==1) continue;
+	//	printf("INSIDE BLOCK %d:\n", current_part->block->index);
+	//	for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+	//	{
+	//		printf("NODE %d receives from fiber(node,type): ", nodelist->data);
+	//		n = GETNin(graph, nodelist->data);
+	//		tempx = GET_INTYPENEIGH(graph, nodelist->data);
+	//		for(i=0; i<n; i++) printf("%d(%d,%d) ", nodefibers[tempx[i].node], tempx[i].node, tempx[i].type);
+	//		printf("\n");
+	//	}
+	//	printf("\n");
 	//}
-
-	//printf("%d\n", nfibers);
-	
-
-	//printPartitionSize(null_partition);
-	//printf("%d %d\n", non_trivial_fibers, total_nodes);
-	//printf("Number of fiber: %d\n", nfibers);
-	//printAllPartition(partition);
+	//int ll = atoi(argc[3]);
+	//PrintInNeighbors(graph, ll, N);
+	//PrintOutNeighbors(graph, ll, N);
     ////////////////////////////////////////////////////////////////////////////////////
 
 }

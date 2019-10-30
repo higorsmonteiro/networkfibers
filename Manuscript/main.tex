@@ -219,32 +219,85 @@ A concrete implementation of the algorithm in a programming language is presente
 
 \section*{Results}
 
-\begin{figure}[h]
-	\centering
-	\includegraphics[scale=0.3]{Figures/result1.png}
-\end{figure}
-\begin{figure}[h]
-	\centering
-	\includegraphics[scale=0.3]{Figures/result1-1.png}
-\end{figure}
+Using the algorithm above, we applied it to a set of networks examples before its proper application on the \textit{Escherechia Coli} genetic regulatory network data. The reason for that is merely to show that the not just the algorithmic approach chosen is consistent but the written code per si is correctly implementated. For each network, we have a adjacency list containing all the directed connections between the nodes and for each connection we have a string defining the type of regulation of a specific link, where here, considering the genetic regulation context, the types can be positive, negative or dual. The first three examples are all small networks, containing at most $48$ nodes, and so all can be used to test the correctness of the algorithm applied. For that three examples we show the network drawing and their fibers distribution identified as the result of the algorithm.
+
+The first example is showed at the figure \ref{fig:result1}. This network is disconnected, containing two main weakly connected components, and contains only positive regulation between the interactions between the genes, showing the simpler case where the connections between nodes in a network are all of the same type. In this case, we find five non-trivial fibers, that is, fibers with size larger than one.
 
 \begin{figure}[h]
+	\centering
+	\subfloat[]{{\includegraphics[scale=0.3]{Figures/result1.png}}}
+	\qquad
+	\subfloat[]{{\includegraphics[scale=0.3]{Figures/result1-1.png}}}
+	\caption{}
+	\label{fig:result1}
+\end{figure}
+
+At the end of the algorithm, all the fibers identified are input-tree stable with respect to all fibers in the network, including the fiber itself. Then, labelling each fiber by an index or color we can then construct the fibration building blocks through the calculation of the fundamental class number $n$ and through the subclass number $l$. Again, a fibration building block is defined as the nodes inside the fiber as well as the $l$ external nodes that directly regulates at least one node of the current fiber. By that, we calculate the fundamental class number $n_k$ of the fiber $k$ by constructing the adjacency matrix $A_{ij}^{k}$ of its fibration building block and then calculating the largest eigenvalue of it. The value of $n$ quantifies the information loops of the fibration building blocks and can be either a integer or fractal golden ration.
+
+Labelling the resulted fiber distribution, we obtain the following fibration classification for each fibratiion buuilding block of the network containing more than one node:
+
+\begin{figure}[!ht]
+    \centering
+    \subfloat[]{{\includegraphics[scale=0.22]{Figures/result1-label.png}}}
+    \qquad
+    \begin{tabular}[b]{cc}\hline
+      Table head & Table head \\ \hline
+      Some values & Some values \\
+      Some values & Some values \\
+      Some values & Some values \\
+      Some values & Some values \\
+      Some values & Some values \\
+      Some values & Some values \\ \hline
+    \end{tabular}
+    %\captionlistentry[table]{A table beside a figure}
+    %\captionsetup{labelformat=andtable}
+    %\caption{A table beside a figure}
+\end{figure}
+
+The second example exhibits a connected component containing $N = 21$ nodes, where all the three type of regulation are present. For this network we find the total of eleven fibers, where just six are fibers containing more than one node in it. As we can notice, for two arbitrary nodes be in the same fiber they must not just receive the same number of inward connections but the same number of each type of inward connections, this way receive the equivalent information from the rest of the network. We can see this for the example of the fibers $4$ e $5$, where even though both receives two links from the same central node, the fibers receives different types of information from that node, meaning that they are not the equivalent fibers.
+
+\begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.3]{Figures/result2.png}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.3]{Figures/result2-1.png}
+	\includegraphics[scale=0.3]{Figures/result2-label.png}
 \end{figure}
 
-\begin{figure}[h]
+If we consider the fiber $3$, besides the inner autoregulation loop we have a loop information going outside the fiber and going back through an external regulator inside the fiber $1$. In cases like this the branching ratio of the fiber has a fractal value represented by a golden ratio $\phi_d$ resulted a loop information represented by a fibonacci sequence. This way, fiber $3$ can be classified by the values $| \phi_d, l = 2 \rangle$ where the fiber has two external regulator nodes. The fibration classification for the non-trivial fibers is showed in the table \ref{asdas}.
+
+\begin{table}
+\centering
+\begin{tabular}[b]{cc}\hline
+	Table head & Table head \\ \hline
+	Some values & Some values \\
+	Some values & Some values \\
+	Some values & Some values \\
+	Some values & Some values \\
+	Some values & Some values \\
+	Some values & Some values \\ \hline
+  \end{tabular}
+\end{table}
+
+Before applying the algorithm for the whole network, we chose, for the finality of visualization and testing, to apply first the algorithm for a weakly connected component of the \textit{E. Coli} network. The same network is showed at the supplementary information from \cite{fibration2019}. The fiber distribution found is consistent with the one presented at \cite{fibration2019}, presenting the total of fifteen non-trivial fiber groups as shown in figure \ref{fig:result3-1}.
+
+\begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.3]{Figures/result3.png}
+	\includegraphics[scale=0.27]{Figures/result3.png}
+	\caption{}
+	\label{fig:result3}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.3]{Figures/result3-1.png}
+	\includegraphics[scale=0.27]{Figures/result3-1.png}
+	\caption{}
+	\label{fig:result3-1}
 \end{figure}
+
+The connected component showed at the figure \ref{fig:result3} is a representation of a component in the whole regulatory network of the \textit{Escherichia Coli} bacteria and the resulted fibers shows just a portion of the whole fibers pattern. In the table X we give the classification for each fibration building block obtained for the whole bacteria network, including of course the fibers presented in the figure \ref{fig:result3-1}. In total, we have found $84$ non-trivial fiber groups containing a total of 462 nodes, obtaining a characteristic fiber statistics for the \textit{Escherichia Coli} network data. To guarantee the correctness of the fiber distribution found we calculate after the application of the refinement partitioning algorithm the information received for each node inside a fiber and compares if each one process equivalent information.
+
+The statistics concerning the number of each fibration block on the network is given in the table X, showing \textcolor{red}{describe the pattern of the statistics of the table that concerns the bacteria fiber statistics}.
 
 
 \section{Conclusion}

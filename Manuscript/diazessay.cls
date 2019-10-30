@@ -40,7 +40,11 @@
 \usepackage{amsmath}
 \usepackage{booktabs} % Required for better horizontal rules in tables
 \usepackage{hyperref}
-%\usepackage{algorithm}
+\usepackage{subfig}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{float}
+\usepackage[font=small,labelfont=bf,tableposition=top]{caption}
+%\usepackage{floatrow}
 \usepackage[linesnumbered,ruled]{algorithm2e}
 %\usepackage{algpseudocode}
 

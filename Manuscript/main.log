@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2019.10.5)  29 OCT 2019 21:42
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Arch Linux) (preloaded format=pdflatex 2019.10.5)  30 OCT 2019 18:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -234,82 +234,139 @@ Package: rerunfilecheck 2016/05/16 v1.8 Rerun checks for auxiliary files (HO)
 Package uniquecounter Info: New unique counter `rerunfilecheck' on input line 282.
 )
 \Hy@SectionHShift=\skip46
+) (/usr/share/texmf-dist/tex/latex/subfig/subfig.sty
+Package: subfig 2005/06/28 ver: 1.3 subfig package
+ (/usr/share/texmf-dist/tex/latex/caption/caption.sty
+Package: caption 2018/10/06 v3.3-154 Customizing captions (AR)
+ (/usr/share/texmf-dist/tex/latex/caption/caption3.sty
+Package: caption3 2018/09/12 v1.8c caption3 kernel (AR)
+Package caption3 Info: TeX engine: e-TeX on input line 64.
+\captionmargin=\dimen134
+\captionmargin@=\dimen135
+\captionwidth=\dimen136
+\caption@tempdima=\dimen137
+\caption@indent=\dimen138
+\caption@parindent=\dimen139
+\caption@hangindent=\dimen140
+)
+\c@caption@flags=\count117
+\c@ContinuedFloat=\count118
+Package caption Info: hyperref package is loaded.
+Package caption Info: wrapfig package is loaded.
+)
+\c@KVtest=\count119
+\sf@farskip=\skip47
+\sf@captopadj=\dimen141
+\sf@capskip=\skip48
+\sf@nearskip=\skip49
+\c@subfigure=\count120
+\c@subfigure@save=\count121
+\c@lofdepth=\count122
+\c@subtable=\count123
+\c@subtable@save=\count124
+\c@lotdepth=\count125
+\sf@top=\skip50
+\sf@bottom=\skip51
+) (/usr/share/texmf-dist/tex/latex/xcolor/xcolor.sty
+Package: xcolor 2016/05/11 v2.12 LaTeX color extensions (UK)
+ (/usr/share/texmf-dist/tex/latex/graphics-cfg/color.cfg
+File: color.cfg 2016/01/02 v1.6 sample color configuration
+)
+Package xcolor Info: Driver file: pdftex.def on input line 225.
+Package xcolor Info: Model `cmy' substituted by `cmy0' on input line 1348.
+Package xcolor Info: Model `hsb' substituted by `rgb' on input line 1352.
+Package xcolor Info: Model `RGB' extended on input line 1364.
+Package xcolor Info: Model `HTML' substituted by `rgb' on input line 1366.
+Package xcolor Info: Model `Hsb' substituted by `hsb' on input line 1367.
+Package xcolor Info: Model `tHsb' substituted by `hsb' on input line 1368.
+Package xcolor Info: Model `HSB' substituted by `hsb' on input line 1369.
+Package xcolor Info: Model `Gray' substituted by `gray' on input line 1370.
+Package xcolor Info: Model `wave' substituted by `hsb' on input line 1371.
+ (/usr/share/texmf-dist/tex/latex/graphics/dvipsnam.def
+File: dvipsnam.def 2016/06/17 v3.0m Driver-dependent file (DPC,SPQR)
+)) (/usr/share/texmf-dist/tex/latex/float/float.sty
+Package: float 2001/11/08 v1.3d Float enhancements (AL)
+\c@float@type=\count126
+\float@exts=\toks21
+\float@box=\box30
+\@float@everytoks=\toks22
+\@floatcapt=\box31
 ) (/usr/share/texmf-dist/tex/latex/algorithm2e/algorithm2e.sty
 Package: algorithm2e 2017/07/18 v5.2 algorithms environments
-\c@AlgoLine=\count117
+\c@AlgoLine=\count127
  (/usr/share/texmf-dist/tex/latex/base/ifthen.sty
 Package: ifthen 2014/09/29 v1.1c Standard LaTeX ifthen package (DPC)
 )
-\algocf@hangindent=\skip47
+\algocf@hangindent=\skip52
  (/usr/share/texmf-dist/tex/latex/ifoddpage/ifoddpage.sty
 Package: ifoddpage 2016/04/23 v1.1 Conditionals for odd/even page detection
-\c@checkoddpage=\count118
+\c@checkoddpage=\count128
 ) (/usr/share/texmf-dist/tex/latex/tools/xspace.sty
 Package: xspace 2014/10/28 v1.13 Space after command names (DPC,MH)
 ) (/usr/share/texmf-dist/tex/latex/relsize/relsize.sty
 Package: relsize 2013/03/29 ver 4.1
 )
-\skiptotal=\skip48
-\skiplinenumber=\skip49
-\skiprule=\skip50
-\skiphlne=\skip51
-\skiptext=\skip52
-\skiplength=\skip53
-\algomargin=\skip54
-\skipalgocfslide=\skip55
-\algowidth=\dimen134
-\inoutsize=\dimen135
-\inoutindent=\dimen136
-\interspacetitleruled=\dimen137
-\interspacealgoruled=\dimen138
-\interspacetitleboxruled=\dimen139
-\algocf@ruledwidth=\skip56
-\algocf@inoutbox=\box30
-\algocf@inputbox=\box31
-\AlCapSkip=\skip57
-\AlCapHSkip=\skip58
-\algoskipindent=\skip59
-\algocf@nlbox=\box32
-\algocf@hangingbox=\box33
-\algocf@untilbox=\box34
-\algocf@skipuntil=\skip60
-\algocf@capbox=\box35
-\algocf@lcaptionbox=\skip61
-\algoheightruledefault=\skip62
-\algoheightrule=\skip63
-\algotitleheightruledefault=\skip64
-\algotitleheightrule=\skip65
-\c@algocfline=\count119
-\c@algocfproc=\count120
-\c@algocf=\count121
-\algocf@algoframe=\box36
-\algocf@algobox=\box37
+\skiptotal=\skip53
+\skiplinenumber=\skip54
+\skiprule=\skip55
+\skiphlne=\skip56
+\skiptext=\skip57
+\skiplength=\skip58
+\algomargin=\skip59
+\skipalgocfslide=\skip60
+\algowidth=\dimen142
+\inoutsize=\dimen143
+\inoutindent=\dimen144
+\interspacetitleruled=\dimen145
+\interspacealgoruled=\dimen146
+\interspacetitleboxruled=\dimen147
+\algocf@ruledwidth=\skip61
+\algocf@inoutbox=\box32
+\algocf@inputbox=\box33
+\AlCapSkip=\skip62
+\AlCapHSkip=\skip63
+\algoskipindent=\skip64
+\algocf@nlbox=\box34
+\algocf@hangingbox=\box35
+\algocf@untilbox=\box36
+\algocf@skipuntil=\skip65
+\algocf@capbox=\box37
+\algocf@lcaptionbox=\skip66
+\algoheightruledefault=\skip67
+\algoheightrule=\skip68
+\algotitleheightruledefault=\skip69
+\algotitleheightrule=\skip70
+\c@algocfline=\count129
+\c@algocfproc=\count130
+\c@algocf=\count131
+\algocf@algoframe=\box38
+\algocf@algobox=\box39
 ) (/usr/share/texmf-dist/tex/latex/enumitem/enumitem.sty
 Package: enumitem 2019/02/04 v3.8 Customized lists
-\labelindent=\skip66
-\enit@outerparindent=\dimen140
-\enit@toks=\toks21
-\enit@inbox=\box38
-\enit@count@id=\count122
-\enitdp@description=\count123
+\labelindent=\skip71
+\enit@outerparindent=\dimen148
+\enit@toks=\toks23
+\enit@inbox=\box40
+\enit@count@id=\count132
+\enitdp@description=\count133
 ) (/usr/share/texmf-dist/tex/latex/geometry/geometry.sty
 Package: geometry 2018/04/16 v5.8 Page Geometry
-\Gm@cnth=\count124
-\Gm@cntv=\count125
-\c@Gm@tempcnt=\count126
-\Gm@bindingoffset=\dimen141
-\Gm@wd@mp=\dimen142
-\Gm@odd@mp=\dimen143
-\Gm@even@mp=\dimen144
-\Gm@layoutwidth=\dimen145
-\Gm@layoutheight=\dimen146
-\Gm@layouthoffset=\dimen147
-\Gm@layoutvoffset=\dimen148
-\Gm@dimlist=\toks22
+\Gm@cnth=\count134
+\Gm@cntv=\count135
+\c@Gm@tempcnt=\count136
+\Gm@bindingoffset=\dimen149
+\Gm@wd@mp=\dimen150
+\Gm@odd@mp=\dimen151
+\Gm@even@mp=\dimen152
+\Gm@layoutwidth=\dimen153
+\Gm@layoutheight=\dimen154
+\Gm@layouthoffset=\dimen155
+\Gm@layoutvoffset=\dimen156
+\Gm@dimlist=\toks24
 ) (/usr/share/texmf-dist/tex/latex/base/inputenc.sty
 Package: inputenc 2018/08/11 v1.3c Input encoding file
-\inpenc@prehook=\toks23
-\inpenc@posthook=\toks24
+\inpenc@prehook=\toks25
+\inpenc@posthook=\toks26
 ) (/usr/share/texmf-dist/tex/latex/base/fontenc.sty
 Package: fontenc 2018/08/11 v2.0j Standard LaTeX package
  (/usr/share/texmf-dist/tex/latex/base/t1enc.def
@@ -319,32 +376,32 @@ LaTeX Font Info:    Redeclaring font encoding T1 on input line 48.
 Package: palatino 2005/04/12 PSNFSS-v9.2a (SPQR) 
 ) (/usr/share/texmf-dist/tex/latex/microtype/microtype.sty
 Package: microtype 2019/02/28 v2.7b Micro-typographical refinements (RS)
-\MT@toks=\toks25
-\MT@count=\count127
+\MT@toks=\toks27
+\MT@count=\count137
 LaTeX Info: Redefining \textls on input line 790.
-\MT@outer@kern=\dimen149
+\MT@outer@kern=\dimen157
 LaTeX Info: Redefining \textmicrotypecontext on input line 1336.
-\MT@listname@count=\count128
+\MT@listname@count=\count138
  (/usr/share/texmf-dist/tex/latex/microtype/microtype-pdftex.def
 File: microtype-pdftex.def 2019/02/28 v2.7b Definitions specific to pdftex (RS)
 LaTeX Info: Redefining \lsstyle on input line 914.
 LaTeX Info: Redefining \lslig on input line 914.
-\MT@outer@space=\skip67
+\MT@outer@space=\skip72
 )
 Package microtype Info: Loading configuration file microtype.cfg.
  (/usr/share/texmf-dist/tex/latex/microtype/microtype.cfg
 File: microtype.cfg 2019/02/28 v2.7b microtype main configuration file (RS)
 )) (/usr/share/texmf-dist/tex/latex/fancyhdr/fancyhdr.sty
 Package: fancyhdr 2019/01/31 v3.10 Extensive control of page headers and footers
-\f@nch@headwidth=\skip68
-\f@nch@O@elh=\skip69
-\f@nch@O@erh=\skip70
-\f@nch@O@olh=\skip71
-\f@nch@O@orh=\skip72
-\f@nch@O@elf=\skip73
-\f@nch@O@erf=\skip74
-\f@nch@O@olf=\skip75
-\f@nch@O@orf=\skip76
+\f@nch@headwidth=\skip73
+\f@nch@O@elh=\skip74
+\f@nch@O@erh=\skip75
+\f@nch@O@olh=\skip76
+\f@nch@O@orh=\skip77
+\f@nch@O@elf=\skip78
+\f@nch@O@erf=\skip79
+\f@nch@O@olf=\skip80
+\f@nch@O@orf=\skip81
 )) (/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.aux)
 \openout1 = `main.aux'.
 
@@ -367,17 +424,17 @@ LaTeX Font Info:    Try loading font information for T1+ppl on input line 38.
 File: t1ppl.fd 2001/06/04 font definitions for T1/ppl.
 ) (/usr/share/texmf-dist/tex/context/base/mkii/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
-\scratchcounter=\count129
-\scratchdimen=\dimen150
-\scratchbox=\box39
-\nofMPsegments=\count130
-\nofMParguments=\count131
-\everyMPshowfont=\toks26
-\MPscratchCnt=\count132
-\MPscratchDim=\dimen151
-\MPnumerator=\count133
-\makeMPintoPDFobject=\count134
-\everyMPtoPDFconversion=\toks27
+\scratchcounter=\count139
+\scratchdimen=\dimen158
+\scratchbox=\box41
+\nofMPsegments=\count140
+\nofMParguments=\count141
+\everyMPshowfont=\toks28
+\MPscratchCnt=\count142
+\MPscratchDim=\dimen159
+\MPnumerator=\count143
+\makeMPintoPDFobject=\count144
+\everyMPtoPDFconversion=\toks29
 ) (/usr/share/texmf-dist/tex/latex/oberdiek/epstopdf-base.sty
 Package: epstopdf-base 2016/05/15 v2.6 Base part for package epstopdf
  (/usr/share/texmf-dist/tex/latex/oberdiek/grfext.sty
@@ -390,14 +447,14 @@ Package grfext Info: Graphics extension search list:
  (/usr/share/texmf-dist/tex/latex/latexconfig/epstopdf-sys.cfg
 File: epstopdf-sys.cfg 2010/07/13 v1.3 Configuration of (r)epstopdf for TeX Live
 ))
-\AtBeginShipoutBox=\box40
+\AtBeginShipoutBox=\box42
 Package hyperref Info: Link coloring OFF on input line 38.
  (/usr/share/texmf-dist/tex/latex/hyperref/nameref.sty
 Package: nameref 2016/05/21 v2.44 Cross-referencing by name of section
  (/usr/share/texmf-dist/tex/generic/oberdiek/gettitlestring.sty
 Package: gettitlestring 2016/05/16 v1.5 Cleanup title references (HO)
 )
-\c@section@level=\count135
+\c@section@level=\count145
 )
 LaTeX Info: Redefining \ref on input line 38.
 LaTeX Info: Redefining \pageref on input line 38.
@@ -406,6 +463,10 @@ LaTeX Info: Redefining \nameref on input line 38.
 \@outlinefile=\write3
 \openout3 = `main.out'.
 
+Package caption Info: Begin \AtBeginDocument code.
+Package caption Info: subfig package v1.3 is loaded.
+Package caption Info: float package is loaded.
+Package caption Info: End \AtBeginDocument code.
 
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
@@ -511,80 +572,79 @@ Overfull \hbox (1.84193pt too wide) in paragraph at lines 147--148
 [6]
 LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <8> not available
 (Font)              Font shape `T1/ppl/b/n' tried instead on input line 160.
- [7]
-<Figures/result1.png, id=115, 607.068pt x 626.34pt>
+ [7] [8]
+<Figures/result1.png, id=143, 607.068pt x 626.34pt>
 File: Figures/result1.png Graphic file (type png)
 <use Figures/result1.png>
-Package pdftex.def Info: Figures/result1.png  used on input line 224.
+Package pdftex.def Info: Figures/result1.png  used on input line 228.
 (pdftex.def)             Requested size: 182.1218pt x 187.90344pt.
-
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<Figures/result1-1.png, id=116, 607.068pt x 626.34pt>
+LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <10> not available
+(Font)              Font shape `T1/ppl/b/n' tried instead on input line 228.
+<Figures/result1-1.png, id=144, 607.068pt x 626.34pt>
 File: Figures/result1-1.png Graphic file (type png)
 <use Figures/result1-1.png>
-Package pdftex.def Info: Figures/result1-1.png  used on input line 228.
+Package pdftex.def Info: Figures/result1-1.png  used on input line 230.
 (pdftex.def)             Requested size: 182.1218pt x 187.90344pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<Figures/result2.png, id=117, 903.375pt x 651.3936pt>
+LaTeX Font Info:    Font shape `T1/ppl/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/ppl/b/n' tried instead on input line 231.
+<Figures/result1-label.png, id=145, 870.6126pt x 630.6762pt>
+File: Figures/result1-label.png Graphic file (type png)
+<use Figures/result1-label.png>
+Package pdftex.def Info: Figures/result1-label.png  used on input line 241.
+(pdftex.def)             Requested size: 191.53535pt x 138.74919pt.
+ [9 </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1.png> </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1-1.png>]
+<Figures/result2.png, id=156, 903.375pt x 651.3936pt>
 File: Figures/result2.png Graphic file (type png)
 <use Figures/result2.png>
-Package pdftex.def Info: Figures/result2.png  used on input line 233.
+Package pdftex.def Info: Figures/result2.png  used on input line 261.
 (pdftex.def)             Requested size: 271.01459pt x 195.41959pt.
+<Figures/result2-label.png, id=157, 1154.3928pt x 653.8026pt>
+File: Figures/result2-label.png Graphic file (type png)
+<use Figures/result2-label.png>
+Package pdftex.def Info: Figures/result2-label.png  used on input line 265.
+(pdftex.def)             Requested size: 346.32051pt x 196.14229pt.
+ [10 </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1-label.png> </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result2.png>]
 
-LaTeX Warning: `h' float specifier changed to `ht'.
+LaTeX Warning: Reference `asdas' on page 11 undefined on input line 268.
 
-<Figures/result2-1.png, id=118, 912.0474pt x 653.8026pt>
-File: Figures/result2-1.png Graphic file (type png)
-<use Figures/result2-1.png>
-Package pdftex.def Info: Figures/result2-1.png  used on input line 237.
-(pdftex.def)             Requested size: 273.61633pt x 196.14229pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<Figures/result3.png, id=119, 1282.5516pt x 1086.459pt>
+<Figures/result3.png, id=170, 1282.5516pt x 1086.459pt>
 File: Figures/result3.png Graphic file (type png)
 <use Figures/result3.png>
-Package pdftex.def Info: Figures/result3.png  used on input line 242.
-(pdftex.def)             Requested size: 384.76845pt x 325.94022pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-<Figures/result3-1.png, id=120, 1282.5516pt x 1086.459pt>
+Package pdftex.def Info: Figures/result3.png  used on input line 287.
+(pdftex.def)             Requested size: 346.29356pt x 293.34785pt.
+<Figures/result3-1.png, id=171, 1282.5516pt x 1086.459pt>
 File: Figures/result3-1.png Graphic file (type png)
 <use Figures/result3-1.png>
-Package pdftex.def Info: Figures/result3-1.png  used on input line 246.
-(pdftex.def)             Requested size: 384.76845pt x 325.94022pt.
-
-LaTeX Warning: `h' float specifier changed to `ht'.
-
-(/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.bbl [8] [9 </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1.png> </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1-1.png>])
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 265.
- [10 </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result2.png> </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result2-1.png>] [11 </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result3.png> </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result3-1.png>]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 265.
+Package pdftex.def Info: Figures/result3-1.png  used on input line 293.
+(pdftex.def)             Requested size: 346.29356pt x 293.34785pt.
+[11 </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result2-label.png>] [12 </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result3.png> </home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result3-1.png>] (/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.bbl)
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 318.
+ [13]
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 318.
  (/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 265.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 265.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 318.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 318.
 Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: E83326E4DD22F8F5587B7522EE1E54AE;339.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 265.
+
+
+LaTeX Warning: There were undefined references.
+
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 318.
  ) 
 Here is how much of TeX's memory you used:
- 10212 strings out of 492623
- 153789 string characters out of 6135669
- 305109 words of memory out of 5000000
- 13776 multiletter control sequences out of 15000+600000
- 33857 words of font info for 140 fonts, out of 8000000 for 9000
+ 12038 strings out of 492623
+ 183161 string characters out of 6135669
+ 343085 words of memory out of 5000000
+ 15544 multiletter control sequences out of 15000+600000
+ 39255 words of font info for 154 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 38i,20n,45p,1687b,685s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 51i,21n,49p,1687b,720s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/share/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb></usr/share/texmf-dist/fonts/type1/urw/courier/ucrr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/palatino/uplb8a.pfb></usr/share/texmf-dist/fonts/type1/urw/palatino/uplbi8a.pfb></usr/share/texmf-dist/fonts/type1/urw/palatino/uplr8a.pfb></usr/share/texmf-dist/fonts/type1/urw/palatino/uplri8a.pfb>
-Output written on /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.pdf (11 pages, 1345634 bytes).
+Output written on /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.pdf (13 pages, 1494851 bytes).
 PDF statistics:
- 218 PDF objects out of 1000 (max. 8388607)
- 171 compressed objects within 2 object streams
- 65 named destinations out of 1000 (max. 500000)
- 18523 words of extra memory for PDF output out of 20736 (max. 10000000)
+ 256 PDF objects out of 1000 (max. 8388607)
+ 204 compressed objects within 3 object streams
+ 83 named destinations out of 1000 (max. 500000)
+ 23648 words of extra memory for PDF output out of 24883 (max. 10000000)
 

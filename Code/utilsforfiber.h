@@ -29,7 +29,7 @@ NodeAdj* createNode(int neigh, int type_link)
 	return newnode;
 }
 
-extern Graph* createGraph(int N, char* nodenames)
+extern Graph* createGraph(int N, char* nodenames, int name_bool)
 {
 	Graph* graph = (Graph*)malloc(sizeof(Graph));
 	graph->size = N;
@@ -46,13 +46,16 @@ extern Graph* createGraph(int N, char* nodenames)
 
 	int nodeID;
 	char tempname[60];
-	FILE* NAMES = fopen(nodenames, "r");
-	for(j=0; j<N; j++)
-	{		
-		fscanf(NAMES, "%s\t%d\n", &tempname, &nodeID);
-		strcpy(graph->array[nodeID].gene_name, tempname);
+	if(name_bool==1)
+	{
+		FILE* NAMES = fopen(nodenames, "r");
+		for(j=0; j<N; j++)
+		{			
+			fscanf(NAMES, "%s\t%d\n", &tempname, &nodeID);
+			strcpy(graph->array[nodeID].gene_name, tempname);
+		}
+		fclose(NAMES);
 	}
-	fclose(NAMES);
 	return graph;
 }
 
@@ -112,10 +115,73 @@ extern int** defineNetwork(int** edges, Graph* graph, char* filename)
     
     return edges;
 }
+
+extern int GetNodeNumber(char* edgefile)
+{
+	FILE *EDGE_FILE = fopen(edgefile, "r");
+	if(EDGE_FILE==NULL) printf("ERROR in file reading");
+
+	int max = -1;
+	int i, j;
+	char type[20];
+	int r = 1;
+	int nlink = 0; // number of links.
+	while(r) // Calculates the number of lines in the file
+	{
+		r = fscanf(EDGE_FILE, "%d\t%d\t%s\n", &i, &j, &type);
+		if(r==EOF) break;
+		if(i>max && i>j) max = i;
+		else if(j>max && j>i) max = j;
+	}
+	return (max+1);
+}
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////// GRAPH OPERATIONS ////////////////////////////////
+int cmpfunc (const void * a, const void * b) {
+   return ( *(int*)a - *(int*)b );
+}
+
+struct storetype
+{
+	int node;
+	int type;
+};
+typedef struct storetype STORETYPE;
+
+int cmp(const void *a, const void *b)
+{
+    STORETYPE *a1 = (STORETYPE *)a;
+    STORETYPE *a2 = (STORETYPE *)b;
+    if ((*a1).node > (*a2).node)
+        return -1;
+    else if ((*a1).node < (*a2).node)
+        return 1;
+    else
+        return 0;
+}
+
+extern STORETYPE* GET_INTYPENEIGH(Graph* graph, int node)
+{
+	int n_in = 0;	
+	NodeAdj* NODE;
+	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next) n_in++;
+
+	int n_index = 0;
+	STORETYPE* in_neighbors = (STORETYPE*)malloc(n_in*sizeof(STORETYPE));
+	//int* in_neighbors = (int*)malloc(n_in*sizeof(int));
+	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next)
+	{
+		in_neighbors[n_index].node = NODE->neighbor;
+		in_neighbors[n_index].type = NODE->type_link;
+		n_index++;
+	}
+	
+	qsort(in_neighbors, n_in, sizeof(in_neighbors[0]), cmp);
+	return in_neighbors; 
+}
+
 extern int* GET_INNEIGH(Graph* graph, int node)
 {
 	int n_in = 0;	
@@ -126,6 +192,8 @@ extern int* GET_INNEIGH(Graph* graph, int node)
 	int* in_neighbors = (int*)malloc(n_in*sizeof(int));
 	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next)
 		in_neighbors[n_index++] = NODE->neighbor;
+	
+	qsort(in_neighbors, n_in, sizeof(int), cmpfunc);
 	return in_neighbors; 
 }
 
@@ -183,6 +251,8 @@ extern int CHECKLINK(Graph* graph, int pointing_node, int pointed_node)
 		if(Node->neighbor==pointed_node) return 1;
 	return 0;
 }
+
+
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
