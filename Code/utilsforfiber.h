@@ -207,6 +207,8 @@ extern int* GET_OUTNEIGH(Graph* graph, int node)
 	int* in_neighbors = (int*)malloc(n_in*sizeof(int));
 	for(NODE=graph->array[node].head_out; NODE!=NULL; NODE=NODE->next)
 		in_neighbors[n_index++] = NODE->neighbor;
+	
+	qsort(in_neighbors, n_in, sizeof(int), cmpfunc);
 	return in_neighbors; 
 }
 
@@ -252,6 +254,53 @@ extern int CHECKLINK(Graph* graph, int pointing_node, int pointed_node)
 	return 0;
 }
 
+extern void KosajaruSCC(NODELIST** nodes_in_scc, int root, Graph* graph)
+{
+	int i, j, v;
+	int N = graph->size;
+	int* visited = (int*)malloc(N*sizeof(int));
+	int* ivisited = (int*)malloc(N*sizeof(int));
+	for(i=0; i<N; i++) { visited[i] = 0; ivisited[i] = 0; }
+
+	STACK* nodetocheck = NULL;
+	
+	// DFS process in the network starting from the root node.
+	push(&nodetocheck, root);
+	while(nodetocheck)
+	{
+		v = pop(&nodetocheck);
+		if(visited[i]==0)
+		{
+			visited[i] = 1;
+			int n = GETNout(graph, v);
+			int* neigh_out = GET_OUTNEIGH(graph, v);
+			for(j=0; j<n; j++) push(&nodetocheck, neigh_out[j]);
+		}
+	}
+
+	// DFS process in the transpose network from the root node.
+	push(&nodetocheck, root);
+	while(nodetocheck)
+	{
+		v = pop(&nodetocheck);
+		if(visited[v]==1)
+		{
+			int check = doublycheck_element(*nodes_in_scc, v);
+			if(check==0) push_doublylist(nodes_in_scc, v); // it is in the root SCC.
+		}
+		if(ivisited[v]==0)
+		{
+			ivisited[v] = 1;
+			int n = GETNin(graph, v);
+			int* neigh_in = GET_INNEIGH(graph, v);
+			for(j=0; j<n; j++) push(&nodetocheck, neigh_in[j]);
+		}
+	}
+
+	// 'nodes_in_scc' contains all the nodes that are in the same SCC than root.
+	//return nodes_in_scc;
+}
+
 
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
@@ -259,35 +308,37 @@ extern int CHECKLINK(Graph* graph, int pointing_node, int pointed_node)
 ////////////////////////////////
 ////// STACK OPERATIONS ///////
 // To insert an element in the stack.
-extern Stack *push(Stack* top, int node)
+extern void push(STACK** top, int node)
 {
-	Stack *ptr;
-	ptr = (Stack*)malloc(sizeof(Stack));
+	STACK *ptr;
+	ptr = (STACK*)malloc(sizeof(STACK));
 	ptr->node_ID = node;
-	if(top==NULL)
+	if(*top==NULL)
 	{
 		ptr->next = NULL;
-		top = ptr;
+		*top = ptr;
 	}
 	else
 	{
-		ptr->next = top;
-		top = ptr;
+		ptr->next = *top;
+		*top = ptr;
 	}
-	return top;
+	//return top;
 }
 
-// To delete an element in the stack.
-extern Stack *pop(Stack* top)
+// To delete an element in the STACK.
+extern int *pop(STACK** top)
 {
-	Stack *ptr;
+	int v;
+	STACK *ptr;
 	ptr = top;
-	if(top!=NULL)
+	if((*top)!=NULL)
 	{
-		top = top->next;
+		v = (*top)->node_ID;
+		*top = (*top)->next;
 		free(ptr);
 	}
-	return top;
+	return v;
 }
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
@@ -389,6 +440,53 @@ extern void append(NODELIST** head, int new_data)
     new_node->prev = last; 
   
     return; 
+}
+
+extern void KosajaruSCC(NODELIST** nodes_in_scc, int root, Graph* graph)
+{
+	int i, j, v;
+	int N = graph->size;
+	int* visited = (int*)malloc(N*sizeof(int));
+	int* ivisited = (int*)malloc(N*sizeof(int));
+	for(i=0; i<N; i++) { visited[i] = 0; ivisited[i] = 0; }
+
+	STACK* nodetocheck = NULL;
+	
+	// DFS process in the network starting from the root node.
+	push(&nodetocheck, root);
+	while(nodetocheck)
+	{
+		v = pop(&nodetocheck);
+		if(visited[i]==0)
+		{
+			visited[i] = 1;
+			int n = GETNout(graph, v);
+			int* neigh_out = GET_OUTNEIGH(graph, v);
+			for(j=0; j<n; j++) push(&nodetocheck, neigh_out[j]);
+		}
+	}
+
+	// DFS process in the transpose network from the root node.
+	push(&nodetocheck, root);
+	while(nodetocheck)
+	{
+		v = pop(&nodetocheck);
+		if(visited[v]==1)
+		{
+			int check = doublycheck_element(*nodes_in_scc, v);
+			if(check==0) push_doublylist(nodes_in_scc, v); // it is in the root SCC.
+		}
+		if(ivisited[v]==0)
+		{
+			ivisited[v] = 1;
+			int n = GETNin(graph, v);
+			int* neigh_in = GET_INNEIGH(graph, v);
+			for(j=0; j<n; j++) push(&nodetocheck, neigh_in[j]);
+		}
+	}
+
+	// 'nodes_in_scc' contains all the nodes that are in the same SCC than root.
+	//return nodes_in_scc;
 }
 
 int EqualBlocks(BLOCK* block1, BLOCK* block2)

@@ -505,10 +505,12 @@ int main(int argv, char** argc)
 	}
 	//////////////////////////////////////////////////////////////////////////
 
+	ShowMainInfo(partition);
+	
 	int n;
 	STORETYPE* tempx;
 	int* temp;
-	printf("%d\n", total_nodes);
+	printf("%d\n", nontrivial_fibers);
 	//for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	//{
 	//	if(current_part->block->size==1) continue;

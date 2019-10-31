@@ -37,11 +37,10 @@ typedef struct NodeAdj NodeAdj;
 ////////////////////// STACK DATA STRUCTURE ///////////////////////
 struct stack
 {
-	int extn;
 	int node_ID;
 	struct stack *next;
 };
-typedef struct stack Stack;
+typedef struct stack STACK;
 /////////////////////////////////////////////////////////////////////
 
 ////////////////// DOUBLE LINKED LIST DATA STRUCTURE //////////////////
@@ -219,6 +218,7 @@ void ShowMainInfo(PART* partition)
 	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	{
 		printf("Fiber %d: Size %d - Fundamental Class %lf - Subclass %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
+		printBlock(current_part->block);
 	}
 }
 #endif
