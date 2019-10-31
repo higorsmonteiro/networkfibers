@@ -62,21 +62,23 @@ void CALCULATE_FUNDAMENTAL(PART** partition, Graph* graph)
 
 	PART* current_part;
 	NODELIST* nodelist;
+	NODELIST* scc_nodes;
 	// Loop over all the fiber blocks.
 	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
 	{
-		number_fnodes = current_part->block->size;
-		number_regulators = current_part->number_regulators;
-		all_nodes = number_fnodes+number_regulators;
+		//temp_index = (int*)malloc(all_nodes*sizeof(int));
+    	//temp_adjmatrix = (double*)malloc(all_nodes*all_nodes*sizeof(double));
 
-		index = 0;
-		temp_index = (int*)malloc(all_nodes*sizeof(int));
-    	temp_adjmatrix = (double*)malloc(all_nodes*all_nodes*sizeof(double));
-		// Get the correct nodes.		
+		scc_nodes = NULL;
+		// Get the correct nodes.
 		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
-			temp_index[index++] = nodelist->data;
-		for(nodelist=current_part->regulators; nodelist!=NULL; nodelist=nodelist->next)
-			temp_index[index++] = nodelist->data;
+		{
+			push_doublylist(&scc_nodes, nodelist->data);
+			KosajaruSCC(&scc_nodes, nodelist->data, graph);
+		}
+			
+		//for(nodelist=current_part->regulators; nodelist!=NULL; nodelist=nodelist->next)
+		//	temp_index[index++] = nodelist->data;
 		
 		//Now we construct the current circuit fiber adjacency matrix to calculate its eigenvalues.
 		for(j=0; j<all_nodes; j++)
