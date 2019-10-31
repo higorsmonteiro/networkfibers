@@ -1,14 +1,14 @@
 # Fdb version 3
-["bibtex main"] 1572462262 "main.aux" "main.bbl" "main" 1572471982
+["bibtex main"] 1572495203 "main.aux" "main.bbl" "main" 1572498156
   "/usr/share/texmf-dist/bibtex/bst/base/unsrt.bst" 1557554374 18030 1376b4b231b50c66211e47e42eda2875 ""
-  "main.aux" 1572471945 3089 964cae19f9ac04864c167a96a69a1732 "pdflatex"
+  "main.aux" 1572498156 3118 45ce035c074b9fc902453c0a94ec1b51 "pdflatex"
   "sample.bib" 1571169942 1118 b6fb3c18acf6ee3e5e91630bff7dd9c2 ""
   (generated)
-  "main.bbl"
   "main.blg"
-["pdflatex"] 1572471941 "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.tex" "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.pdf" "main" 1572471982
-  "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.aux" 1572471945 3089 964cae19f9ac04864c167a96a69a1732 ""
-  "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.tex" 1572471982 27827 583290f2cbb8db298f4161d873f95844 ""
+  "main.bbl"
+["pdflatex"] 1572498152 "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.tex" "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.pdf" "main" 1572498156
+  "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.aux" 1572498156 3118 45ce035c074b9fc902453c0a94ec1b51 ""
+  "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.tex" 1572498152 29357 0481596b7ebf05d9ceb36934800e82db ""
   "/usr/share/texmf-dist/fonts/enc/dvips/base/8r.enc" 1557554374 4850 80dc9bab7f31fb78a000ccfed0e27cab ""
   "/usr/share/texmf-dist/fonts/map/fontname/texfonts.map" 1557554374 3332 103109f5612ad95229751940c61aada0 ""
   "/usr/share/texmf-dist/fonts/tfm/adobe/courier/pcrr8r.tfm" 1557554374 1292 bd42be2f344128bff6d35d98474adfe3 ""
@@ -129,14 +129,14 @@
   "Figures/result3-1.png" 1572462625 473233 c6f2fee63fb0792c33a4ceae988df4df ""
   "Figures/result3.png" 1572462604 529086 9ce24f5322455cfbd9b49bb5f32ef17e ""
   "diazessay.cls" 1572462284 4434 b824507ddc14ff29e795d4280d939ea1 ""
-  "main.aux" 1572471945 3089 964cae19f9ac04864c167a96a69a1732 "pdflatex"
-  "main.bbl" 1572462262 968 3619fcf0f444047fda512df828cda5d8 "bibtex main"
-  "main.out" 1572471945 339 e83326e4dd22f8f5587b7522ee1e54ae "pdflatex"
-  "main.tex" 1572471982 27827 583290f2cbb8db298f4161d873f95844 ""
+  "main.aux" 1572498156 3118 45ce035c074b9fc902453c0a94ec1b51 "pdflatex"
+  "main.bbl" 1572495203 968 3619fcf0f444047fda512df828cda5d8 "bibtex main"
+  "main.out" 1572498156 339 e83326e4dd22f8f5587b7522ee1e54ae "pdflatex"
+  "main.tex" 1572498152 29357 0481596b7ebf05d9ceb36934800e82db ""
   (generated)
-  "main.pdf"
+  "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.log"
   "main.log"
-  "main.aux"
   "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.pdf"
   "main.out"
-  "/home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/main.log"
+  "main.pdf"
+  "main.aux"

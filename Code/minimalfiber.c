@@ -9,30 +9,39 @@
 	that receive equivalent information from other fibers on the network. Moreover, after the proper identification of the 
 	building blocks, we classify each one based on specific topological features, represented by two parameter: |n,l>.
 
-	---------------------------------------------------------------------------------------------------------------
+	----------------------------------------------------------------------------------------------------------------------------
 
-	The code receives ONE command line argument, that is the common identifier for two required files: one single-line 
-	file containing a integer number "%d\n" representing the number of nodes in the network ('ARG1Ngenes.dat'), and a edgelist 
-	file ('ARG1edgelist.dat') containing all the directed links between nodes (3 columns: "%d\t%d\t%s\n" -> Pointing Node/ Pointed Node/ 
-	Type of regulation). For gene regulatory networks, the type of the regulation can be positive, negative or dual.
+	The code receives TWO commands line arguments. The first one is the string identifier for the edgelist file 
+	('ARG1edgelist.dat') containing all the directed links between nodes (3 columns: "%d\t%d\t%s\n" -> Pointing Node/ 
+	Pointed Node/ Type of regulation). For gene regulatory networks, the type of the regulation can be 'positive', 'negative' 
+	or 'dual'. The second argument is a flag used to signal the code to properly get the gene names of each node number. For 
+	that, it is necessary an auxiliary file called 'ARG1genename.dat' containing two columns (formatted as "%s\t%d\n" -> Gene 
+	name/ Gene ID number). Thus, if there is a gene name file, the code will properly link all the node numbers with their 
+	corresponding name if 'ARG2' is passed as '-y', otherwise just the node numbers is stored for each node.
 
-	The result is stored in two arrays: 'nodefiber'. Each array store the color of each component (node or 
-	link) and, thus, gives all the information needed, together with the files, for the base graph construction.
+	The result is stored in the 'partition' and 'null_partition' structures, together with the 'graph' structure. To check 
+	which data each one of this structures stores the user can refer to the 'structforfiber.h' module. In general, a partition 
+	stores all the fiber blocks and each block stores the list of node that belongs to it. The values of n and l are stored in 
+	'partition' and 'null_partition' for each block.
+
+	------------------------------------------------------------------------------------------------------------------------------
 
 	Author: Higor da S. Monteiro
 	Email: higor.monteiro@fisica.ufc.br
-	Complex System Lab - Departament of Physics/Universidade Federal do Ceará (UFC)
+	Complex System Lab (Prof. José Soares de Andrade Jr.)
+	Departament of Physics/Universidade Federal do Ceará (UFC) - Fortaleza, Ceará.
 */
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+// Used fot the calculation of the eigenvalues for each fibration block adjacency matrix.
 #include <gsl/gsl_eigen.h>
-// Separated personal constructed modules for graph data and fibration specific functions.
+// Separated personal constructed modules for graph data and graph fibration specific functions.
 #include "utilsforfiber.h"
 #include "structforfiber.h"
-/////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////
 #define SENTINEL -96
 
 
