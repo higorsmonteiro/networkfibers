@@ -212,6 +212,14 @@ void printPartitionReg(PART* part)
 		if(temp->block->size>1) printf("Number of external regulators of block %d: %d\n", temp->block->index, temp->number_regulators);
 }
 
+void printList(NODELIST* list)
+{
+	NODELIST* current;
+	for(current=list; current!=NULL; current=current->next)
+		printf("%d ", current->data);
+	printf("\n");
+}
+
 void ShowMainInfo(PART* partition)
 {
 	PART* current_part;

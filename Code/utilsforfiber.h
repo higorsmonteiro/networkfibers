@@ -254,61 +254,13 @@ extern int CHECKLINK(Graph* graph, int pointing_node, int pointed_node)
 	return 0;
 }
 
-extern void KosajaruSCC(NODELIST** nodes_in_scc, int root, Graph* graph)
-{
-	int i, j, v;
-	int N = graph->size;
-	int* visited = (int*)malloc(N*sizeof(int));
-	int* ivisited = (int*)malloc(N*sizeof(int));
-	for(i=0; i<N; i++) { visited[i] = 0; ivisited[i] = 0; }
-
-	STACK* nodetocheck = NULL;
-	
-	// DFS process in the network starting from the root node.
-	push(&nodetocheck, root);
-	while(nodetocheck)
-	{
-		v = pop(&nodetocheck);
-		if(visited[i]==0)
-		{
-			visited[i] = 1;
-			int n = GETNout(graph, v);
-			int* neigh_out = GET_OUTNEIGH(graph, v);
-			for(j=0; j<n; j++) push(&nodetocheck, neigh_out[j]);
-		}
-	}
-
-	// DFS process in the transpose network from the root node.
-	push(&nodetocheck, root);
-	while(nodetocheck)
-	{
-		v = pop(&nodetocheck);
-		if(visited[v]==1)
-		{
-			int check = doublycheck_element(*nodes_in_scc, v);
-			if(check==0) push_doublylist(nodes_in_scc, v); // it is in the root SCC.
-		}
-		if(ivisited[v]==0)
-		{
-			ivisited[v] = 1;
-			int n = GETNin(graph, v);
-			int* neigh_in = GET_INNEIGH(graph, v);
-			for(j=0; j<n; j++) push(&nodetocheck, neigh_in[j]);
-		}
-	}
-
-	// 'nodes_in_scc' contains all the nodes that are in the same SCC than root.
-	//return nodes_in_scc;
-}
-
-
 ////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////
 
 ////////////////////////////////
 ////// STACK OPERATIONS ///////
 // To insert an element in the stack.
-extern void push(STACK** top, int node)
+extern void dopush(STACK** top, int node)
 {
 	STACK *ptr;
 	ptr = (STACK*)malloc(sizeof(STACK));
@@ -323,15 +275,14 @@ extern void push(STACK** top, int node)
 		ptr->next = *top;
 		*top = ptr;
 	}
-	//return top;
 }
 
 // To delete an element in the STACK.
-extern int *pop(STACK** top)
+extern int dopop(STACK** top)
 {
 	int v;
 	STACK *ptr;
-	ptr = top;
+	ptr = *top;
 	if((*top)!=NULL)
 	{
 		v = (*top)->node_ID;
@@ -442,7 +393,7 @@ extern void append(NODELIST** head, int new_data)
     return; 
 }
 
-extern void KosajaruSCC(NODELIST** nodes_in_scc, int root, Graph* graph)
+extern void KOSAJARU(NODELIST** nodes_in_scc, int root, Graph* graph)
 {
 	int i, j, v;
 	int N = graph->size;
@@ -450,27 +401,26 @@ extern void KosajaruSCC(NODELIST** nodes_in_scc, int root, Graph* graph)
 	int* ivisited = (int*)malloc(N*sizeof(int));
 	for(i=0; i<N; i++) { visited[i] = 0; ivisited[i] = 0; }
 
-	STACK* nodetocheck = NULL;
-	
 	// DFS process in the network starting from the root node.
-	push(&nodetocheck, root);
+	STACK* nodetocheck = NULL;
+	dopush(&nodetocheck, root);
 	while(nodetocheck)
 	{
-		v = pop(&nodetocheck);
-		if(visited[i]==0)
+		v = dopop(&nodetocheck);
+		if(visited[v]==0)
 		{
-			visited[i] = 1;
+			visited[v] = 1;
 			int n = GETNout(graph, v);
 			int* neigh_out = GET_OUTNEIGH(graph, v);
-			for(j=0; j<n; j++) push(&nodetocheck, neigh_out[j]);
+			for(j=0; j<n; j++) dopush(&nodetocheck, neigh_out[j]);
+			free(neigh_out);
 		}
 	}
-
 	// DFS process in the transpose network from the root node.
-	push(&nodetocheck, root);
+	dopush(&nodetocheck, root);
 	while(nodetocheck)
 	{
-		v = pop(&nodetocheck);
+		v = dopop(&nodetocheck);
 		if(visited[v]==1)
 		{
 			int check = doublycheck_element(*nodes_in_scc, v);
@@ -481,12 +431,12 @@ extern void KosajaruSCC(NODELIST** nodes_in_scc, int root, Graph* graph)
 			ivisited[v] = 1;
 			int n = GETNin(graph, v);
 			int* neigh_in = GET_INNEIGH(graph, v);
-			for(j=0; j<n; j++) push(&nodetocheck, neigh_in[j]);
+			for(j=0; j<n; j++) dopush(&nodetocheck, neigh_in[j]);
+			free(neigh_in);
 		}
 	}
 
 	// 'nodes_in_scc' contains all the nodes that are in the same SCC than root.
-	//return nodes_in_scc;
 }
 
 int EqualBlocks(BLOCK* block1, BLOCK* block2)
@@ -609,6 +559,14 @@ int GetPartitionSize(PART* part)
 int GetBlockSize(BLOCK* P)
 {
 	return P->size;
+}
+
+int GetListSize(NODELIST* list)
+{
+	int size = 0;
+	NODELIST* nodelist;
+	for(nodelist=list; nodelist!=NULL; nodelist=nodelist->next) size++;
+	return size;
 }
 
 int GetFiberNumber(PART* part)
