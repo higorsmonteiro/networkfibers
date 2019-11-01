@@ -1,10 +1,17 @@
 #ifndef FIBRATIONF_H
 #define FIBRATIONF_H
 
+/*  
+    The code here represents the central module for the implementation of the coarsest
+    refinement graph partitioning algorithm, containing the functions used in the main
+    code. The necessary comments are given at the beginning of each function (to do).
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+///////////////////
 #include <gsl/gsl_eigen.h>
 #include "utilsforfiber.h"
 #include "structforfiber.h"
@@ -54,7 +61,7 @@ extern double GET_EIGMAX(NODELIST* scc_nodes, Graph* graph)
 	all the nodes belonging to the block and all the external nodes that regulates that 
 	same fiber.	After that, construct the adjacency matrix for that set and obtain its
 	largest eigenvalue. */
-extern void CALCULATE_FUNDAMENTAL(PART** partition, Graph* graph)
+extern void DEF_BRANCH_RATIO(PART** partition, Graph* graph)
 {
 	PART* current_part;
 	NODELIST* nodelist;

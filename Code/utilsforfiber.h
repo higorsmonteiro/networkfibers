@@ -143,45 +143,6 @@ int cmpfunc (const void * a, const void * b) {
    return ( *(int*)a - *(int*)b );
 }
 
-struct storetype
-{
-	int node;
-	int type;
-};
-typedef struct storetype STORETYPE;
-
-int cmp(const void *a, const void *b)
-{
-    STORETYPE *a1 = (STORETYPE *)a;
-    STORETYPE *a2 = (STORETYPE *)b;
-    if ((*a1).node > (*a2).node)
-        return -1;
-    else if ((*a1).node < (*a2).node)
-        return 1;
-    else
-        return 0;
-}
-
-extern STORETYPE* GET_INTYPENEIGH(Graph* graph, int node)
-{
-	int n_in = 0;	
-	NodeAdj* NODE;
-	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next) n_in++;
-
-	int n_index = 0;
-	STORETYPE* in_neighbors = (STORETYPE*)malloc(n_in*sizeof(STORETYPE));
-	//int* in_neighbors = (int*)malloc(n_in*sizeof(int));
-	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next)
-	{
-		in_neighbors[n_index].node = NODE->neighbor;
-		in_neighbors[n_index].type = NODE->type_link;
-		n_index++;
-	}
-	
-	qsort(in_neighbors, n_in, sizeof(in_neighbors[0]), cmp);
-	return in_neighbors; 
-}
-
 extern int* GET_INNEIGH(Graph* graph, int node)
 {
 	int n_in = 0;	

@@ -1,0 +1,630 @@
+INSIDE FIBER 0 WITH SIZE 2:
+NODE lysc receives from fiber(node,type): 109(argp,positive) 
+NODE dapb receives from fiber(node,type): 109(argp,positive) 
+
+INSIDE FIBER 1 WITH SIZE 7:
+NODE trxc receives from fiber(node,type): 108(oxyr,positive) 
+NODE oxys receives from fiber(node,type): 108(oxyr,positive) 
+NODE hemh receives from fiber(node,type): 108(oxyr,positive) 
+NODE grxa receives from fiber(node,type): 108(oxyr,positive) 
+NODE gor receives from fiber(node,type): 108(oxyr,positive) 
+NODE dsbg receives from fiber(node,type): 108(oxyr,positive) 
+NODE add receives from fiber(node,type): 108(rbsr,positive) 
+
+INSIDE FIBER 10 WITH SIZE 9:
+NODE aded receives from fiber(node,type): 145(hns,negative) 
+NODE adiy receives from fiber(node,type): 145(hns,negative) 
+NODE chia receives from fiber(node,type): 145(hns,negative) 
+NODE gspab receives from fiber(node,type): 145(hns,negative) 
+NODE hcha receives from fiber(node,type): 145(hns,negative) 
+NODE hdfr receives from fiber(node,type): 145(hns,negative) 
+NODE mdtji receives from fiber(node,type): 145(hns,negative) 
+NODE rcsb receives from fiber(node,type): 145(hns,negative) 
+NODE yjjp receives from fiber(node,type): 145(hns,negative) 
+
+INSIDE FIBER 11 WITH SIZE 12:
+NODE crl_1 receives from fiber(node,type): 146(fur,negative) 
+NODE exbbd receives from fiber(node,type): 146(fur,negative) 
+NODE fepdgc receives from fiber(node,type): 146(fur,negative) 
+NODE fhuacdb receives from fiber(node,type): 146(fur,negative) 
+NODE fhue receives from fiber(node,type): 146(fur,negative) 
+NODE gpma receives from fiber(node,type): 146(fur,negative) 
+NODE metj receives from fiber(node,type): 146(fur,negative) 
+NODE noha-ydfn-tfaq receives from fiber(node,type): 146(fur,negative) 
+NODE ryhb receives from fiber(node,type): 146(fur,negative) 
+NODE ygac receives from fiber(node,type): 146(fur,negative) 
+NODE yhhy receives from fiber(node,type): 146(fur,negative) 
+NODE yjjz receives from fiber(node,type): 146(fur,negative) 
+
+INSIDE FIBER 15 WITH SIZE 2:
+NODE ibag-mura receives from fiber(node,type): 68(mlra,positive) 
+NODE rplu-rpma-yhbe-obge receives from fiber(node,type): 68(mlra,positive) 
+
+INSIDE FIBER 18 WITH SIZE 4:
+NODE metf receives from fiber(node,type): 11(metj,negative) 
+NODE metc receives from fiber(node,type): 11(metj,negative) 
+NODE meta receives from fiber(node,type): 11(metj,negative) 
+NODE fole-yeib receives from fiber(node,type): 11(metj,negative) 
+
+INSIDE FIBER 19 WITH SIZE 9:
+NODE tpia receives from fiber(node,type): 79(cra,negative) 
+NODE pyrg-eno receives from fiber(node,type): 79(cra,negative) 
+NODE pykf receives from fiber(node,type): 79(cra,negative) 
+NODE ppc receives from fiber(node,type): 79(cra,negative) 
+NODE pfka receives from fiber(node,type): 79(cra,negative) 
+NODE gpmm-envc-yibq receives from fiber(node,type): 79(cra,negative) 
+NODE glk receives from fiber(node,type): 79(cra,negative) 
+NODE frubka receives from fiber(node,type): 79(cra,negative) 
+NODE fbab receives from fiber(node,type): 79(cra,negative) 
+
+INSIDE FIBER 20 WITH SIZE 2:
+NODE osmb receives from fiber(node,type): 10(rcsb,positive) 
+NODE lola-rara receives from fiber(node,type): 10(rcsb,positive) 
+
+INSIDE FIBER 21 WITH SIZE 4:
+NODE ymia-ycix receives from fiber(node,type): 89(yjjq,negative) 
+NODE yfir-dgcn-yfib receives from fiber(node,type): 89(yjjq,negative) 
+NODE ybhl receives from fiber(node,type): 89(yjjq,negative) 
+NODE gfca receives from fiber(node,type): 89(yjjq,negative) 
+
+INSIDE FIBER 22 WITH SIZE 2:
+NODE ydea receives from fiber(node,type): 131(arca,negative) 
+NODE arcz receives from fiber(node,type): 131(arca,negative) 
+
+INSIDE FIBER 25 WITH SIZE 8:
+NODE alac receives from fiber(node,type): 30(sgrr,positive) 
+NODE cyntsx receives from fiber(node,type): 30(cynr,positive) 
+NODE dhaklm receives from fiber(node,type): 30(dhar,positive) 
+NODE gcvb receives from fiber(node,type): 30(gcva,positive) 
+NODE hcaefcbd receives from fiber(node,type): 30(hcar,positive) 
+NODE ilvc receives from fiber(node,type): 30(ilvy,positive) 
+NODE luxs receives from fiber(node,type): 30(uvry,positive) 
+NODE ydiu receives from fiber(node,type): 30(iscr,positive) 
+
+INSIDE FIBER 28 WITH SIZE 3:
+NODE mpl receives from fiber(node,type): 239(crp,positive) 79(cra,negative) 
+NODE gapa-yead receives from fiber(node,type): 239(crp,positive) 79(cra,negative) 
+NODE epd-pgk-fbaa receives from fiber(node,type): 239(crp,positive) 79(cra,negative) 
+
+INSIDE FIBER 29 WITH SIZE 3:
+NODE sbmc receives from fiber(node,type): 30(lexa,negative) 239(crp,positive) 
+NODE kbaz-agavwa receives from fiber(node,type): 239(crp,positive) 30(agar,negative) 
+NODE argg receives from fiber(node,type): 239(crp,positive) 30(argr,negative) 
+
+INSIDE FIBER 30 WITH SIZE 69:
+NODE acrr receives from fiber(node,type): 30(acrr,negative) 
+NODE agar receives from fiber(node,type): 30(agar,negative) 
+NODE agas-kbay-agabcdi receives from fiber(node,type): 30(agar,negative) 
+NODE alas receives from fiber(node,type): 30(alas,negative) 
+NODE alsr receives from fiber(node,type): 30(alsr,negative) 
+NODE arga receives from fiber(node,type): 30(argr,negative) 
+NODE argcbh receives from fiber(node,type): 30(argr,negative) 
+NODE arge receives from fiber(node,type): 30(argr,negative) 
+NODE argf receives from fiber(node,type): 30(argr,negative) 
+NODE argi receives from fiber(node,type): 30(argr,negative) 
+NODE argr receives from fiber(node,type): 30(argr,negative) 
+NODE aroh receives from fiber(node,type): 30(trpr,negative) 
+NODE arsr receives from fiber(node,type): 30(arsr,negative) 
+NODE artj receives from fiber(node,type): 30(argr,negative) 
+NODE artpiqm receives from fiber(node,type): 30(argr,negative) 
+NODE cecr receives from fiber(node,type): 30(cecr,negative) 
+NODE cho receives from fiber(node,type): 30(lexa,negative) 
+NODE cynr receives from fiber(node,type): 30(cynr,negative) 
+NODE dhar receives from fiber(node,type): 30(dhar,negative) 
+NODE dinb-yafnop receives from fiber(node,type): 30(lexa,negative) 
+NODE dind receives from fiber(node,type): 30(lexa,negative) 
+NODE ding-ybib receives from fiber(node,type): 30(lexa,negative) 
+NODE dinq receives from fiber(node,type): 30(lexa,negative) 
+NODE erpa receives from fiber(node,type): 30(iscr,negative) 
+NODE ftsk receives from fiber(node,type): 30(lexa,negative) 
+NODE gcva receives from fiber(node,type): 30(gcva,negative) 
+NODE hcar receives from fiber(node,type): 30(hcar,negative) 
+NODE hoke receives from fiber(node,type): 30(lexa,negative) 
+NODE ilvy receives from fiber(node,type): 30(ilvy,negative) 
+NODE insk receives from fiber(node,type): 30(lexa,negative) 
+NODE iscr receives from fiber(node,type): 30(iscr,negative) 
+NODE lexa receives from fiber(node,type): 30(lexa,negative) 
+NODE lyso receives from fiber(node,type): 30(argr,negative) 
+NODE lysr receives from fiber(node,type): 30(lysr,negative) 
+NODE mngab receives from fiber(node,type): 30(mngr,negative) 
+NODE mngr receives from fiber(node,type): 30(mngr,negative) 
+NODE mpra receives from fiber(node,type): 30(mpra,negative) 
+NODE mqsa receives from fiber(node,type): 30(mqsa,negative) 
+NODE nimr receives from fiber(node,type): 30(nimr,negative) 
+NODE nimt receives from fiber(node,type): 30(nimr,negative) 
+NODE paax receives from fiber(node,type): 30(paax,negative) 
+NODE pepa receives from fiber(node,type): 30(pepa,negative) 
+NODE polb receives from fiber(node,type): 30(lexa,negative) 
+NODE pspf receives from fiber(node,type): 30(pspf,negative) 
+NODE ptra-recbd receives from fiber(node,type): 30(lexa,negative) 
+NODE rcnr receives from fiber(node,type): 30(rcnr,negative) 
+NODE recax receives from fiber(node,type): 30(lexa,negative) 
+NODE recn receives from fiber(node,type): 30(lexa,negative) 
+NODE recq receives from fiber(node,type): 30(lexa,negative) 
+NODE rnlab receives from fiber(node,type): 30(iscr,negative) 
+NODE rpib receives from fiber(node,type): 30(alsr,negative) 
+NODE rpsu-dnag-rpod receives from fiber(node,type): 30(lexa,negative) 
+NODE rutr receives from fiber(node,type): 30(rutr,negative) 
+NODE ruvab receives from fiber(node,type): 30(lexa,negative) 
+NODE sgrr receives from fiber(node,type): 30(sgrr,negative) 
+NODE syme receives from fiber(node,type): 30(lexa,negative) 
+NODE tisb receives from fiber(node,type): 30(lexa,negative) 
+NODE torr receives from fiber(node,type): 30(torr,negative) 
+NODE trpledcba receives from fiber(node,type): 30(trpr,negative) 
+NODE trpr receives from fiber(node,type): 30(trpr,negative) 
+NODE uidr receives from fiber(node,type): 30(uidr,negative) 
+NODE umudc receives from fiber(node,type): 30(lexa,negative) 
+NODE uvrb receives from fiber(node,type): 30(lexa,negative) 
+NODE uvrd receives from fiber(node,type): 30(lexa,negative) 
+NODE uvry receives from fiber(node,type): 30(lexa,negative) 
+NODE ybfe receives from fiber(node,type): 30(lexa,negative) 
+NODE ybga-phr receives from fiber(node,type): 30(lexa,negative) 
+NODE ydjm receives from fiber(node,type): 30(lexa,negative) 
+NODE yebg receives from fiber(node,type): 30(lexa,negative) 
+
+INSIDE FIBER 31 WITH SIZE 2:
+NODE acka-pta receives from fiber(node,type): 374(fnr,positive) 131(arca,positive) 
+NODE dcuc receives from fiber(node,type): 374(fnr,positive) 131(arca,positive) 
+
+INSIDE FIBER 33 WITH SIZE 2:
+NODE nhar receives from fiber(node,type): 33(nhar,positive) 145(hns,negative) 
+NODE evga receives from fiber(node,type): 145(hns,negative) 33(evga,positive) 
+
+INSIDE FIBER 35 WITH SIZE 2:
+NODE uvra receives from fiber(node,type): 30(lexa,negative) 131(arca,negative) 
+NODE ssb receives from fiber(node,type): 30(lexa,negative) 131(arca,negative) 
+
+INSIDE FIBER 37 WITH SIZE 2:
+NODE yfdx-frc-oxc-yfdve receives from fiber(node,type): 33(evga,positive) 
+NODE yegrz receives from fiber(node,type): 33(evga,positive) 
+
+INSIDE FIBER 38 WITH SIZE 16:
+NODE yoac receives from fiber(node,type): 72(cysb,positive) 
+NODE ygeh receives from fiber(node,type): 72(cysb,positive) 
+NODE yciw receives from fiber(node,type): 72(cysb,positive) 
+NODE ybjg receives from fiber(node,type): 72(phop,positive) 
+NODE tcyp receives from fiber(node,type): 72(cysb,positive) 
+NODE rsta receives from fiber(node,type): 72(phop,positive) 
+NODE pagp receives from fiber(node,type): 72(phop,positive) 
+NODE mgts receives from fiber(node,type): 72(phop,positive) 
+NODE mgtla receives from fiber(node,type): 72(phop,positive) 
+NODE mgrr receives from fiber(node,type): 72(phop,positive) 
+NODE mgrb receives from fiber(node,type): 72(phop,positive) 
+NODE envy-ompt receives from fiber(node,type): 72(phop,positive) 
+NODE cysk receives from fiber(node,type): 72(cysb,positive) 
+NODE cysdnc receives from fiber(node,type): 72(cysb,positive) 
+NODE bord receives from fiber(node,type): 72(phop,positive) 
+NODE alka receives from fiber(node,type): 72(ada,positive) 
+
+INSIDE FIBER 39 WITH SIZE 3:
+NODE cyse receives from fiber(node,type): 72(sutr,negative) 
+NODE hslj receives from fiber(node,type): 72(cysb,negative) 
+NODE trer receives from fiber(node,type): 72(phop,negative) 
+
+INSIDE FIBER 45 WITH SIZE 2:
+NODE pth-ychf receives from fiber(node,type): 108(oxyr,negative) 
+NODE isrc-flu receives from fiber(node,type): 108(oxyr,negative) 
+
+INSIDE FIBER 47 WITH SIZE 3:
+NODE pspg receives from fiber(node,type): 30(pspf,positive) -1(ihf,positive) 
+NODE pspabcde receives from fiber(node,type): 30(pspf,positive) -1(ihf,positive) 
+NODE csrb receives from fiber(node,type): 30(uvry,positive) -1(ihf,positive) 
+
+INSIDE FIBER 48 WITH SIZE 2:
+NODE tyrb receives from fiber(node,type): 326(tyrr,negative) 
+NODE arof-tyra receives from fiber(node,type): 326(tyrr,negative) 
+
+INSIDE FIBER 61 WITH SIZE 4:
+NODE cbpam receives from fiber(node,type): 372(fis,negative) 
+NODE gltx receives from fiber(node,type): 372(fis,negative) 
+NODE gyrb receives from fiber(node,type): 372(fis,negative) 
+NODE msra receives from fiber(node,type): 372(fis,negative) 
+
+INSIDE FIBER 64 WITH SIZE 24:
+NODE alawx receives from fiber(node,type): 372(fis,positive) 
+NODE argu receives from fiber(node,type): 372(fis,positive) 
+NODE argw receives from fiber(node,type): 372(fis,positive) 
+NODE argx-hisr-leut-prom receives from fiber(node,type): 372(fis,positive) 
+NODE aspv receives from fiber(node,type): 372(fis,positive) 
+NODE flxa receives from fiber(node,type): 372(fis,positive) 
+NODE glyu receives from fiber(node,type): 372(fis,positive) 
+NODE leuqpv receives from fiber(node,type): 372(fis,positive) 
+NODE leux receives from fiber(node,type): 372(fis,positive) 
+NODE lptd-sura-pdxa-rsma-apagh receives from fiber(node,type): 372(fis,positive) 
+NODE lyst-valt-lysw receives from fiber(node,type): 372(fis,positive) 
+NODE mett-leuw-glnuw-metu-glnvx receives from fiber(node,type): 372(fis,positive) 
+NODE pheu receives from fiber(node,type): 372(fis,positive) 
+NODE phev receives from fiber(node,type): 372(fis,positive) 
+NODE prok receives from fiber(node,type): 372(fis,positive) 
+NODE prol receives from fiber(node,type): 372(fis,positive) 
+NODE quea receives from fiber(node,type): 372(fis,positive) 
+NODE sert receives from fiber(node,type): 372(fis,positive) 
+NODE serx receives from fiber(node,type): 372(fis,positive) 
+NODE thru-tyru-glyt-thrt-tufb receives from fiber(node,type): 372(fis,positive) 
+NODE thrw receives from fiber(node,type): 372(fis,positive) 
+NODE trma receives from fiber(node,type): 372(fis,positive) 
+NODE tyrtv-tpr receives from fiber(node,type): 372(fis,positive) 
+NODE valuxy-lysv receives from fiber(node,type): 372(fis,positive) 
+
+INSIDE FIBER 67 WITH SIZE 11:
+NODE yticd-idlp-irad receives from fiber(node,type): 374(fnr,positive) 
+NODE ydej receives from fiber(node,type): 374(fnr,positive) 
+NODE xdhabc receives from fiber(node,type): 374(fnr,positive) 
+NODE upp-uraa receives from fiber(node,type): 374(fnr,positive) 
+NODE tar-tap-cherbyz receives from fiber(node,type): 374(fnr,positive) 
+NODE rava-viaa receives from fiber(node,type): 374(fnr,positive) 
+NODE pita receives from fiber(node,type): 374(fnr,positive) 
+NODE pept receives from fiber(node,type): 374(fnr,positive) 
+NODE pdef receives from fiber(node,type): 374(fnr,positive) 
+NODE fnrs receives from fiber(node,type): 374(fnr,positive) 
+NODE bcsabzc receives from fiber(node,type): 374(fnr,positive) 
+
+INSIDE FIBER 69 WITH SIZE 7:
+NODE sdaa receives from fiber(node,type): 227(lrp,negative) 
+NODE lysu receives from fiber(node,type): 227(lrp,negative) 
+NODE livkhmgf receives from fiber(node,type): 227(lrp,negative) 
+NODE livj receives from fiber(node,type): 227(lrp,negative) 
+NODE leue receives from fiber(node,type): 227(lrp,negative) 
+NODE avta receives from fiber(node,type): 227(lrp,negative) 
+NODE alaa-yfbr receives from fiber(node,type): 227(lrp,negative) 
+
+INSIDE FIBER 70 WITH SIZE 3:
+NODE omrb receives from fiber(node,type): 134(ompr,positive) 
+NODE omra receives from fiber(node,type): 134(ompr,positive) 
+NODE dtpa receives from fiber(node,type): 134(ompr,positive) 
+
+INSIDE FIBER 72 WITH SIZE 5:
+NODE sutr receives from fiber(node,type): 72(sutr,negative) 72(sutr,positive) 
+NODE slyb receives from fiber(node,type): 72(phop,negative) 72(phop,positive) 
+NODE phop receives from fiber(node,type): 72(phop,negative) 72(phop,positive) 
+NODE cysb receives from fiber(node,type): 72(phop,positive) 72(cysb,negative) 
+NODE ada receives from fiber(node,type): 72(ada,negative) 72(ada,positive) 
+
+INSIDE FIBER 77 WITH SIZE 5:
+NODE ycct receives from fiber(node,type): 427(csgd,positive) 
+NODE wrba-yccj receives from fiber(node,type): 427(csgd,positive) 
+NODE nlpa receives from fiber(node,type): 427(csgd,positive) 
+NODE irap receives from fiber(node,type): 427(csgd,positive) 
+NODE dgcc receives from fiber(node,type): 427(csgd,positive) 
+
+INSIDE FIBER 78 WITH SIZE 38:
+NODE ytfk receives from fiber(node,type): 78(phob,positive) 
+NODE yqja-mzra receives from fiber(node,type): 78(cpxr,positive) 
+NODE yqae-kbp receives from fiber(node,type): 78(cpxr,positive) 
+NODE yidq receives from fiber(node,type): 78(cpxr,positive) 
+NODE yhjc receives from fiber(node,type): 78(phob,positive) 
+NODE yegh receives from fiber(node,type): 78(phob,positive) 
+NODE yebe receives from fiber(node,type): 78(cpxr,positive) 
+NODE ydfh receives from fiber(node,type): 78(phob,positive) 
+NODE yced-rpmf-plsx-fabhdg-acpp-fabf receives from fiber(node,type): 78(fadr,positive) 
+NODE ycca receives from fiber(node,type): 78(cpxr,positive) 
+NODE xerd-dsbc-recj-prfb-lyss receives from fiber(node,type): 78(cpxr,positive) 
+NODE ttdr receives from fiber(node,type): 78(ttdr,positive) 
+NODE ttdabt receives from fiber(node,type): 78(ttdr,positive) 
+NODE srka-dsba receives from fiber(node,type): 78(cpxr,positive) 
+NODE slt receives from fiber(node,type): 78(cpxr,positive) 
+NODE sbma-yaiw receives from fiber(node,type): 78(cpxr,positive) 
+NODE ppid receives from fiber(node,type): 78(cpxr,positive) 
+NODE phoh receives from fiber(node,type): 78(phob,positive) 
+NODE phoe receives from fiber(node,type): 78(phob,positive) 
+NODE phob receives from fiber(node,type): 78(phob,positive) 
+NODE phoa-psif receives from fiber(node,type): 78(phob,positive) 
+NODE phncde_1e_2fghijklmnop receives from fiber(node,type): 78(phob,positive) 
+NODE mipa receives from fiber(node,type): 78(phob,positive) 
+NODE lrha receives from fiber(node,type): 78(lrha,positive) 
+NODE ldtd receives from fiber(node,type): 78(cpxr,positive) 
+NODE ldtc receives from fiber(node,type): 78(cpxr,positive) 
+NODE gudpxd receives from fiber(node,type): 78(cdar,positive) 
+NODE gard receives from fiber(node,type): 78(cdar,positive) 
+NODE ftnb receives from fiber(node,type): 78(cpxr,positive) 
+NODE fadr receives from fiber(node,type): 78(fadr,positive) 
+NODE fabi receives from fiber(node,type): 78(fadr,positive) 
+NODE cpxr receives from fiber(node,type): 78(cpxr,positive) 
+NODE cpxpq receives from fiber(node,type): 78(cpxr,positive) 
+NODE cdar receives from fiber(node,type): 78(cdar,positive) 
+NODE baca receives from fiber(node,type): 78(cpxr,positive) 
+NODE amn receives from fiber(node,type): 78(phob,positive) 
+NODE accd receives from fiber(node,type): 78(fadr,positive) 
+NODE acca receives from fiber(node,type): 78(fadr,positive) 
+
+INSIDE FIBER 79 WITH SIZE 9:
+NODE cra receives from fiber(node,type): 78(phob,negative) 
+NODE efeu_1u_2 receives from fiber(node,type): 78(cpxr,negative) 
+NODE fadm receives from fiber(node,type): 78(fadr,negative) 
+NODE motab-cheaw receives from fiber(node,type): 78(cpxr,negative) 
+NODE pitb receives from fiber(node,type): 78(phob,negative) 
+NODE psd-mscm receives from fiber(node,type): 78(cpxr,negative) 
+NODE sbcdc receives from fiber(node,type): 78(phob,negative) 
+NODE tsr receives from fiber(node,type): 78(cpxr,negative) 
+NODE ung receives from fiber(node,type): 78(cpxr,negative) 
+
+INSIDE FIBER 80 WITH SIZE 2:
+NODE pepd receives from fiber(node,type): 427(csgd,negative) 
+NODE yhbts receives from fiber(node,type): 427(csgd,negative) 
+
+INSIDE FIBER 82 WITH SIZE 4:
+NODE asnb receives from fiber(node,type): 440(gadx,positive) 
+NODE clppx-lon receives from fiber(node,type): 440(gadx,positive) 
+NODE glsa-ybat receives from fiber(node,type): 440(gadx,positive) 
+NODE uspe receives from fiber(node,type): 440(gadx,positive) 
+
+INSIDE FIBER 85 WITH SIZE 3:
+NODE ynce receives from fiber(node,type): 449(mara,positive) 
+NODE mlafedcb receives from fiber(node,type): 449(mara,positive) 
+NODE decr receives from fiber(node,type): 449(mara,positive) 
+
+INSIDE FIBER 86 WITH SIZE 2:
+NODE arae-ygea receives from fiber(node,type): 239(crp,positive) 280(arac,positive) 
+NODE arafgh receives from fiber(node,type): 239(crp,positive) 280(arac,positive) 
+
+INSIDE FIBER 92 WITH SIZE 3:
+NODE zrar receives from fiber(node,type): 92(zrar,positive) 239(crp,positive) 
+NODE fucr receives from fiber(node,type): 92(fucr,positive) 239(crp,positive) 
+NODE fucao receives from fiber(node,type): 92(fucr,positive) 239(crp,positive) 
+
+INSIDE FIBER 93 WITH SIZE 2:
+NODE spy receives from fiber(node,type): 78(cpxr,positive) 93(baer,positive) 
+NODE baer receives from fiber(node,type): 78(cpxr,positive) 93(baer,positive) 
+
+INSIDE FIBER 96 WITH SIZE 4:
+NODE fiu receives from fiber(node,type): 146(fur,negative) 239(crp,positive) 
+NODE fepa-entd receives from fiber(node,type): 146(fur,negative) 239(crp,positive) 
+NODE entcebah receives from fiber(node,type): 146(fur,negative) 239(crp,positive) 
+NODE cira receives from fiber(node,type): 146(fur,negative) 239(crp,positive) 
+
+INSIDE FIBER 97 WITH SIZE 2:
+NODE yhfa receives from fiber(node,type): 239(crp,negative) 239(crp,positive) 
+NODE mana receives from fiber(node,type): 239(crp,negative) 239(crp,positive) 
+
+INSIDE FIBER 100 WITH SIZE 13:
+NODE yjef-tsae-amib-mutl-miaa-hfq-hflxkc receives from fiber(node,type): 239(crp,negative) 
+NODE yaeq-arfb-nlpe receives from fiber(node,type): 239(crp,negative) 
+NODE yaep-rof receives from fiber(node,type): 239(crp,negative) 
+NODE trxa receives from fiber(node,type): 239(crp,negative) 
+NODE spf receives from fiber(node,type): 239(crp,negative) 
+NODE spec receives from fiber(node,type): 239(crp,negative) 
+NODE sohb receives from fiber(node,type): 239(crp,negative) 
+NODE narq receives from fiber(node,type): 239(crp,negative) 
+NODE cyaa receives from fiber(node,type): 239(crp,negative) 
+NODE comr receives from fiber(node,type): 239(crp,negative) 
+NODE azuc receives from fiber(node,type): 239(crp,negative) 
+NODE ampde receives from fiber(node,type): 239(crp,negative) 
+NODE aaer receives from fiber(node,type): 239(crp,negative) 
+
+INSIDE FIBER 103 WITH SIZE 2:
+NODE fade receives from fiber(node,type): 78(fadr,negative) 131(arca,negative) 
+NODE fadij receives from fiber(node,type): 78(fadr,negative) 131(arca,negative) 
+
+INSIDE FIBER 105 WITH SIZE 2:
+NODE mlc receives from fiber(node,type): 105(mlc,negative) 239(crp,negative) 239(crp,positive) 
+NODE mali receives from fiber(node,type): 105(mali,negative) 239(crp,negative) 239(crp,positive) 
+
+INSIDE FIBER 108 WITH SIZE 4:
+NODE rbsr receives from fiber(node,type): 108(rbsr,negative) 239(crp,positive) 
+NODE oxyr receives from fiber(node,type): 108(oxyr,negative) 239(crp,positive) 
+NODE lsrr receives from fiber(node,type): 108(lsrr,negative) 239(crp,positive) 
+NODE lsracdbfg-tam receives from fiber(node,type): 108(lsrr,negative) 239(crp,positive) 
+
+INSIDE FIBER 109 WITH SIZE 3:
+NODE iclr receives from fiber(node,type): 109(iclr,negative) 78(fadr,positive) 
+NODE argp receives from fiber(node,type): 78(phob,positive) 109(argp,negative) 
+NODE accb receives from fiber(node,type): 78(fadr,positive) 109(accb,negative) 
+
+INSIDE FIBER 110 WITH SIZE 28:
+NODE aaexab receives from fiber(node,type): 239(crp,positive) 
+NODE agp receives from fiber(node,type): 239(crp,positive) 
+NODE cpdb receives from fiber(node,type): 239(crp,positive) 
+NODE csta receives from fiber(node,type): 239(crp,positive) 
+NODE glgs receives from fiber(node,type): 239(crp,positive) 
+NODE glpr receives from fiber(node,type): 239(crp,positive) 
+NODE grpe receives from fiber(node,type): 239(crp,positive) 
+NODE hofmnop receives from fiber(node,type): 239(crp,positive) 
+NODE ivbl-ilvbn-uhpabc receives from fiber(node,type): 239(crp,positive) 
+NODE laci receives from fiber(node,type): 239(crp,positive) 
+NODE mcas receives from fiber(node,type): 239(crp,positive) 
+NODE mhpr receives from fiber(node,type): 239(crp,positive) 
+NODE nadc receives from fiber(node,type): 239(crp,positive) 
+NODE ompa receives from fiber(node,type): 239(crp,positive) 
+NODE ppdd-hofbc receives from fiber(node,type): 239(crp,positive) 
+NODE preta receives from fiber(node,type): 239(crp,positive) 
+NODE raia receives from fiber(node,type): 239(crp,positive) 
+NODE rmf receives from fiber(node,type): 239(crp,positive) 
+NODE rpsf-prib-rpsr-rpli receives from fiber(node,type): 239(crp,positive) 
+NODE sfsa-dksa-gluq receives from fiber(node,type): 239(crp,positive) 
+NODE sxy receives from fiber(node,type): 239(crp,positive) 
+NODE ubig receives from fiber(node,type): 239(crp,positive) 
+NODE ychh receives from fiber(node,type): 239(crp,positive) 
+NODE yeip receives from fiber(node,type): 239(crp,positive) 
+NODE yeiw receives from fiber(node,type): 239(crp,positive) 
+NODE yfip-patz receives from fiber(node,type): 239(crp,positive) 
+NODE yibn-grxc-secb-gpsa receives from fiber(node,type): 239(crp,positive) 
+NODE ykgr receives from fiber(node,type): 239(crp,positive) 
+
+INSIDE FIBER 113 WITH SIZE 4:
+NODE acrz receives from fiber(node,type): 252(soxs,positive) 158(rob,positive) 449(mara,positive) 
+NODE inaa receives from fiber(node,type): 252(soxs,positive) 158(rob,positive) 449(mara,positive) 
+NODE nfo receives from fiber(node,type): 252(soxs,positive) 158(rob,positive) 449(mara,positive) 
+NODE nfsb receives from fiber(node,type): 252(soxs,positive) 158(rob,positive) 449(mara,positive) 
+
+INSIDE FIBER 114 WITH SIZE 3:
+NODE fpr receives from fiber(node,type): 252(soxs,positive) 449(mara,positive) 
+NODE pqiabc receives from fiber(node,type): 252(soxs,positive) 449(mara,positive) 
+NODE rira-waaqgpsbojyzu receives from fiber(node,type): 252(soxs,positive) 449(mara,positive) 
+
+INSIDE FIBER 115 WITH SIZE 4:
+NODE ydbk-ompn receives from fiber(node,type): 252(soxs,positive) 
+NODE riba receives from fiber(node,type): 252(soxs,positive) 
+NODE pgi receives from fiber(node,type): 252(soxs,positive) 
+NODE fldb receives from fiber(node,type): 252(soxs,positive) 
+
+INSIDE FIBER 123 WITH SIZE 2:
+NODE lgor receives from fiber(node,type): 123(uxur,negative) 160(exur,negative) 239(crp,positive) 
+NODE uxur receives from fiber(node,type): 123(uxur,negative) 160(exur,negative) 239(crp,positive) 
+
+INSIDE FIBER 128 WITH SIZE 4:
+NODE ompx receives from fiber(node,type): 374(fnr,negative) 
+NODE rpsp-rimm-trmd-rpls receives from fiber(node,type): 374(fnr,negative) 
+NODE ycho receives from fiber(node,type): 374(fnr,negative) 
+NODE ysga receives from fiber(node,type): 374(fnr,negative) 
+
+INSIDE FIBER 147 WITH SIZE 2:
+NODE hupa receives from fiber(node,type): 372(fis,positive) 239(crp,positive) 
+NODE trg receives from fiber(node,type): 372(fis,positive) 239(crp,positive) 
+
+INSIDE FIBER 149 WITH SIZE 2:
+NODE hupb receives from fiber(node,type): 372(fis,negative) 239(crp,positive) 
+NODE aldb receives from fiber(node,type): 372(fis,negative) 239(crp,positive) 
+
+INSIDE FIBER 150 WITH SIZE 2:
+NODE rrse-gltv-rrle-rrfe receives from fiber(node,type): 227(lrp,negative) 372(fis,positive) 
+NODE rrsa-ilet-alat-rrla-rrfa receives from fiber(node,type): 227(lrp,negative) 372(fis,positive) 
+
+INSIDE FIBER 162 WITH SIZE 2:
+NODE lysp receives from fiber(node,type): 227(lrp,positive) 109(argp,positive) 
+NODE argo receives from fiber(node,type): 227(lrp,positive) 109(argp,positive) 
+
+INSIDE FIBER 167 WITH SIZE 3:
+NODE alae receives from fiber(node,type): 227(lrp,positive) 
+NODE kbl-tdh receives from fiber(node,type): 227(lrp,positive) 
+NODE yoji receives from fiber(node,type): 227(lrp,positive) 
+
+INSIDE FIBER 168 WITH SIZE 2:
+NODE aspa-dcua receives from fiber(node,type): 354(narl,negative) 374(fnr,positive) 239(crp,positive) 
+NODE dcur receives from fiber(node,type): 354(narl,negative) 374(fnr,positive) 239(crp,positive) 
+
+INSIDE FIBER 172 WITH SIZE 5:
+NODE rrsb-gltt-rrlb-rrfb receives from fiber(node,type): 227(lrp,negative) 145(hns,negative) 372(fis,positive) 
+NODE rrsc-gltu-rrlc-rrfc receives from fiber(node,type): 227(lrp,negative) 145(hns,negative) 372(fis,positive) 
+NODE rrsd-ileu-alau-rrld-rrfd-thrv-rrff receives from fiber(node,type): 227(lrp,negative) 145(hns,negative) 372(fis,positive) 
+NODE rrsg-gltw-rrlg-rrfg receives from fiber(node,type): 227(lrp,negative) 145(hns,negative) 372(fis,positive) 
+NODE rrsh-ilev-alav-rrlh-rrfh receives from fiber(node,type): 227(lrp,negative) 145(hns,negative) 372(fis,positive) 
+
+INSIDE FIBER 175 WITH SIZE 2:
+NODE rhas receives from fiber(node,type): 175(rhas,positive) 175(rhar,positive) 239(crp,positive) 
+NODE rhar receives from fiber(node,type): 175(rhas,positive) 175(rhar,positive) 239(crp,positive) 
+
+INSIDE FIBER 187 WITH SIZE 2:
+NODE pyrc receives from fiber(node,type): 187(purr,negative) 146(fur,negative) 
+NODE purr receives from fiber(node,type): 187(purr,negative) 146(fur,negative) 
+
+INSIDE FIBER 196 WITH SIZE 2:
+NODE fepb receives from fiber(node,type): 30(rutr,negative) 146(fur,negative) 
+NODE rcnab receives from fiber(node,type): 30(rcnr,negative) 146(fur,negative) 
+
+INSIDE FIBER 198 WITH SIZE 4:
+NODE ycdz receives from fiber(node,type): 198(cytr,negative) 239(crp,dual) 
+NODE nage receives from fiber(node,type): 198(nagc,negative) 239(crp,dual) 
+NODE nagc receives from fiber(node,type): 198(nagc,negative) 239(crp,dual) 
+NODE cytr receives from fiber(node,type): 198(cytr,negative) 239(crp,dual) 
+
+INSIDE FIBER 225 WITH SIZE 2:
+NODE ampc receives from fiber(node,type): 74(bola,dual) 
+NODE dacc receives from fiber(node,type): 74(bola,dual) 
+
+INSIDE FIBER 230 WITH SIZE 8:
+NODE speab receives from fiber(node,type): 187(purr,negative) 
+NODE purl receives from fiber(node,type): 187(purr,negative) 
+NODE purek receives from fiber(node,type): 187(purr,negative) 
+NODE purc receives from fiber(node,type): 187(purr,negative) 
+NODE lolb-ispe-prs receives from fiber(node,type): 187(purr,negative) 
+NODE hfld-purb receives from fiber(node,type): 187(purr,negative) 
+NODE glrr-glnb receives from fiber(node,type): 187(purr,negative) 
+NODE cvpa-purf-ubix receives from fiber(node,type): 187(purr,negative) 
+
+INSIDE FIBER 243 WITH SIZE 2:
+NODE dsdc receives from fiber(node,type): -1(nsrr,negative) 243(dsdc,negative) 
+NODE norr receives from fiber(node,type): -1(nsrr,negative) 243(norr,negative) 
+
+INSIDE FIBER 257 WITH SIZE 2:
+NODE bett receives from fiber(node,type): 79(cra,positive) 257(beti,negative) 131(arca,negative) 
+NODE beti receives from fiber(node,type): 79(cra,positive) 257(beti,negative) 131(arca,negative) 
+
+INSIDE FIBER 289 WITH SIZE 2:
+NODE ybdn receives from fiber(node,type): 374(fnr,positive) 72(cysb,positive) 131(arca,positive) 
+NODE iram receives from fiber(node,type): 72(phop,positive) 374(fnr,positive) 131(arca,positive) 
+
+INSIDE FIBER 302 WITH SIZE 3:
+NODE ykgmo receives from fiber(node,type): -1(zur,negative) 
+NODE znua receives from fiber(node,type): -1(zur,negative) 
+NODE znucb receives from fiber(node,type): -1(zur,negative) 
+
+INSIDE FIBER 310 WITH SIZE 3:
+NODE amia-hemf receives from fiber(node,type): -1(ihf,negative) 
+NODE cmk-rpsa-ihfb receives from fiber(node,type): -1(ihf,negative) 
+NODE uspb receives from fiber(node,type): -1(ihf,negative) 
+
+INSIDE FIBER 320 WITH SIZE 2:
+NODE ibpab receives from fiber(node,type): -1(ihf,positive) 
+NODE yadv-htre receives from fiber(node,type): -1(ihf,positive) 
+
+INSIDE FIBER 324 WITH SIZE 2:
+NODE ydei receives from fiber(node,type): -1(rcda,positive) 
+NODE bluf receives from fiber(node,type): -1(rcda,positive) 
+
+INSIDE FIBER 327 WITH SIZE 2:
+NODE ycjg receives from fiber(node,type): -1(pgrr,negative) 
+NODE ycjy-ymjdc-mpaa receives from fiber(node,type): -1(pgrr,negative) 
+
+INSIDE FIBER 332 WITH SIZE 5:
+NODE yhdwxyz receives from fiber(node,type): -1(ntrc,positive) 
+NODE yeagh receives from fiber(node,type): -1(ntrc,positive) 
+NODE potfghi receives from fiber(node,type): -1(ntrc,positive) 
+NODE pata receives from fiber(node,type): -1(ntrc,positive) 
+NODE ddpxabcdf receives from fiber(node,type): -1(ntrc,positive) 
+
+INSIDE FIBER 341 WITH SIZE 12:
+NODE bdca receives from fiber(node,type): -1(nsrr,negative) 
+NODE dkgb receives from fiber(node,type): -1(nsrr,negative) 
+NODE grxd receives from fiber(node,type): -1(nsrr,negative) 
+NODE meph receives from fiber(node,type): -1(nsrr,negative) 
+NODE mhpt receives from fiber(node,type): -1(nsrr,negative) 
+NODE pgpc-tada receives from fiber(node,type): -1(nsrr,negative) 
+NODE rfe-wzze-wecbc-rffghc-wece-wzxe-rfft-wzye-rffm receives from fiber(node,type): -1(nsrr,negative) 
+NODE rybb receives from fiber(node,type): -1(nsrr,negative) 
+NODE tehab receives from fiber(node,type): -1(nsrr,negative) 
+NODE tsga receives from fiber(node,type): -1(nsrr,negative) 
+NODE ydbd receives from fiber(node,type): -1(nsrr,negative) 
+NODE yeae receives from fiber(node,type): -1(nsrr,negative) 
+
+INSIDE FIBER 348 WITH SIZE 2:
+NODE nada-pnuc receives from fiber(node,type): -1(nadr,negative) 
+NODE nadb receives from fiber(node,type): -1(nadr,negative) 
+
+INSIDE FIBER 365 WITH SIZE 2:
+NODE ecpr receives from fiber(node,type): -1(mata,positive) 
+NODE ecpa receives from fiber(node,type): -1(mata,positive) 
+
+INSIDE FIBER 402 WITH SIZE 3:
+NODE cuscfba receives from fiber(node,type): 78(phob,positive) -1(hprr,positive) 402(cusr,positive) 
+NODE cusr receives from fiber(node,type): 78(phob,positive) -1(hprr,positive) 402(cusr,positive) 
+NODE yedx receives from fiber(node,type): 78(phob,positive) -1(hprr,positive) 402(cusr,positive) 
+
+INSIDE FIBER 403 WITH SIZE 2:
+NODE idnr receives from fiber(node,type): 403(idnr,positive) -1(gntr,negative) 239(crp,positive) 
+NODE idnk receives from fiber(node,type): 403(idnr,positive) -1(gntr,negative) 239(crp,positive) 
+
+INSIDE FIBER 409 WITH SIZE 2:
+NODE faba receives from fiber(node,type): 78(fadr,positive) -1(fabr,negative) 
+NODE fabb receives from fiber(node,type): 78(fadr,positive) -1(fabr,negative) 
+
+INSIDE FIBER 415 WITH SIZE 2:
+NODE dicb-ydfde-insd-7-intq receives from fiber(node,type): -1(dica,negative) 
+NODE dicc-ydfxw receives from fiber(node,type): -1(dica,negative) 
+
+INSIDE FIBER 419 WITH SIZE 2:
+NODE cueo receives from fiber(node,type): -1(cuer,positive) 
+NODE copa receives from fiber(node,type): -1(cuer,positive) 
+
+INSIDE FIBER 423 WITH SIZE 2:
+NODE biobfcd receives from fiber(node,type): -1(bira,negative) 
+NODE bioa receives from fiber(node,type): -1(bira,negative) 
+
+INSIDE FIBER 436 WITH SIZE 3:
+NODE gcl-hyi-glxr-ybbw-allb-ybby-glxk receives from fiber(node,type): -1(allr,negative) 
+NODE alls receives from fiber(node,type): -1(allr,negative) 
+NODE alla receives from fiber(node,type): -1(allr,negative) 
+
+INSIDE FIBER 449 WITH SIZE 2:
+NODE mara receives from fiber(node,type): 252(soxs,positive) 158(rob,positive) 449(marr,negative) 449(mara,positive) 372(fis,positive) 239(crp,positive) 79(cra,negative) 78(cpxr,positive) 30(acrr,negative) 
+NODE marr receives from fiber(node,type): 252(soxs,positive) 158(rob,positive) 449(marr,negative) 449(mara,positive) 372(fis,positive) 239(crp,positive) 79(cra,negative) 78(cpxr,positive) 30(acrr,negative) 
+

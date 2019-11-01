@@ -15,7 +15,7 @@
 	('ARG1edgelist.dat') containing all the directed links between nodes (3 columns: "%d\t%d\t%s\n" -> Pointing Node/ 
 	Pointed Node/ Type of regulation). For gene regulatory networks, the type of the regulation can be 'positive', 'negative' 
 	or 'dual'. The second argument is a flag used to signal the code to properly get the gene names of each node number. For 
-	that, it is necessary an auxiliary file called 'ARG1genename.dat' containing two columns (formatted as "%s\t%d\n" -> Gene 
+	that, it is necessary an auxiliary file called 'ARG1nameID.dat' containing two columns (formatted as "%s\t%d\n" -> Gene 
 	name/ Gene ID number). Thus, if there is a gene name file, the code will properly link all the node numbers with their 
 	corresponding name if 'ARG2' is passed as '-y', otherwise just the node numbers is stored for each node.
 
@@ -43,7 +43,6 @@
 #include "utilsforfiber.h"
 #include "structforfiber.h"
 ////////////////////////////////////////////////////////////////////////////////////////////////
-//#define SENTINEL -96
 
 void main(int argv, char** argc) 
 { 
@@ -77,9 +76,9 @@ void main(int argv, char** argc)
 	BLOCK* P = (BLOCK*)malloc(sizeof(BLOCK));
 	BLOCK* NonP = (BLOCK*)malloc(sizeof(BLOCK));
 	
+	// Define the initial partition as one block containing all operating nodes. 
 	PART* null_partition = NULL;
 	PREPROCESSING(&P, &NonP, &null_partition, graph, N);
-	// Define the initial partition as one block containing all operating nodes. 
 	PART* partition = NULL;    
 	push_block(&partition, P);	// Push initial block to the partition.
 	
@@ -115,48 +114,39 @@ void main(int argv, char** argc)
 	// Defines number of external regulators and set list of external regulators for each block.
 	CALCULATE_REGULATORS(&partition, graph);
 	CALCULATE_REGULATORS(&null_partition, graph);
-	// Calculates fundamental class number for each fiber block.
-	CALCULATE_FUNDAMENTAL(&partition, graph);
+	// Calculates branch ratio number for each fiber block.
+	DEF_BRANCH_RATIO(&partition, graph);
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
 	
 	////// 'nodefibers' directly relates nodes with their fiber index ///////
+	NODELIST* nodelist;	
+	int total_nodes = 0;	// Number of nodes inside non-trivial fibers.
 	int* nodefibers = (int*)malloc(N*sizeof(int));
 	for(i=0; i<N; i++) nodefibers[i] = -1;
 
-	NODELIST* nodelist;	
-	int total_nodes = 0;	// Number of nodes inside non-trivial fibers.
 	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	{
 		if(current_part->block->size>1) { total_nodes+=current_part->block->size; }
 		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
 			nodefibers[nodelist->data] = current_part->block->index;
 	}
-	//////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////
 
-	ShowMainInfo(partition);
+	// Uncomment line below to gets the fiber input details.
+	/* With gene names */ //printGeneGraphInFibers(graph, partition, nodefibers);
+	/* Without gene names */ //printGraphInFibers(graph, partition, nodefibers);
 	
-	//int n;
-	//STORETYPE* tempx;
-	//int* temp;
-	//printf("%d\n", nontrivial_fibers);
-	//for(current_part=partition; current_part!=NULL; current_part=current_part->next)
-	//{
-	//	if(current_part->block->size==1) continue;
-	//	printf("INSIDE BLOCK %d:\n", current_part->block->index);
-	//	for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
-	//	{
-	//		printf("NODE %d receives from fiber(node,type): ", nodelist->data);
-	//		n = GETNin(graph, nodelist->data);
-	//		tempx = GET_INTYPENEIGH(graph, nodelist->data);
-	//		for(i=0; i<n; i++) printf("%d(%d,%d) ", nodefibers[tempx[i].node], tempx[i].node, tempx[i].type);
-	//		printf("\n");
-	//	}
-	//	printf("\n");
-	//}
-	//int ll = atoi(argc[3]);
-	//PrintInNeighbors(graph, ll, N);
-	//PrintOutNeighbors(graph, ll, N);
+	/* Classification Info */ //ShowMainInfo(partition);
+	/* Fiber blocks and classification info */ ShowInfo(null_partition, 1);
+	int node = atoi(argc[3]);
+	PrintInNeighbors(graph, node);
+	PrintInNeighbors(graph, node);
+	int n = GETNin(graph, node);
+	printf("%d\n", n);
+	/////////////////////////////////////////////////////////////////////////////
+
+
     ////////////////////////////////////////////////////////////////////////////////////
 
 }

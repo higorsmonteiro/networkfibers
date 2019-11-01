@@ -2,6 +2,8 @@
 #define FSTRUCTS_H
 
 #include <stdio.h>
+#include <stdlib.h>
+#include "utilsforfiber.h"
 
 /////////////////////////////////////////////////////////////////////
 /// Structures to create and define a directed, unweighted graph ///
@@ -75,6 +77,14 @@ struct Partition
 typedef struct Partition PART;
 ////////////////////////////////////////////////////////////////////////
 
+struct storetype
+{
+	int node;
+	int type;
+};
+typedef struct storetype STORETYPE;
+/////////////////////////////////////////////////////////////////////////
+
 struct QueueOfBlocks
 {
     BLOCK* block;
@@ -84,7 +94,39 @@ typedef struct QueueOfBlocks QBLOCK;
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-extern void PrintInNeighbors(Graph* graph, int node, int N)
+int cmp(const void *a, const void *b)
+{
+    STORETYPE *a1 = (STORETYPE *)a;
+    STORETYPE *a2 = (STORETYPE *)b;
+    if ((*a1).node > (*a2).node)
+        return -1;
+    else if ((*a1).node < (*a2).node)
+        return 1;
+    else
+        return 0;
+}
+
+STORETYPE* GETIN_ADJTYPE(Graph* graph, int node)
+{
+	int n_in = 0;	
+	NodeAdj* NODE;
+	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next) n_in++;
+
+	int n_index = 0;
+	STORETYPE* in_neighbors = (STORETYPE*)malloc(n_in*sizeof(STORETYPE));
+	for(NODE=graph->array[node].head_in; NODE!=NULL; NODE=NODE->next)
+	{
+		in_neighbors[n_index].node = NODE->neighbor;
+		in_neighbors[n_index].type = NODE->type_link;
+		n_index++;
+	}
+	
+	qsort(in_neighbors, n_in, sizeof(in_neighbors[0]), cmp);
+	return in_neighbors; 
+}
+
+////////////////// VISUALIZATION UTILITIES ///////////////////
+extern void PrintInNeighbors(Graph* graph, int node)
 {
 	NodeAdj* Inode = graph->array[node].head_in;
 	printf("Node %d: ", node);
@@ -96,7 +138,7 @@ extern void PrintInNeighbors(Graph* graph, int node, int N)
 	printf("\n");
 }
 
-extern void PrintOutNeighbors(Graph* graph, int node, int N)
+extern void PrintOutNeighbors(Graph* graph, int node)
 {
 	NodeAdj* Inode = graph->array[node].head_out;
 	printf("Node %d: ", node);
@@ -111,40 +153,82 @@ extern void PrintOutNeighbors(Graph* graph, int node, int N)
 extern void printGraph(Graph* graph)
 {
 	int j;
+    NodeAdj* inode;
 	for(j=0; j<graph->size; j++)
 	{
 		printf("NODE %d\nin:", j);
-        NodeAdj* SeeAux = graph->array[j].head_in;
-        NodeAdj* SeeAux1 = graph->array[j].head_out;
-		while(SeeAux)
-		{
-			printf("<-%d", SeeAux->neighbor);
-			SeeAux = SeeAux->next; 
-		}
+		for(inode=graph->array[j].head_in; inode!=NULL; inode=inode->next)
+			printf("%d ", inode->neighbor);
 		printf("\nout:");
-        while(SeeAux1)
-        {
-            printf("->%d", SeeAux1->neighbor);
-			SeeAux1 = SeeAux1->next;
-        }
+        for(inode=graph->array[j].head_out; inode!=NULL; inode=inode->next)
+			printf("%d ", inode->neighbor);
         printf("\n");
 	}
 }
 
+extern void printGraphInFibers(Graph* graph, PART* partition, int* nodefiber)
+{
+	int i, n;
+	STORETYPE* store;
+	PART* current_part;
+	NODELIST* nodelist;
+	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
+	{
+		if(current_part->block->size==1) continue;
+		printf("INSIDE FIBER %d WITH SIZE %d:\n", current_part->block->index, current_part->block->size);
+		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+		{
+			n = GETNin(graph, nodelist->data);
+			store = GETIN_ADJTYPE(graph, nodelist->data);
+			printf("NODE %d receives from fiber(node,type): ", nodelist->data);
+			for(i=0; i<n; i++) printf("%d(%d,%d) ", nodefiber[store[i].node], store[i].node, store[i].type);
+			printf("\n");
+		}
+		printf("\n");
+	}
+}
+
+extern void printGeneGraphInFibers(Graph* graph, PART* partition, int* nodefiber)
+{
+	int i, n;
+	NodeAdj* Node;
+	STORETYPE* temp;
+	PART* current_part;
+	NODELIST* nodelist;
+	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
+	{
+		if(current_part->block->size==1) continue;
+		printf("INSIDE FIBER %d WITH SIZE %d:\n", current_part->block->index, current_part->block->size);
+		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+		{
+			printf("NODE %s receives from fiber(node,type): ", graph->array[nodelist->data].gene_name);
+			n = GETNin(graph, nodelist->data);
+			temp = GETIN_ADJTYPE(graph, nodelist->data);
+			for(i=0; i<n; i++)
+			{
+				if(temp[i].type==0)
+					printf("%d(%s,positive) ", nodefiber[temp[i].node], graph->array[temp[i].node].gene_name);
+				else if(temp[i].type==1)
+					printf("%d(%s,negative) ", nodefiber[temp[i].node], graph->array[temp[i].node].gene_name);
+				else printf("%d(%s,dual) ", nodefiber[temp[i].node], graph->array[temp[i].node].gene_name);
+			}
+			printf("\n");
+		}
+		printf("\n");
+	}
+}
+// ################################################# //
+
 void printBlock(BLOCK* P)
 {
-    NODELIST* List = P->head;
-    while(List)
-    {
-        printf("%d ", List->data);
-        List = List->next;
-    }
+    NODELIST* list;
+	for(list=P->head; list!=NULL; list=list->next)	printf("%d ", list->data);
 	printf("\n");
 }
 
 void printBlockGene(BLOCK* P, Graph* graph)
 {
-    NODELIST* List = P->head;
+    NODELIST* List;
 	for(List=P->head; List!=NULL; List=List->next)
 		printf("%s, ", graph->array[List->data].gene_name);
 	printf("\n");
@@ -183,33 +267,12 @@ void printGenesPartition(PART* head, Graph* graph)
 	}
 }
 
-void printPartition(PART* P)
-{
-    PART* part = P;
-	BLOCK* tempblock;
-    while(part)
-    {
-		tempblock = part->block;       
-		printf("%d ", tempblock->index);
-        part = part->next;
-    }
-	printf("\n");
-}
-
 void printPartitionSize(PART* part)
 {
 	int i = 0;
 	PART* temp;
 	for(temp=part; temp!=NULL; temp=temp->next) i++;
 	printf("Partition size: %d\n", i);
-}
-
-void printPartitionReg(PART* part)
-{
-	int valid_fibers = 0;
-	PART* temp;
-	for(temp=part; temp!=NULL; temp=temp->next)
-		if(temp->block->size>1) printf("Number of external regulators of block %d: %d\n", temp->block->index, temp->number_regulators);
 }
 
 void printList(NODELIST* list)
@@ -220,13 +283,38 @@ void printList(NODELIST* list)
 	printf("\n");
 }
 
-void ShowMainInfo(PART* partition)
+void ShowClassification(PART* partition, int mode)
 {
 	PART* current_part;
 	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	{
-		printf("Fiber %d: Size %d - Fundamental Class %lf - Subclass %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
-		printBlock(current_part->block);
+		if(current_part->block->size>1)
+		{
+			printf("Fiber %d: Size %d - n %lf - l %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
+			//printBlock(current_part->block);
+		}
+		else if(mode==1)
+		{
+			printf("Fiber %d: Size %d - n %lf - l %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
+		}
+	}
+}
+
+void ShowInfo(PART* partition, int mode)
+{
+	PART* current_part;
+	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
+	{
+		if(current_part->block->size>1)
+		{
+			printf("Fiber %d: Size %d - n %lf - l %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
+			printBlock(current_part->block);
+		}
+		else if(mode==1)
+		{
+			printf("Fiber %d: Size %d - n %lf - l %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
+			printBlock(current_part->block);
+		}
 	}
 }
 #endif
