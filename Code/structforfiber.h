@@ -13,6 +13,7 @@ struct Graph
 {
 	// each node has its adjancency list
 	int size;
+	int num_component;
 	struct adjList* array;
 };
 typedef struct Graph Graph;

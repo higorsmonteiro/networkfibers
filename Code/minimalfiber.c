@@ -63,30 +63,29 @@ void main(int argv, char** argc)
 	else nodename_bool = 0;
 	///////////////////////////////////////////////////////////////////////////////////////
 
-    // Creates the network for N nodes and defines its structure with the given 'edgelist.dat' file.
+    // Creates the network for N nodes and defines its structure with the given edgelist file.
 	int** edges;
+	int* components = (int*)malloc(N*sizeof(int));
 	Graph* graph = createGraph(N, nodename, nodename_bool);
-	edges = defineNetwork(edges, graph, net_edges);
+	edges = defineNetwork(edges, components, graph, net_edges);
 	///////////////////////////////////////////////////////////////////////////////////////
 
-	/////////////////////// COARSEST REFINEMENT PARTITION ALGORITHM ////////////////////////
+	/////////////////////// COARSEST REFINEMENT PARTITIONING ALGORITHM ////////////////////////
 	int i, j, k;
-           
-	// Put aside from the algorithm (index -1) all nodes that don't receive any information.    
-	BLOCK* P = (BLOCK*)malloc(sizeof(BLOCK));
-	BLOCK* NonP = (BLOCK*)malloc(sizeof(BLOCK));
 	
 	// Define the initial partition as one block containing all operating nodes. 
-	PART* null_partition = NULL;
-	PREPROCESSING(&P, &NonP, &null_partition, graph, N);
 	PART* partition = NULL;    
-	push_block(&partition, P);	// Push initial block to the partition.
-	
+	PART* null_partition = NULL;
+	PART* null_partition2 = NULL;
+	PREPROCESSING(&partition, &null_partition, &null_partition2, components, graph);
+
 	// Initialize the queue of blocks with the initial block above.
 	QBLOCK* qhead = NULL;
 	QBLOCK* qtail = NULL;
-	enqueue_block(&qhead, &qtail, P);
-	ENQUEUE_SOLITAIRE(&null_partition, &qhead, &qtail);
+	ENQUEUE_BLOCKS(&partition, &qhead, &qtail);
+	ENQUEUE_BLOCKS(&null_partition, &qhead, &qtail);
+	ENQUEUE_BLOCKS(&null_partition2, &qhead, &qtail);
+	//printAllPartition(null_partition2);
 
 	// Until L is empty, we procedure the splitting process.
 	BLOCK* CurrentSet;	
@@ -133,17 +132,21 @@ void main(int argv, char** argc)
 	}
 	////////////////////////////////////////////////////////////////////////////////////
 
-	// Uncomment line below to gets the fiber input details.
+	// Uncomment line below to get the fiber input details.
 	/* With gene names */ //printGeneGraphInFibers(graph, partition, nodefibers);
 	/* Without gene names */ //printGraphInFibers(graph, partition, nodefibers);
 	
 	/* Classification Info */ //ShowMainInfo(partition);
-	/* Fiber blocks and classification info */ ShowInfo(null_partition, 1);
-	int node = atoi(argc[3]);
-	PrintInNeighbors(graph, node);
-	PrintInNeighbors(graph, node);
-	int n = GETNin(graph, node);
-	printf("%d\n", n);
+	/* Fiber blocks and classification info */ //ShowInfo(partition, 1);
+
+	/*	Show the number of non-trivial fibers	*/
+	printf("%d %d\n", nontrivial_fibers, total_nodes);
+	
+	//int node = atoi(argc[3]);
+	//PrintInNeighbors(graph, node);
+	//PrintOutNeighbors(graph, node);
+	//int n = GETNin(graph, node);
+	//printf("%d\n", n);
 	/////////////////////////////////////////////////////////////////////////////
 
 

@@ -305,14 +305,11 @@ int STABILITYCHECKER(PART** partition, BLOCK* Set, Graph* graph)
 
 ///////////////////////////////////////////////////////////////////////////////////////
 ////////////////// PREPROCESSING FUNCTIONS FOR REFINEMENT ALGORITHM ///////////////////
-extern void ENQUEUE_SOLITAIRE(PART** null_partition, QBLOCK** qhead, QBLOCK** qtail)
+extern void ENQUEUE_BLOCKS(PART** partition, QBLOCK** qhead, QBLOCK** qtail)
 {
-	PART* current_part = *null_partition;
-	while(current_part)
-	{
+	PART* current_part;
+	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
 		enqueue_block(qhead, qtail, current_part->block);
-		current_part = current_part->next;
-	}
 }
 
 extern void InitiateBlock(PART** Null_Part, int node)
@@ -325,26 +322,108 @@ extern void InitiateBlock(PART** Null_Part, int node)
 	push_block(Null_Part, new_block);
 }
 
-extern void PREPROCESSING(BLOCK** P, BLOCK** NonP, PART** Null_Part, Graph* graph, int N)
-{
-	(*P)->size = 0;
-	(*NonP)->size = 0;
-	(*P)->index = 0;
-	(*NonP)->index = -1;
-	(*P)->head = NULL;
-	(*NonP)->head = NULL;    
+//extern void PREPROCESSING(BLOCK** P, BLOCK** NonP, PART** Null_Part, Graph* graph, int N)
+//{
+//	(*P)->size = 0;
+//	(*NonP)->size = 0;
+//	(*P)->index = 0;
+//	(*NonP)->index = -1;
+//	(*P)->head = NULL;
+//	(*NonP)->head = NULL;    
+//
+//	int n_in, i;
+//    for(i=0; i<N; i++)
+//    {
+//		n_in = GETNin(graph, i);
+//        if(n_in>0) add_to_block(P, i);
+//		else add_to_block(NonP, i);
+//    }
+//	// Define one block for each solitaire node and put in the 'Null_Part'.
+//	NODELIST* nodelist = (*NonP)->head;
+//	for(nodelist=(*NonP)->head; nodelist!=NULL; nodelist=nodelist->next)
+//        InitiateBlock(Null_Part, nodelist->data);
+//}
 
-	int n_in, i;
-    for(i=0; i<N; i++)
-    {
+extern void push_block_by_index(int node, int index, PART** partition)
+{
+/*	First thing, we need to loop over the blocks of the given partition
+	and check if there is a block with the same index. */
+	PART* current_part = *partition;
+	NODELIST* nodelist = NULL;
+	
+	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
+	{
+		if(current_part->block->index==index)
+		{
+			push_doublylist(&(current_part->block->head), node);
+			current_part->block->size += 1;
+			return;
+		}
+	}
+/*	If there isn't a block with the same index, then we create a new one. */
+	BLOCK* new_block = (BLOCK*)malloc(sizeof(BLOCK));
+	new_block->index = index;
+	new_block->size = 1;
+	new_block->head = NULL;
+	push_doublylist(&(new_block->head), node);
+	push_block(partition, new_block);
+	return;
+}
+
+extern void PREPROCESSING(PART** partition, PART** null_partition, PART** null_partition1, int* components, Graph* graph)
+{    
+	int N = graph->size;
+	int root, n_in, n_out, i;
+	int* roots = (int*)malloc(N*sizeof(int));
+	//for(i=0; i<N; i++)
+	//{
+	//	n_in = GETNin(graph, i);
+	//	if(n_in==0) roots[i] = -1;
+	//	else
+	//	{
+	//		root = findroot(i, components);
+	//		roots[i] = root;
+	//	}
+	//}
+	for(i=0; i<N; i++)
+	{
+		n_out = GETNout(graph, i);
 		n_in = GETNin(graph, i);
-        if(n_in>0) add_to_block(P, i);
-		else add_to_block(NonP, i);
-    }
+		int solitaire = IDENTIFY_SOLITAIRE(graph, i);
+		if(solitaire==0) roots[i] = -1;
+		else if(solitaire==1) roots[i] = -2;
+		else
+		{
+			root = findroot(i, components);
+			roots[i] = root;
+		}
+	}
+	BLOCK* P = (BLOCK*)malloc(sizeof(BLOCK));
+	BLOCK* NonP = (BLOCK*)malloc(sizeof(BLOCK));
+	P->size = 0;
+	P->index = -1;
+	P->head = NULL;
+	(NonP)->size = 0;
+	(NonP)->index = -1;
+	(NonP)->head = NULL;   
+	for(i=0; i<N; i++)
+	{
+		if(roots[i]>=0) push_block_by_index(i, roots[i], partition);
+		else if(roots[i]==-1) add_to_block(&NonP, i);
+		else
+		{
+			add_to_block(&P, i);
+			roots[i] = findroot(i, components);
+			push_block_by_index(i, roots[i], partition);
+		}
+	}
+
 	// Define one block for each solitaire node and put in the 'Null_Part'.
-	NODELIST* nodelist = (*NonP)->head;
-	for(nodelist=(*NonP)->head; nodelist!=NULL; nodelist=nodelist->next)
-        InitiateBlock(Null_Part, nodelist->data);
+	NODELIST* nodelist = (NonP)->head;
+	for(nodelist=(NonP)->head; nodelist!=NULL; nodelist=nodelist->next)
+		InitiateBlock(null_partition, nodelist->data);
+	for(nodelist=P->head; nodelist!=NULL; nodelist=nodelist->next)
+		InitiateBlock(null_partition1, nodelist->data);        
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////

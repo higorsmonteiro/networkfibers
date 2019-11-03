@@ -1,6 +1,6 @@
 /*	In this module, I define all the functions that are, direct or indirectly, useful
 	for the main fibration routines needed to a correct implementation for the partition
-	refinement algorithm. Also, here I define my own functions to construct undirected 
+	refinement algorithm. Also, here I define my own functions to construct directed 
 	networks. All the handmade data structures used are defined in 'structforfiber.h'.
 
 	Author: Higor da S. Monteiro - Universidade Federal do Ceará
@@ -46,6 +46,9 @@ extern Graph* createGraph(int N, char* nodenames, int name_bool)
 
 	int nodeID;
 	char tempname[60];
+	/*	if 'name_bool' is one, then we read the file containing
+		the names of each node to assign it to each node in our 
+		constructed network.	*/
 	if(name_bool==1)
 	{
 		FILE* NAMES = fopen(nodenames, "r");
@@ -59,16 +62,62 @@ extern Graph* createGraph(int N, char* nodenames, int name_bool)
 	return graph;
 }
 
-void addEdges(int** edges, Graph* graph, int* regulator, int nE)
+/////////////////////////////////////////////////////////////////
+int findroot(int node, int* psite)
 {
-	int index, j, node1, node2, reg;
+	int root = node;
+	int cont = 0;
+	int path[100];                                  
+	while(psite[root]>=0)                     
+	{
+		path[cont++] = root;
+		root = psite[root];
+	}
+	if(psite[node]>=0) psite[node] = root;
+	while(cont) psite[path[--cont]] = root;
+	return root;
+}
+
+void merge(int node1, int root1, int node2, int root2, int* psite)
+{
+	if(psite[root1] <= psite[root2])
+	{
+		psite[root1] += psite[root2];
+		psite[root2] = root1;
+		psite[node2] = root1;
+	}
+	else
+	{
+		psite[root2] += psite[root1];
+		psite[root1] = root2;
+		psite[node1] = root2;
+	}
+}
+//////////////////////////////////////////////////////////////////
+
+/*	Here I not just add the proper edges to the network but I
+	dynamically defines its weakly connected components through
+	a percolation-like process using disjoint sets operations.	*/
+void addEdges(int** edges, int* components, Graph* graph, int* regulator, int nE)
+{
+	int i, j;
+	int root1, root2;
+	int num_component = graph->size;
+	for(j=0; j<(graph->size); j++) components[j] = -1;
 	
+	int index, node1, node2, reg;
 	for(j=0; j<nE; j++)
 	{
 		// 'node1' -> 'node2' directed link.
         node1 = edges[j][0];
 		node2 = edges[j][1];
 		reg = regulator[j];
+
+		///// UNION-FIND OPERATIONS //////
+		root1 = findroot(node1, components);
+		root2 = findroot(node2, components);
+		if(root1!=root2) { merge(node1, root1, node2, root2, components); num_component--; } 
+		///////////////////////////////////////////////////
 
 		NodeAdj* newnode1 = createNode(node1, reg);
 		NodeAdj* newnode2 = createNode(node2, reg);
@@ -78,9 +127,10 @@ void addEdges(int** edges, Graph* graph, int* regulator, int nE)
 		graph->array[node1].head_out = newnode2;
 		graph->array[node2].head_in = newnode1;
 	}
+	graph->num_component = num_component;
 }
 
-extern int** defineNetwork(int** edges, Graph* graph, char* filename)
+extern int** defineNetwork(int** edges, int* components, Graph* graph, char* filename)
 {
 	FILE *EDGE_FILE = fopen(filename, "r");
 	if(EDGE_FILE==NULL) printf("ERROR in file reading");
@@ -110,9 +160,8 @@ extern int** defineNetwork(int** edges, Graph* graph, char* filename)
 	}
 	fclose(EDGE_FILE);
 	
-    // Defines the network structure.
-	addEdges(edges, graph, regulator, nlink);
-    
+    // Defines the network structure and its weakly connected components.
+	addEdges(edges, components, graph, regulator, nlink);
     return edges;
 }
 
@@ -213,6 +262,19 @@ extern int CHECKLINK(Graph* graph, int pointing_node, int pointed_node)
 	for(Node=graph->array[pointing_node].head_out; Node!=NULL; Node=Node->next)
 		if(Node->neighbor==pointed_node) return 1;
 	return 0;
+}
+
+extern int IDENTIFY_SOLITAIRE(Graph* graph, int node)
+{
+	int i;
+	int n_in = GETNin(graph, node);
+	if(n_in>0)
+	{
+		int* neigh = GET_INNEIGH(graph, node);
+		for(i=0; i<n_in; i++) if(neigh[i]!=node) return -1;
+		return 1; // receives information only from itself.
+	}
+	else return 0; // do not receive information not even from itself.
 }
 
 ////////////////////////////////////////////////////////////////////
