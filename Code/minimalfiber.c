@@ -136,11 +136,11 @@ void main(int argv, char** argc)
 	/* With gene names */ //printGeneGraphInFibers(graph, partition, nodefibers);
 	/* Without gene names */ //printGraphInFibers(graph, partition, nodefibers);
 	
-	/* Classification Info */ //ShowMainInfo(partition);
+	/* Classification Info */ ShowClassification(partition, 0);
 	/* Fiber blocks and classification info */ //ShowInfo(partition, 1);
 
 	/*	Show the number of non-trivial fibers	*/
-	printf("%d %d\n", nontrivial_fibers, total_nodes);
+	//printf("%d %d\n", nontrivial_fibers, total_nodes);
 	
 	//int node = atoi(argc[3]);
 	//PrintInNeighbors(graph, node);

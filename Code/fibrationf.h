@@ -33,7 +33,7 @@ extern double GET_EIGMAX(NODELIST* scc_nodes, Graph* graph)
     {
 		for(k=0; k<nn; k++)
 		{
-			int check = CHECKLINK(graph, temp_index[k], temp_index[j]); // A_{jk} = 1 if j -> k
+			int check = CHECKLINK(graph, temp_index[j], temp_index[k]); // A_{jk} = 1 if j -> k
 			if(check==1) temp_adjmatrix[k*nn + j] = 1.0;
 			else temp_adjmatrix[k*nn + j] = 0.0;
 		}
