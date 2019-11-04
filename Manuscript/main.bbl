@@ -1,29 +1,51 @@
 \begin{thebibliography}{1}
 
-\bibitem{fibration2019}
-F.~Morone, I.~Leifer, and H.~A. Makse.
-\newblock Fibration building blocks of information-processing networks.
-\newblock {\em (To be published)}, 2019.
-
-\bibitem{Cardon1982}
-A.~Cardon and M.~Cruchemore.
-\newblock Partitioning a graph in $o(|a|\log_2 |v|)$.
-\newblock {\em Theoretical Computer Science}, 19:85--98, 1982.
+\bibitem{Stewart2006}
+M.~Golubitsky and I.~Stewart.
+\newblock Nonlinear dynamics of networks: the groupoid formalism.
+\newblock {\em Bulletin of the American Mathematical Society}, 46:305--365,
+  2006.
 
 \bibitem{Boldi2006}
 P.~Boldi, V.~Lonati, M.~Santini, and S.~Vigna.
 \newblock Graph fibrations, graph isomorphism, and pagerank.
 \newblock {\em Theoretical Informatics and Applications}, 40:227--253, 2006.
 
+\bibitem{fibration2019}
+F.~Morone, I.~Leifer, and H.~A. Makse.
+\newblock Fibration building blocks of information-processing networks.
+\newblock {\em (To be published)}, 2019.
+
+\bibitem{Boldi2002}
+P.~Boldi, , and S.~Vigna.
+\newblock Fibrations of graphs.
+\newblock {\em Discrete Mathematics}, 243:21--66, 2002.
+
+\bibitem{norris1995}
+N.~Norris.
+\newblock Universal covers of graphs: Isomorphism to depth n-1 implies
+  isomorphism to all depths.
+\newblock {\em Discrete Applied Mathematics}, 56, 1995.
+
+\bibitem{transistor2019}
+F.~Morone, I.~Leifer, S.~D.~S. Reis, J.~S. Andrade, M.~Sigman, and H.~A. Makse.
+\newblock Circuits with broken symmetries perform core logic computations in
+  genetic networks.
+\newblock {\em (To be published)}, 2019.
+
+\bibitem{motifs2002}
+R.~Milo, S.~Shen-Orr, S.~Itzkovitz, N.~Kashtan, D.~Chklovskii, and U.~Alon.
+\newblock Network motifs: simple building blocks of complex networks.
+\newblock {\em Science}, 298, 2002.
+
 \bibitem{Tarjan1987}
 R.~Paige and Robert~E. Tarjan.
 \newblock Three partition refinement algorithms.
 \newblock {\em SIAM Journal on Computing}, 16:973--989, 1987.
 
-\bibitem{Stewart2006}
-M.~Golubitsky and I.~Stewart.
-\newblock Nonlinear dynamics of networks: the groupoid formalism.
-\newblock {\em Bulletin of the American Mathematical Society}, 46:305--365,
-  2006.
+\bibitem{Cardon1982}
+A.~Cardon and M.~Cruchemore.
+\newblock Partitioning a graph in $o(|a|\log_2 |v|)$.
+\newblock {\em Theoretical Computer Science}, 19:85--98, 1982.
 
 \end{thebibliography}
