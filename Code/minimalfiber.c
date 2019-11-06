@@ -114,7 +114,8 @@ void main(int argv, char** argc)
 	CALCULATE_REGULATORS(&partition, graph);
 	CALCULATE_REGULATORS(&null_partition, graph);
 	// Calculates branch ratio number for each fiber block.
-	DEF_BRANCH_RATIO(&partition, graph);
+	DEF_FUNDAMENTAL(&partition, graph);
+	//DEF_BRANCH_RATIO(&partition, graph);
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
 	
@@ -136,8 +137,8 @@ void main(int argv, char** argc)
 	/* With gene names */ //printGeneGraphInFibers(graph, partition, nodefibers);
 	/* Without gene names */ //printGraphInFibers(graph, partition, nodefibers);
 	
-	/* Classification Info */ ShowClassification(partition, 0);
-	/* Fiber blocks and classification info */ //ShowInfo(partition, 1);
+	/* Classification Info */ //ShowClassification(partition, 0);
+	/* Fiber blocks and classification info */ //ShowInfo(partition, 0);
 
 	/*	Show the number of non-trivial fibers	*/
 	//printf("%d %d\n", nontrivial_fibers, total_nodes);
@@ -146,6 +147,7 @@ void main(int argv, char** argc)
 	//PrintInNeighbors(graph, node);
 	//PrintOutNeighbors(graph, node);
 	//int n = GETNin(graph, node);
+
 	//printf("%d\n", n);
 	/////////////////////////////////////////////////////////////////////////////
 

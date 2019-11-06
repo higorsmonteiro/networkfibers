@@ -283,7 +283,7 @@ extern int IDENTIFY_SOLITAIRE(Graph* graph, int node)
 ////////////////////////////////
 ////// STACK OPERATIONS ///////
 // To insert an element in the stack.
-extern void dopush(STACK** top, int node)
+extern void push(STACK** top, int node)
 {
 	STACK *ptr;
 	ptr = (STACK*)malloc(sizeof(STACK));
@@ -301,7 +301,7 @@ extern void dopush(STACK** top, int node)
 }
 
 // To delete an element in the STACK.
-extern int dopop(STACK** top)
+extern int pop(STACK** top)
 {
 	int v;
 	STACK *ptr;
@@ -313,6 +313,14 @@ extern int dopop(STACK** top)
 		free(ptr);
 	}
 	return v;
+}
+
+extern int STACKSIZE(STACK* top)
+{
+	int size = 0;
+	STACK* current;
+	for(current=top; current!=NULL; current=current->next) size++;
+	return size;
 }
 ////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////
@@ -426,24 +434,24 @@ extern void KOSAJARU(NODELIST** nodes_in_scc, int root, Graph* graph)
 
 	// DFS process in the network starting from the root node.
 	STACK* nodetocheck = NULL;
-	dopush(&nodetocheck, root);
+	push(&nodetocheck, root);
 	while(nodetocheck)
 	{
-		v = dopop(&nodetocheck);
+		v = pop(&nodetocheck);
 		if(visited[v]==0)
 		{
 			visited[v] = 1;
 			int n = GETNout(graph, v);
 			int* neigh_out = GET_OUTNEIGH(graph, v);
-			for(j=0; j<n; j++) dopush(&nodetocheck, neigh_out[j]);
+			for(j=0; j<n; j++) push(&nodetocheck, neigh_out[j]);
 			free(neigh_out);
 		}
 	}
 	// DFS process in the transpose network from the root node.
-	dopush(&nodetocheck, root);
+	push(&nodetocheck, root);
 	while(nodetocheck)
 	{
-		v = dopop(&nodetocheck);
+		v = pop(&nodetocheck);
 		if(visited[v]==1)
 		{
 			int check = doublycheck_element(*nodes_in_scc, v);
@@ -454,7 +462,7 @@ extern void KOSAJARU(NODELIST** nodes_in_scc, int root, Graph* graph)
 			ivisited[v] = 1;
 			int n = GETNin(graph, v);
 			int* neigh_in = GET_INNEIGH(graph, v);
-			for(j=0; j<n; j++) dopush(&nodetocheck, neigh_in[j]);
+			for(j=0; j<n; j++) push(&nodetocheck, neigh_in[j]);
 			free(neigh_in);
 		}
 	}

@@ -17,6 +17,87 @@
 #include "structforfiber.h"
 #define SENTINEL -96
 
+int CHECKLOOP(int root, Graph* graph)
+{
+	int i;
+	NODELIST* scc_nodes = NULL;
+	KOSAJARU(&scc_nodes, root, graph);
+	int size = GetListSize(scc_nodes);
+	if(size>1) return 1;	// The 'root' input-tree is infinite.
+	else
+	{
+		int n_in = GETNin(graph, root);
+		int* neighbors = GET_INNEIGH(graph, root);
+		for(i=0; i<n_in; i++) if(neighbors[i]==root) return 1;
+		return 0; // The 'root' does not have self-loops.
+	} 
+}
+
+extern double BRANCH_RATIO(BLOCK* block, Graph* graph, double delta)
+{
+	int i, j;
+	int a_before, a_after;
+	double n, n_before, n_after;
+	PART* current_part;
+	
+	STACK* s1 = NULL;
+	STACK* s2 = NULL;
+	STACK* aux = NULL;
+	STACK* sup = NULL;
+	STACK* depot = NULL;
+	int v = block->head->data;
+
+	int bool_inputloop = CHECKLOOP(v, graph);
+	if(bool_inputloop==1)
+	{
+		n_before = 0.000;
+		n_after = 0.000;
+		push(&s1, v);
+		sup = s1;
+		depot = s2;
+		int control = 0;
+		while(fabs(n_after-n_before)>delta || n_after<0.001)
+		{
+			control++;
+			if(control>8) break;
+			a_before = STACKSIZE(sup);
+			n_before = n_after;
+			while(sup)
+			{
+				int node = pop(&sup);
+				int n_in = GETNin(graph, node);
+				int* neigh = GET_INNEIGH(graph, node);
+				for(i=0; i<n_in; i++) push(&depot, neigh[i]);
+				free(neigh);
+			}
+			a_after = STACKSIZE(depot);
+			n_after = (1.0*a_after)/(a_before);
+			printf("%d\n", a_after);
+			aux = depot;
+			depot = sup; // empty
+			sup = aux;
+
+		}
+	}
+	else
+	{
+		n_after = 0.0;
+	}
+	return n_after;
+}
+
+extern void DEF_FUNDAMENTAL(PART** partition, Graph* graph)
+{
+	double nloop;
+	PART* current_part;
+	NODELIST* nodelist;
+	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
+	{
+		nloop = BRANCH_RATIO(current_part->block, graph, 0.05);
+		current_part->fundamental_number = nloop;
+	}
+}
+
 extern double GET_EIGMAX(NODELIST* scc_nodes, Graph* graph)
 {
 	int i, j, k;
@@ -73,6 +154,7 @@ extern void DEF_BRANCH_RATIO(PART** partition, Graph* graph)
 		// For each node in the fiber gets all nodes in its SCC.
 		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
 			KOSAJARU(&scc_nodes, nodelist->data, graph);
+		//KOSAJARU(&scc_nodes, current_part->block->head->data, graph);
 		double eigmax = GET_EIGMAX(scc_nodes, graph);
 		current_part->fundamental_number = eigmax;
 	}

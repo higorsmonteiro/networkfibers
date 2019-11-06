@@ -158,18 +158,6 @@ Finally, the complete algorithm to find the correct network fibers of a network 
 \end{quotation}
 And this process is repeated until the queue $L$ is empty. At this point, the resulted partition $\bar{P}$ represents the coarsest input-tree stable partitioning of the network $G(V, E)$, where each block represents a network fiber with all its nodes having isomorphic input-trees. The figure \ref{fig:split} displays the splitting operation at the beginning of the refinement algorithm for a small network example.
 
-
-
-% faltou o preprocessing.
-
-\subsection{Data preparation and algorithm implementation}
-
-Given the description above, next, I apply the above algorithm for the genetic regulatory network of the \textit{Escherichia Coli} bacteria. The obtention of this genetic network is through the transcriptional regulatory interaction data, where each gene is regulated by a transcription factor protein. Since a transcription factor in the cell is produced by a gene, it is possible to define directed relations between two genes if a gene is responsible for the production of a transcriptional factor, which regulates the other gene. Considering that a transcription factor can be either an activator(positive) or repressor(negative), or even behaves as both(dual), the directed links between genes can carry different types of information. Because of that, the partitioning algorithm must account for the type of message signals to construct appropriate stable input-trees for the network fibers. Therefore, for a proper application of the algorithm on the \textit{Escherichia Coli} genetic network, we label each node uniquely, either as numbers or string names, and also we do the same for each link with the type of connection between two genes.
-
-Given the regulatory directed network $G(V, E)$ to be partitioned in fibers, it is very important for the correctness of the algorithm that the nodes that do not receive any information, that is, the nodes that do not have any inward connections, be preprocessing as isolated blocks in a different partition. This means that the initial graph partition $\bar{P}$ must be divided in two different partitions $\bar{P'}$ e $\bar{P''}$, where the first one should contains all the single-node blocks containing the solitaire nodes $v$ for which $| E^{-1}(\{v\}) | = 0$, and the second contains at the beginning of the algorithm a single block containing all the other nodes $w$ in which $| E^{-1}(\{w\}) | \geq 1$. The importance of this preprocessing is to guarantee that solitaire nodes do not be put on the same fibers during the refinement steps, since for any subset $S \subseteq V$, the solitaire nodes satisfies the equality $| E^{-1}(\{v\}) \cap S | = 0$. Furthermore, even though the blocks of $\bar{P'}$ are used as refinement sets, $\bar{P'}$ is not used by the split function in any step. This way, the final graph partition of $G(V, E)$ is the union of $\bar{P'}$ and the result of the refinement partitioning of $\bar{P''}$, that is, the coarsest or minimal input-tree stable partition of $G$.
-
-After preprocessing the solitaire nodes, we have to define the data structures for the partition $\bar{Q}$ and its blocks $B$. We should define the implementation of a partition by a doubly-linked list of blocks, which allows that deletion of blocks be done in constante time $O(1)$ as long we have the block memory address during the procedure. A block is just a structure record containing indexing data along with a doubly-linked list containing all the nodes that belongs to it. Together with the queue of blocks $L$, these constructions are the main data structures necessary for an efficient implementation of the refinement partitioning algorithm. At the beginning of the algorithm, we enqueue all the blocks of $\bar{P'}$ e $\bar{P''}$ to $L$ (order is not important for the output correctness), where the nodes that receives information only from themselves, $E^{-1}(\{v\}) = \{v\}$, are pushed to $L$ as single-node refinement blocks. Then, we start the algorithm initializing a partition $\bar{Q} = \bar{P''}$ and by removing the first element set $S$ of $L$, to apply the \textit{I-split($S$, $\bar{Q}$)} function to identify the input-tree unstable blocks of $\bar{Q}$ and to split them into input-tree stable blocks with respect to $S$. After that, all the splitted blocks are pushed to the end of $L$, with exception the largest resulted blocks for each splitted block. As we have mentioned, the algorithm terminates when there is no more sets in $L$. This is the whole algorithm, even though the implementation of the \textit{I-split} function might not be so straightforward, since a given block $B$ can be splitted into an arbitrary number of blocks of different sizes. Considering this, I propose in the pseudocode \ref{alg:split} an efficient implementation construction to the splitting function.
-
 \begin{algorithm}[t]
 	\SetAlgoLined
 	\SetKwInOut{Input}{Input}
@@ -206,13 +194,15 @@ After preprocessing the solitaire nodes, we have to define the data structures f
 	\label{alg:split}
 \end{algorithm}
 
-In the algorithm \ref{alg:split} above, our \textit{I-split} function receives a set $S$ and the partition $\bar{Q}$ as input and returns a input-tree stable $\bar{Q}$ with respect to $S$ as output. Besides its list of nodes, a block $X$ should have another attribute acessed as $X(E)$, which receives, during the splitting process, the number of inward links coming from the current refinement set $S$. This way, a node $w$ belonging to the block splitted can be put in the block $X \in \bar{T}$ that has the same attribute value, like stated in the conditional expression at line $7$ of the algorithm \ref{alg:split}. In cases where the type of connections are non-trivial, i. e., there is more than one type of message signal, the attribute $X(E)$ can be replaced by a list $X(E(i))$ for each type $i$ of message presented in the network. For that situation, the conditional line $7$ must be verified for all types of connnections: $\exists \ X \in \bar{T} : | E_k^{-1}(\{w_i\})\cap S | = X(E(k))$.
+\subsection{Data preparation and algorithm implementation}
 
-Finally, considering all the discussion and implementation presented above, we can explicit the complete algorithm in just a few basic steps in algorithm \ref{alg:partitioning}.
+Given the description above, next, I apply the above algorithm for the genetic regulatory network of the \textit{Escherichia Coli} bacteria. The obtention of this genetic network is through the transcriptional regulatory interaction data, where each gene is regulated by a transcription factor protein. Since a transcription factor in the cell is produced by a gene, it is possible to define directed relations between two genes if a gene is responsible for the production of a transcriptional factor, which regulates the other gene. Considering that a transcription factor can be either an activator(positive) or repressor(negative), or even behaves as both(dual), the directed links between genes can carry different types of information. Because of that, the partitioning algorithm must account for the type of message signals to construct appropriate stable input-trees for the network fibers. Therefore, for a proper application of the algorithm on the \textit{Escherichia Coli} genetic network, we label each node uniquely, either as numbers or string names, and also we do the same for each link with the type of connection between two genes.
 
-A concrete implementation of the algorithm in a programming language is presented at the link \url{https://github.com/higorsmonteiro/fiberblocks} together with \textit{E. Coli} prepared data and another trial network examples. Further information about the application of the codes in other genetic regulatory network data can be found at the same link given.
+Given the regulatory directed network $G(V, E)$ to be partitioned in fibers, it is very important for the correctness of the algorithm that the nodes that do not receive any information, that is, the nodes that do not have any inward connections, be preprocessing as isolated blocks in a different partition. This means that the initial graph partition $\bar{P}$ must be divided in two different partitions $\bar{P'}$ e $\bar{P''}$, where the first one should contains all the single-node blocks containing the solitaire nodes $v$ for which $| E^{-1}(\{v\}) | = 0$, and the second contains at the beginning of the algorithm a single block containing all the other nodes $w$ in which $| E^{-1}(\{w\}) | \geq 1$. The importance of this preprocessing is to guarantee that solitaire nodes do not be put on the same fibers during the refinement steps, since for any subset $S \subseteq V$, the solitaire nodes satisfies the equality $| E^{-1}(\{v\}) \cap S | = 0$. Furthermore, even though the blocks of $\bar{P'}$ are used as refinement sets, $\bar{P'}$ is not used by the split function in any step. This way, the final graph partition of $G(V, E)$ is the union of $\bar{P'}$ and the result of the refinement partitioning of $\bar{P''}$, that is, the coarsest or minimal input-tree stable partition of $G$.
 
-\begin{algorithm}[h]
+After preprocessing the solitaire nodes, we have to define the data structures for the partition $\bar{Q}$ and its blocks $B$. We should define the implementation of a partition by a doubly-linked list of blocks, which allows that deletion of blocks be done in constante time $O(1)$ as long we have the block memory address during the procedure. A block is just a structure record containing indexing data along with a doubly-linked list containing all the nodes that belongs to it. Together with the queue of blocks $L$, these constructions are the main data structures necessary for an efficient implementation of the refinement partitioning algorithm. At the beginning of the algorithm, we enqueue all the blocks of $\bar{P'}$ e $\bar{P''}$ to $L$ (order is not important for the output correctness), where the nodes that receives information only from themselves, $E^{-1}(\{v\}) = \{v\}$, are pushed to $L$ as single-node refinement blocks. Then, we start the algorithm initializing a partition $\bar{Q} = \bar{P''}$ and by removing the first element set $S$ of $L$, to apply the \textit{I-split($S$, $\bar{Q}$)} function to identify the input-tree unstable blocks of $\bar{Q}$ and to split them into input-tree stable blocks with respect to $S$. After that, all the splitted blocks are pushed to the end of $L$, with exception the largest resulted blocks for each splitted block. As we have mentioned, the algorithm terminates when there is no more sets in $L$. This is the whole algorithm, even though the implementation of the \textit{I-split} function might not be so straightforward, since a given block $B$ can be splitted into an arbitrary number of blocks of different sizes. Considering this, I propose in the pseudocode \ref{alg:split} an efficient implementation construction to the splitting function.
+
+\begin{algorithm}[!t]
 	\SetAlgoLined
 	\SetKwInOut{Input}{Input}
 	\SetKwInOut{Output}{Output}
@@ -239,6 +229,65 @@ A concrete implementation of the algorithm in a programming language is presente
 	\caption{Coarsest Refinement Graph Partitioning}
 	\label{alg:partitioning}
 \end{algorithm}
+
+In the algorithm \ref{alg:split}, our \textit{I-split} function receives a set $S$ and the partition $\bar{Q}$ as input and returns a input-tree stable $\bar{Q}$ with respect to $S$ as output. Besides its list of nodes, a block $X$ should have another attribute acessed as $X(E)$, which receives, during the splitting process, the number of inward links coming from the current refinement set $S$. This way, a node $w$ belonging to the block splitted can be put in the block $X \in \bar{T}$ that has the same attribute value, like stated in the conditional expression at line $7$ of the algorithm \ref{alg:split}. In cases where the type of connections are non-trivial, i. e., there is more than one type of message signal, the attribute $X(E)$ can be replaced by a list $X(E(i))$ for each type $i$ of message presented in the network. For that situation, the conditional line $7$ must be verified for all types of connnections: $\exists \ X \in \bar{T} : | E_k^{-1}(\{w_i\})\cap S | = X(E(k))$.
+
+
+Finally, considering all the discussion and implementation presented above, we can explicit the complete algorithm in just a few basic steps in algorithm \ref{alg:partitioning}.
+
+A concrete implementation of the algorithm in a programming language is presented at the link \url{https://github.com/higorsmonteiro/fiberblocks} together with \textit{E. Coli} prepared data and another trial network examples. Further information about the application of the codes in other genetic regulatory network data can be found at the same link given.
+
+\subsection{Branching ratio determination}
+
+After the proper identification of the fibers over the network, we should classify each fiber according to two fundamental values: the fundamental class number $n$ and the subclass number $\ell$. The subclass value is easily obtained, since it represents the number of external nodes that directly regulates the fiber. The fundamental class, however, may be no so straightforward to calculate if one chooses an eigenvalue decomposition algorithm of the adjacency matrix $\mathbf{A}$ characteristic of the network. The value of $n$  is directly related to cycles of information in the network, quantifying the loops of the fibers. At the same time, $n$ is also the branching ratio of the fiber input-tree, where the ratio is defined by the number of nodes $a_{j+1}$ belonging to a given height level $j+1$ of the input-tree and the number of nodes $a_j$ at the below height $j$ for large enough $j \rightarrow \infty$. This way, the branching ratio is defined as
+\begin{equation}
+	n = \lim _{j \rightarrow \infty}\bigg(\dfrac{a_{j+1}}{a_j}\bigg)
+\end{equation}
+where $n$ can be either an integer branching ratio or a golden fibonacci ratio resulted by longer loop pathways with size $d \geq 2$. 
+
+Concerning that, here I propose an efficient and simple method to calculate the value of $n$ by counting the number of nodes in each height level of the input-tree of a given node. For infinite input-trees, \textit{i. e.}, for fibers with loops, the algorithm performs the calculation in each tree level until a determined precision is reached, defined by a small value $\delta < 1$. The aim of the algorithm is, for each step, build two following layers of the input-tree in order to calculate directly the value of $n$ by counting the number of nodes $a_j$ and $a_{j+1}$ presented in each of these layers. We define $n_j$ as the ratio $\frac{a_{j+1}}{a_j}$. The algorithm will stop when $|n_j - n_{j-1}| < \delta$.
+
+The implementation of the algorithm is quite simple, making use of only one type of data structures: stacks. The algorithm consists of two steps, the first one being the verification of the existence of loops on the input-tree, from which only if this verification is true we go to the second step. The existence of loops in the input-tree implies an infinite tree. After that, starting from the root node $v$ of the input-tree, we find its nearest incoming neighbors $E^{-1}(\{v\})$ and store them in a first stack $S_1$, representing this way the first layer of the input-tree, from which we can obtain the value of its size $a_1$. Next, we pop each element of $S_1$ and get their incoming neighbors $E^{-1}(\{pop(S_1)\})$ and store them in $S_2$ until $S_1$ is empty. Then, $S_2$ will store the second layer of the input-tree, from which we get its $a_2$, allowing the calculation of $n_2$. Since at this time $S_1$ is empty, we get the incoming neighbors of each element of $S_2$ and stores in $S_1$, and this process is repeated, exchanging $S_1$ e $S_2$ as incoming neighbors supplier and deposit. This way, we can calculate indefinetely the values of $n_j$ until the precision is good enough. Of course, the precision $\delta$ will be only useful for fibonacci fibers, since integer branching ratio fibers will satisfy the precision right way, since $n_3 = n_2$ for these fibers. The algorithm pseudocode implementation is given in \ref{alg:branchratio}.
+
+\begin{algorithm}[!b]
+	\SetAlgoLined
+	\SetKwInOut{Input}{Input}
+    \SetKwInOut{Output}{Output}
+	\Input{A node $v \in V$ for a network $G(V, E)$}
+    \Output{$n$ representing the branching ratio of the node $v$ input-tree}
+    Initialize $\mathbf{s_1}$ and $\mathbf{s_2}$ as empty stacks\;
+	Initialize $\mathbf{Sup}$, $\mathbf{Depot}$ and $\mathbf{Aux}$ as stack pointers\;
+	\eIf{\text{checkloop(v)} $=$ TRUE}
+	{
+		$n_j, n_{j+1} \leftarrow 0.0$\;
+		push($\mathbf{s_1}$, v)\;
+		$\mathbf{Sup} \leftarrow \mathbf{s_1}$\;
+		$\mathbf{Depot}$ $\leftarrow$ $\mathbf{s_2}$\;
+		\While{$| n_{j+1} - n_j | > \delta$ \textbf{or} $n_{j+1} = 0$ }
+		{
+			$a_j \leftarrow |\mathbf{Sup}|$\;
+			$n_j \leftarrow n_{j+1}$\;
+			\While{ $|\mathbf{Sup}| \neq 0$}
+			{
+				$u \leftarrow $ pop($\mathbf{Sup}$)\;
+				$\forall w \in E^{-1}(\{u\}) \Rightarrow$ push($\mathbf{Depot}$, $w$)\;
+			}
+			$a_{j+1} \leftarrow |\mathbf{Depot}|$\;
+			$n_{j+1} \leftarrow \bigg(\dfrac{a_{j+1}}{a_j}\bigg)$\;
+			$\mathbf{Aux} \leftarrow \mathbf{Depot}$\;
+			$\mathbf{Depot} \leftarrow \mathbf{Sup}$\;
+			$\mathbf{Sup} \leftarrow \mathbf{Aux}$\;
+		}
+	}
+	{
+		$n_{j+1} \leftarrow 0$\;
+	}
+	$n \leftarrow n_{j+1}$\;
+	\caption{Input-tree branching ratio determination}
+	\label{alg:branchratio}
+\end{algorithm}
+
+The checkloop($v$) function can be easily implemented through a Depth-First Search or Breadth-First Search algorithm for the node $v$ to find its strongly connected component. This means that starting from the root node $v$, the algorithm traverse only the neighbors that points to the current node. Therefore, the algorithm presented above has a linear runtime complexity with the size of the tree. Its worst-case scenario is modulated by the $\delta$ precision factor only for fibonacci fibers, since these fibers are represented by fractal $n = \phi_d$ values, where $d$ is the size of the information cycle.
 
 %------------------------------------------------
 
