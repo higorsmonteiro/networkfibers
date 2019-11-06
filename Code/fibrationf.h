@@ -33,57 +33,87 @@ int CHECKLOOP(int root, Graph* graph)
 	} 
 }
 
-extern double BRANCH_RATIO(BLOCK* block, Graph* graph, double delta)
+
+int FIBERNODE_FOR_BRANCHING(PART* current_part, Graph* graph)
+{
+	NODELIST* nodelist;
+	NODELIST* regulators;
+	NODELIST* strong_component = NULL;
+
+	for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+	{
+		KOSAJARU(&strong_component, nodelist->data, graph);
+		for(regulators=current_part->regulators; regulators!=NULL; regulators=regulators->next)
+		{
+			int verify_reg_in_strong = doublycheck_element(strong_component, regulators->data);
+			if(verify_reg_in_strong==1) return nodelist->data;
+		}
+	}
+	return -1;
+}
+
+extern double BRANCH_RATIO(PART* block_info, Graph* graph, double delta)
 {
 	int i, j;
-	int a_before, a_after;
-	double n, n_before, n_after;
+	double n, n_j;
+	int a_top, a_bottom;
 	PART* current_part;
 	
+	/////////////////////
 	STACK* s1 = NULL;
 	STACK* s2 = NULL;
 	STACK* aux = NULL;
 	STACK* sup = NULL;
 	STACK* depot = NULL;
-	int v = block->head->data;
+	/////////////////////
 
+	int v = FIBERNODE_FOR_BRANCHING(block_info, graph);
+	int v = block_info->block->head->data;
+	printf("node %d\n", v);
 	int bool_inputloop = CHECKLOOP(v, graph);
+	NODELIST* scc;
+	KOSAJARU(&scc, v, graph);
+	printf("SCC: ");
+	printList(scc);
+	printf("\n");
+
+
 	if(bool_inputloop==1)
 	{
-		n_before = 0.000;
-		n_after = 0.000;
+		int ffseq_size = 0;
 		push(&s1, v);
 		sup = s1;
 		depot = s2;
-		int control = 0;
-		while(fabs(n_after-n_before)>delta || n_after<0.001)
+		while(ffseq_size<8)
 		{
-			control++;
-			if(control>8) break;
-			a_before = STACKSIZE(sup);
-			n_before = n_after;
+			ffseq_size++;
+			a_top = STACKSIZE(sup);
 			while(sup)
 			{
 				int node = pop(&sup);
 				int n_in = GETNin(graph, node);
 				int* neigh = GET_INNEIGH(graph, node);
-				for(i=0; i<n_in; i++) push(&depot, neigh[i]);
+				for(i=0; i<n_in; i++) 
+				{
+					int check = doublycheck_element(scc, neigh[i]);
+					if(check==1) push(&depot, neigh[i]);
+				}
 				free(neigh);
 			}
-			a_after = STACKSIZE(depot);
-			n_after = (1.0*a_after)/(a_before);
-			printf("%d\n", a_after);
+			a_bottom = STACKSIZE(depot);
+			n_j = (1.0*a_bottom)/(a_top);
+			//printf("%d\t%lf\n", a_bottom, n_j);
 			aux = depot;
-			depot = sup; // empty
+			depot = sup;
 			sup = aux;
-
 		}
 	}
 	else
 	{
-		n_after = 0.0;
+		n_j = 0.0;
 	}
-	return n_after;
+	printf("end\n");
+	return n_j;
 }
 
 extern void DEF_FUNDAMENTAL(PART** partition, Graph* graph)
@@ -93,7 +123,7 @@ extern void DEF_FUNDAMENTAL(PART** partition, Graph* graph)
 	NODELIST* nodelist;
 	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
 	{
-		nloop = BRANCH_RATIO(current_part->block, graph, 0.05);
+		nloop = BRANCH_RATIO(current_part, graph, 0.001);
 		current_part->fundamental_number = nloop;
 	}
 }
@@ -114,7 +144,7 @@ extern double GET_EIGMAX(NODELIST* scc_nodes, Graph* graph)
     {
 		for(k=0; k<nn; k++)
 		{
-			int check = CHECKLINK(graph, temp_index[j], temp_index[k]); // A_{jk} = 1 if j -> k
+			int check = CHECK_REGULATION(graph, temp_index[j], temp_index[k]); // A_{jk} = 1 if j -> k
 			if(check==1) temp_adjmatrix[k*nn + j] = 1.0;
 			else temp_adjmatrix[k*nn + j] = 0.0;
 		}
@@ -160,6 +190,22 @@ extern void DEF_BRANCH_RATIO(PART** partition, Graph* graph)
 	}
 }
 
+int VERIFY_IF_REGULATOR(NODELIST* fibernodes, int regulator, Graph* graph)
+{
+	int boolean;
+	NODELIST* nodelist;
+	/*	If the possible regulator 'regulator' don't regulates at least one node 
+		of the fiber, then this node isn't an external regulator.	*/
+	for(nodelist=fibernodes; nodelist!=NULL; nodelist=nodelist->next)
+	{
+		boolean = CHECK_REGULATION(graph, regulator, nodelist->data);
+		if(boolean==0) return 0;	
+	}
+	return 1;	// If the function reaches this line, then the given node is an external regulator.
+}
+
+/*	Defines all the external regulators for each fiber block. An external regulator is a node
+	outside the fiber that directly regulates all nodes inside the fiber. */
 extern void CALCULATE_REGULATORS(PART** partition, Graph* graph)
 {
 	int* in_neighbors;	
@@ -167,21 +213,31 @@ extern void CALCULATE_REGULATORS(PART** partition, Graph* graph)
 	
 	PART* current_part;
 	NODELIST* nodelist;
+	// For each fiber.
 	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
 	{
+		// For each node inside the fiber.
 		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
 		{
 			current_node = nodelist->data;
 			int n_in = GETNin(graph, current_node);
+			// gets all the nodes that regulates the current node.
 			in_neighbors = GET_INNEIGH(graph, current_node);
 			for(i=0; i<n_in; i++)
 			{
-				boolean_in = doublycheck_element(current_part->block->head, in_neighbors[i]);				
+				// First check if the regulation node is part of the fiber.
+				boolean_in = doublycheck_element(current_part->block->head, in_neighbors[i]);
+				// Second check	if it is already defined as an external regulator.			
 				boolean_out = doublycheck_element(current_part->regulators, in_neighbors[i]);
 				if(boolean_out==0 && boolean_in==0)
 				{ 
-					push_doublylist(&(current_part->regulators), in_neighbors[i]); 
-					current_part->number_regulators++;
+					int reg_verification = VERIFY_IF_REGULATOR(nodelist, in_neighbors[i], graph);
+					if(reg_verification==1)
+					{
+						push_doublylist(&(current_part->regulators), in_neighbors[i]); 
+						current_part->number_regulators++;
+					}
+					
 				}
 			}
 		}

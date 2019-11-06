@@ -256,11 +256,12 @@ extern int NinREG(Graph* graph, int node, int type)
 	return n_in;	
 }
 
-extern int CHECKLINK(Graph* graph, int pointing_node, int pointed_node)
+
+extern int CHECK_REGULATION(Graph* graph, int regulator, int regulated)
 {
 	NodeAdj* Node;
-	for(Node=graph->array[pointing_node].head_out; Node!=NULL; Node=Node->next)
-		if(Node->neighbor==pointed_node) return 1;
+	for(Node=(graph->array[regulator].head_out); Node!=NULL; Node=Node->next)
+		if(Node->neighbor==regulated) return 1;
 	return 0;
 }
 

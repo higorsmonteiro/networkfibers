@@ -259,14 +259,12 @@ The implementation of the algorithm is quite simple, making use of only one type
 	Initialize $\mathbf{Sup}$, $\mathbf{Depot}$ and $\mathbf{Aux}$ as stack pointers\;
 	\eIf{\text{checkloop(v)} $=$ TRUE}
 	{
-		$n_j, n_{j+1} \leftarrow 0.0$\;
-		push($\mathbf{s_1}$, v)\;
+		push($\mathbf{s_1}$, $v$)\;
 		$\mathbf{Sup} \leftarrow \mathbf{s_1}$\;
 		$\mathbf{Depot}$ $\leftarrow$ $\mathbf{s_2}$\;
 		\While{$| n_{j+1} - n_j | > \delta$ \textbf{or} $n_{j+1} = 0$ }
 		{
 			$a_j \leftarrow |\mathbf{Sup}|$\;
-			$n_j \leftarrow n_{j+1}$\;
 			\While{ $|\mathbf{Sup}| \neq 0$}
 			{
 				$u \leftarrow $ pop($\mathbf{Sup}$)\;

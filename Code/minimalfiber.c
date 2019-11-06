@@ -137,7 +137,7 @@ void main(int argv, char** argc)
 	/* With gene names */ //printGeneGraphInFibers(graph, partition, nodefibers);
 	/* Without gene names */ //printGraphInFibers(graph, partition, nodefibers);
 	
-	/* Classification Info */ //ShowClassification(partition, 0);
+	/* Classification Info */ ShowClassification(partition, 0);
 	/* Fiber blocks and classification info */ //ShowInfo(partition, 0);
 
 	/*	Show the number of non-trivial fibers	*/
