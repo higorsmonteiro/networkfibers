@@ -12,7 +12,6 @@
 #include <string.h>
 #include <math.h>
 ///////////////////
-#include <gsl/gsl_eigen.h>
 #include "utilsforfiber.h"
 #include "structforfiber.h"
 #define SENTINEL -96
@@ -33,23 +32,79 @@ int CHECKLOOP(int root, Graph* graph)
 	} 
 }
 
-
+// The node that has the largest strong connected component.
 int FIBERNODE_FOR_BRANCHING(PART* current_part, Graph* graph)
 {
 	NODELIST* nodelist;
 	NODELIST* regulators;
 	NODELIST* strong_component = NULL;
 
+	int size;
+	int nodeindex = current_part->block->head->data;
+	int max = -1;
+	// Pass through all nodes in fiber.
 	for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
 	{
 		KOSAJARU(&strong_component, nodelist->data, graph);
-		for(regulators=current_part->regulators; regulators!=NULL; regulators=regulators->next)
+		size = GetListSize(strong_component);
+		if(size==1)
 		{
-			int verify_reg_in_strong = doublycheck_element(strong_component, regulators->data);
-			if(verify_reg_in_strong==1) return nodelist->data;
+			int check = CHECKLOOP(nodelist->data, graph);
+			if(check==1 && size>max)
+			{
+				nodeindex = nodelist->data;
+				max = size;
+			}
 		}
+		else if(size>max)
+		{
+			nodeindex = nodelist->data;
+			max = size;
+		}
+		deleteList(&strong_component);
 	}
-	return -1;
+	return nodeindex;
+}
+
+extern int OUTPUT_TREE(int root, int wanted, NODELIST* scc, Graph* graph)
+{
+	if(root==wanted) return 0;
+	int i, j;
+	
+	/////////////////////
+	STACK* s1 = NULL;
+	STACK* s2 = NULL;
+	STACK* aux = NULL;
+	STACK* sup = NULL;
+	STACK* depot = NULL;
+	/////////////////////
+	
+	int height = 0;
+	int node_bool = 0;
+	push(&s1, root);
+	sup = s1;
+	depot = s2;
+	while(node_bool==0)
+	{
+		height++;
+		while(sup)
+		{
+			int node = pop(&sup);
+			int n_in = GETNout(graph, node);
+			int* neigh = GET_OUTNEIGH(graph, node);
+			for(i=0; i<n_in; i++) 
+			{
+				if(neigh[i]==wanted) node_bool = 1;
+				int check1 = doublycheck_element(scc, neigh[i]);
+				if(check1==1)	push(&depot, neigh[i]);
+			}
+			free(neigh);
+		}
+		aux = depot;
+		depot = sup;
+		sup = aux;
+	}
+	return height;
 }
 
 extern double BRANCH_RATIO(PART* block_info, Graph* graph, double delta)
@@ -57,7 +112,7 @@ extern double BRANCH_RATIO(PART* block_info, Graph* graph, double delta)
 	int i, j;
 	double n, n_j;
 	int a_top, a_bottom;
-	PART* current_part;
+	NODELIST* nodelist;
 	
 	/////////////////////
 	STACK* s1 = NULL;
@@ -68,23 +123,24 @@ extern double BRANCH_RATIO(PART* block_info, Graph* graph, double delta)
 	/////////////////////
 
 	int v = FIBERNODE_FOR_BRANCHING(block_info, graph);
-	int v = block_info->block->head->data;
-	printf("node %d\n", v);
+	//int v = block_info->block->head->data;
+	//printf("node %d in fiber %d\n", v, block_info->block->index);
 	int bool_inputloop = CHECKLOOP(v, graph);
 	NODELIST* scc;
 	KOSAJARU(&scc, v, graph);
-	printf("SCC: ");
-	printList(scc);
-	printf("\n");
+	//printf("SCC: ");
+	//printList(scc);
+	int bool_subset = subsetlist(scc, block_info->block->head);
+	// If scc is not subset of the fiber, we need to get only the nodes
+	// contained in the shortest cycle.
 
-
-	if(bool_inputloop==1)
+	if(bool_inputloop==1 && bool_subset==1)
 	{
 		int ffseq_size = 0;
 		push(&s1, v);
 		sup = s1;
 		depot = s2;
-		while(ffseq_size<8)
+		while(ffseq_size<5)
 		{
 			ffseq_size++;
 			a_top = STACKSIZE(sup);
@@ -95,12 +151,14 @@ extern double BRANCH_RATIO(PART* block_info, Graph* graph, double delta)
 				int* neigh = GET_INNEIGH(graph, node);
 				for(i=0; i<n_in; i++) 
 				{
-					int check = doublycheck_element(scc, neigh[i]);
-					if(check==1) push(&depot, neigh[i]);
+					int check1 = doublycheck_element(scc, neigh[i]);
+					if(check1==1)	push(&depot, neigh[i]);
 				}
 				free(neigh);
 			}
 			a_bottom = STACKSIZE(depot);
+			//for(aux=depot; aux!=NULL; aux=aux->next) printf("%d ", aux->node_ID);
+			//printf("\n");
 			n_j = (1.0*a_bottom)/(a_top);
 			//printf("%d\t%lf\n", a_bottom, n_j);
 			aux = depot;
@@ -108,11 +166,35 @@ extern double BRANCH_RATIO(PART* block_info, Graph* graph, double delta)
 			sup = aux;
 		}
 	}
-	else
+	else if(bool_inputloop==0)
 	{
 		n_j = 0.0;
 	}
-	printf("end\n");
+	else
+	{
+		int cyclesize = 10;
+		for(nodelist=scc; nodelist!=NULL; nodelist=nodelist->next)
+		{
+			int height1 = OUTPUT_TREE(v, nodelist->data, scc, graph);
+			int height2 = OUTPUT_TREE(nodelist->data, v, scc, graph);
+			
+			if((height1+height2)<cyclesize && (height1+height2)!=0)
+			{
+				cyclesize = height1+height2;
+			}
+		}
+		printf("%d\n", cyclesize);
+		
+		switch(cyclesize)
+		{
+			case 2: return 1.6181;
+			case 3: return 1.4655;
+			case 4: return 1.3802;
+		}
+
+	}
+	
+	//printf("end\n");
 	return n_j;
 }
 
@@ -123,12 +205,15 @@ extern void DEF_FUNDAMENTAL(PART** partition, Graph* graph)
 	NODELIST* nodelist;
 	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
 	{
-		nloop = BRANCH_RATIO(current_part, graph, 0.001);
-		current_part->fundamental_number = nloop;
+		if(current_part->block->size>1)
+		{
+			nloop = BRANCH_RATIO(current_part, graph, 0.001);
+			current_part->fundamental_number = nloop;
+		}
 	}
 }
 
-extern double GET_EIGMAX(NODELIST* scc_nodes, Graph* graph)
+extern void GET_EIGMAX(NODELIST* scc_nodes, Graph* graph)
 {
 	int i, j, k;
 	int nn = GetListSize(scc_nodes);
@@ -151,21 +236,21 @@ extern double GET_EIGMAX(NODELIST* scc_nodes, Graph* graph)
 	}
 
 	/////////// GSL PACKAGE ROUTINES TO EIGENSYSTEMS PROBLEMS ////////////
-    gsl_matrix_view m = gsl_matrix_view_array(temp_adjmatrix, nn, nn);
-    // 'eval' will gonna stores all the 'nn' eigenvalues of the fiber adjacency matrix.
-    gsl_vector_complex *eval = gsl_vector_complex_alloc (nn);
-
-    gsl_eigen_nonsymm_workspace* w = gsl_eigen_nonsymm_alloc(nn);
-    gsl_eigen_nonsymm(&m.matrix, eval, w);
-    gsl_eigen_nonsymm_free(w);
-    //////////////////////////////////////////////////////////////////////
-
-    double temp;
-    double eigmax = gsl_vector_get(eval, 0);
-    for(j=1; j<nn; j++) { temp = gsl_vector_get(eval, j); if(temp>eigmax) eigmax = temp; }
-	free(temp_index);
-	free(temp_adjmatrix);
-	return eigmax;
+    //gsl_matrix_view m = gsl_matrix_view_array(temp_adjmatrix, nn, nn);
+    //// 'eval' will gonna stores all the 'nn' eigenvalues of the fiber adjacency matrix.
+    //gsl_vector_complex *eval = gsl_vector_complex_alloc (nn);
+//
+    //gsl_eigen_nonsymm_workspace* w = gsl_eigen_nonsymm_alloc(nn);
+    //gsl_eigen_nonsymm(&m.matrix, eval, w);
+    //gsl_eigen_nonsymm_free(w);
+    ////////////////////////////////////////////////////////////////////////
+//
+    //double temp;
+    //double eigmax = gsl_vector_get(eval, 0);
+    //for(j=1; j<nn; j++) { temp = gsl_vector_get(eval, j); if(temp>eigmax) eigmax = temp; }
+	//free(temp_index);
+	//free(temp_adjmatrix);
+	//return eigmax;
 }
 
 /*	Calculates the fundamental class number. For that, for each fiber block, we select
@@ -174,20 +259,20 @@ extern double GET_EIGMAX(NODELIST* scc_nodes, Graph* graph)
 	largest eigenvalue. */
 extern void DEF_BRANCH_RATIO(PART** partition, Graph* graph)
 {
-	PART* current_part;
-	NODELIST* nodelist;
-	NODELIST* scc_nodes;
-	// Loop over all the fiber blocks.
-	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
-	{
-		scc_nodes = NULL;
-		// For each node in the fiber gets all nodes in its SCC.
-		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
-			KOSAJARU(&scc_nodes, nodelist->data, graph);
-		//KOSAJARU(&scc_nodes, current_part->block->head->data, graph);
-		double eigmax = GET_EIGMAX(scc_nodes, graph);
-		current_part->fundamental_number = eigmax;
-	}
+	//PART* current_part;
+	//NODELIST* nodelist;
+	//NODELIST* scc_nodes;
+	//// Loop over all the fiber blocks.
+	//for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
+	//{
+	//	scc_nodes = NULL;
+	//	// For each node in the fiber gets all nodes in its SCC.
+	//	for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+	//		KOSAJARU(&scc_nodes, nodelist->data, graph);
+	//	//KOSAJARU(&scc_nodes, current_part->block->head->data, graph);
+	//	double eigmax = GET_EIGMAX(scc_nodes, graph);
+	//	current_part->fundamental_number = eigmax;
+	//}
 }
 
 int VERIFY_IF_REGULATOR(NODELIST* fibernodes, int regulator, Graph* graph)

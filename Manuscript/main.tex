@@ -237,19 +237,23 @@ Finally, considering all the discussion and implementation presented above, we c
 
 A concrete implementation of the algorithm in a programming language is presented at the link \url{https://github.com/higorsmonteiro/fiberblocks} together with \textit{E. Coli} prepared data and another trial network examples. Further information about the application of the codes in other genetic regulatory network data can be found at the same link given.
 
-\subsection{Branching ratio determination}
+\subsection{Input-tree branching ratio}
 
-After the proper identification of the fibers over the network, we should classify each fiber according to two fundamental values: the fundamental class number $n$ and the subclass number $\ell$. The subclass value is easily obtained, since it represents the number of external nodes that directly regulates the fiber. The fundamental class, however, may be no so straightforward to calculate if one chooses an eigenvalue decomposition algorithm of the adjacency matrix $\mathbf{A}$ characteristic of the network. The value of $n$  is directly related to cycles of information in the network, quantifying the loops of the fibers. At the same time, $n$ is also the branching ratio of the fiber input-tree, where the ratio is defined by the number of nodes $a_{j+1}$ belonging to a given height level $j+1$ of the input-tree and the number of nodes $a_j$ at the below height $j$ for large enough $j \rightarrow \infty$. This way, the branching ratio is defined as
+After the proper identification of the fibers over the network, we should classify each one in accordance with two fundamental numbers: the fundamental class number $n$ and the subclass number $\ell$. The subclass value is easily obtained, since it represents the number of external nodes that directly regulates the fiber (all the fiber nodes). However, the fundamental class, or input-tree branching ratio, may be not so straightforward to calculate by a direct fiber neighborhood verification, since it involves the quantification of cycles of information that leaves a fiber and goes back to it. Fortunately, the value of $n$ can be obtained if one chooses an eigenvalue decomposition algorithm of the adjacency matrix $\mathbf{A}$ characteristic of the appropriate strongly connected component that includes the fiber. This way, $n$ is given by the largest eigenvalue $\lambda _{max}$ of the subnetwork containing the loop of the information coming out of the fiber. At the same time, $n$ is also the branching ratio of the fiber input-tree, where the ratio is defined by the number of nodes $Q_{j+1}$ belonging to a given layer level $j+1$ of the input-tree and the number of nodes $Q_j$ at the previous layer level $j$ for large enough $j \rightarrow \infty$. By this, the branching ratio is defined as
 \begin{equation}
-	n = \lim _{j \rightarrow \infty}\bigg(\dfrac{a_{j+1}}{a_j}\bigg)
+	n = \lim _{j \rightarrow \infty}\bigg(\dfrac{Q_{j+1}}{Q_j}\bigg)
 \end{equation}
-where $n$ can be either an integer branching ratio or a golden fibonacci ratio resulted by longer loop pathways with size $d \geq 2$. 
+where $n$ can be either an integer branching ratio or a golden fibonacci ratio $\varphi_d$ resulted by external loop pathways with size $d \geq 2$. 
 
-Concerning that, here I propose an efficient and simple method to calculate the value of $n$ by counting the number of nodes in each height level of the input-tree of a given node. For infinite input-trees, \textit{i. e.}, for fibers with loops, the algorithm performs the calculation in each tree level until a determined precision is reached, defined by a small value $\delta < 1$. The aim of the algorithm is, for each step, build two following layers of the input-tree in order to calculate directly the value of $n$ by counting the number of nodes $a_j$ and $a_{j+1}$ presented in each of these layers. We define $n_j$ as the ratio $\frac{a_{j+1}}{a_j}$. The algorithm will stop when $|n_j - n_{j-1}| < \delta$.
+Concerning the definition above, an alternative approach to obtain the fundamental class number is by a direct construction of the input-tree fiber until a reasonable depth is reached. Here I propose a simple method to calculate the value of $n$ by counting the number of nodes $Q_j$ in each layer level $j$ of the input-tree of a given fiber node. For infinite input-trees, \textit{i. e.}, fibers containing inside or external loops, we use the fast convergence for both the integer and fibonacci ratios to let the limit depth of the input-tree fixed by a value $\delta$. For integer branching ratio, the value of $n$ is obtained exactly even for a small number of layers, while for fractal golden ratio the rate of convergence of $n$ to $\varphi_d$ is exponential, requiring also small number of layers for reasonable values of $\varphi_d$. The aim of the algorithm is, for each step, to build two following layers of the input-tree to calculate directly the value of $n$ by counting the number of nodes $Q_j$ and $Q_{j+1}$ presented in each of these layers. We define $n_j$ as the ratio $\frac{Q_{j+1}}{Q_j}$, and the algorithm stop when the the layer $j+1$ is equal to $\delta$.
 
-The implementation of the algorithm is quite simple, making use of only one type of data structures: stacks. The algorithm consists of two steps, the first one being the verification of the existence of loops on the input-tree, from which only if this verification is true we go to the second step. The existence of loops in the input-tree implies an infinite tree. After that, starting from the root node $v$ of the input-tree, we find its nearest incoming neighbors $E^{-1}(\{v\})$ and store them in a first stack $S_1$, representing this way the first layer of the input-tree, from which we can obtain the value of its size $a_1$. Next, we pop each element of $S_1$ and get their incoming neighbors $E^{-1}(\{pop(S_1)\})$ and store them in $S_2$ until $S_1$ is empty. Then, $S_2$ will store the second layer of the input-tree, from which we get its $a_2$, allowing the calculation of $n_2$. Since at this time $S_1$ is empty, we get the incoming neighbors of each element of $S_2$ and stores in $S_1$, and this process is repeated, exchanging $S_1$ e $S_2$ as incoming neighbors supplier and deposit. This way, we can calculate indefinetely the values of $n_j$ until the precision is good enough. Of course, the precision $\delta$ will be only useful for fibonacci fibers, since integer branching ratio fibers will satisfy the precision right way, since $n_3 = n_2$ for these fibers. The algorithm pseudocode implementation is given in \ref{alg:branchratio}.
+The algorithm consists of two steps, the first one being the verification of the existence of loops on the input-tree, from which only if it is true the algorithm goes to the second step. The existence of loops in the input-tree implies an infinite tree. For this, there are two cases possible: inside cycles of information, implying integer branching ratio $n$, and fibonacci cycles of information that leaves the fiber and then returns to it. This can be easily verified by identifying the strongly connected components that includes nodes of the fiber. If the strongly connected component contains only fiber nodes, then the branching is integer, otherwise is fractal. The constrast between these two cases is important for the correct construction of the input-tree, since for fibonacci cycles the algorithm must guarantee that only the nodes $w \in \Lambda$ belonging to the shortest cycle path and, of course, the nodes of the fiber will be placed on the input-tree, thus guaranting the correct $\varphi_d$ value.
 
-\begin{algorithm}[!b]
+The implementation of the algorithm is quite simple, making use of only stacks to store the input-tree layers. Starting from the root node $v$ of the input-tree of the fiber $V_i$ and defined $\Lambda$ for the case of fibonacci cycles, we find its nearest incoming neighbors $E^{-1}(\{v\}) \in \Lambda$ and $E^{-1}(\{v\}) \in V_i$ and store them in a first stack $S_1$, representing this way the second layer $j = 1$ of the input-tree, from which we can obtain the value of its size $Q_1$. Next, we pop each element of $S_1$ and get their incoming neighbors $E^{-1}(\{v \leftarrow pop(S_1)\})$ and store them in $S_2$ until $S_1$ is empty. Then, $S_2$ will store the second layer $j = 2$ of the input-tree, from which $Q_2$ is obtained, allowing the calculation of $n_2$. Since at this time $S_1$ is empty, the incoming neighbors of each element of $S_2$ are stored in $S_1$ until $S_2$ is empty, and this process is repeated, exchanging $S_1$ e $S_2$ as incoming neighbors supplier and deposit in each loop step. This repeating exchange can be implemented with the help of stacks pointers to represent, in each algorithm loop, the supplier and deposit stacks. This way, we can calculate the values of $n_j$ until the limit depth $j+1 > \delta$ is reached. The algorithm pseudocode implementation is given in \ref{alg:branchratio}.
+
+The algorithm \ref{alg:branchratio} assumes that the given node $v$ is part of a strongly connected component, even for the trivial case containing only $v$ connected to itself, because this warrant that $n \neq 0$. This can be easily verified implementing a Depth-First Search or Breadth-First Search on the network and its tranpose starting at node $v$ to find its strongly connected component, which takes linear time with the size of the strongly connected component. Then, for components containing only fiber nodes the algorithm obtain the correct integer $n$ for small $\delta$ limit tree depth, running linearly with $|E^{-1}(\{V_{SCC}\}) \in \Lambda|$. For component containing outsider nodes, then we define $\Lambda$ containing the nodes in the shortest loop \ref{fig:branch} and apply the above algorithm. Of course, for fibonacci loops, determining the size $s$ of the shortest loop already gives indirectly the information $\varphi_s$ needed, being necessary only to define previously a table with the relations $s \rightarrow \varphi_s$.
+
+\begin{algorithm}[!h]
 	\SetAlgoLined
 	\SetKwInOut{Input}{Input}
     \SetKwInOut{Output}{Output}
@@ -257,35 +261,38 @@ The implementation of the algorithm is quite simple, making use of only one type
     \Output{$n$ representing the branching ratio of the node $v$ input-tree}
     Initialize $\mathbf{s_1}$ and $\mathbf{s_2}$ as empty stacks\;
 	Initialize $\mathbf{Sup}$, $\mathbf{Depot}$ and $\mathbf{Aux}$ as stack pointers\;
-	\eIf{\text{checkloop(v)} $=$ TRUE}
+	$j \leftarrow 0$\;
+	push($\mathbf{s_1}$, $v$)\;
+	$\mathbf{Sup} \leftarrow \mathbf{s_1}$\;
+	$\mathbf{Depot}$ $\leftarrow$ $\mathbf{s_2}$\;
+	\While{$j+1 \leq \delta$ }
 	{
-		push($\mathbf{s_1}$, $v$)\;
-		$\mathbf{Sup} \leftarrow \mathbf{s_1}$\;
-		$\mathbf{Depot}$ $\leftarrow$ $\mathbf{s_2}$\;
-		\While{$| n_{j+1} - n_j | > \delta$ \textbf{or} $n_{j+1} = 0$ }
+		$a_j \leftarrow |\mathbf{Sup}|$\;
+		\While{ $|\mathbf{Sup}| \neq 0$}
 		{
-			$a_j \leftarrow |\mathbf{Sup}|$\;
-			\While{ $|\mathbf{Sup}| \neq 0$}
+			$u \leftarrow $ pop($\mathbf{Sup}$)\;
+			\If{$w \in \Lambda : \forall w \in E^{-1}(\{u\})$}
 			{
-				$u \leftarrow $ pop($\mathbf{Sup}$)\;
-				$\forall w \in E^{-1}(\{u\}) \Rightarrow$ push($\mathbf{Depot}$, $w$)\;
+				push($\mathbf{Depot}$, $w$)\;
 			}
-			$a_{j+1} \leftarrow |\mathbf{Depot}|$\;
-			$n_{j+1} \leftarrow \bigg(\dfrac{a_{j+1}}{a_j}\bigg)$\;
-			$\mathbf{Aux} \leftarrow \mathbf{Depot}$\;
-			$\mathbf{Depot} \leftarrow \mathbf{Sup}$\;
-			$\mathbf{Sup} \leftarrow \mathbf{Aux}$\;
 		}
+		$a_{j+1} \leftarrow |\mathbf{Depot}|$\;
+		$n_{j+1} \leftarrow \bigg(\dfrac{a_{j+1}}{a_j}\bigg)$\;
+		$\mathbf{Aux} \leftarrow \mathbf{Depot}$\;
+		$\mathbf{Depot} \leftarrow \mathbf{Sup}$\;
+		$\mathbf{Sup} \leftarrow \mathbf{Aux}$\;
+		$j \leftarrow j + 1$\;
 	}
-	{
-		$n_{j+1} \leftarrow 0$\;
-	}
-	$n \leftarrow n_{j+1}$\;
 	\caption{Input-tree branching ratio determination}
 	\label{alg:branchratio}
 \end{algorithm}
 
-The checkloop($v$) function can be easily implemented through a Depth-First Search or Breadth-First Search algorithm for the node $v$ to find its strongly connected component. This means that starting from the root node $v$, the algorithm traverse only the neighbors that points to the current node. Therefore, the algorithm presented above has a linear runtime complexity with the size of the tree. Its worst-case scenario is modulated by the $\delta$ precision factor only for fibonacci fibers, since these fibers are represented by fractal $n = \phi_d$ values, where $d$ is the size of the information cycle.
+The approach given represents an alternative and direct method to obtain the fundamental class number $n$ and, even though not the most convenient, can improve the runtime of the classification comparing with spectral decomposition methods, for which the fastest algorithm runs in quadratic time with the size of the subnetwork used. However, I am aware that the improvements may not affect significantly the perfomance of the algorithm, since the average size of the subnetworks used for the calculations are generally very small.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[scale=0.32]{Figures/input.png}
+\end{figure}
 
 %------------------------------------------------
 
@@ -304,7 +311,7 @@ The first example is showed at the figure \ref{fig:result1}. This network is dis
 	\label{fig:result1}
 \end{figure}
 
-At the end of the algorithm, all the identified fibers are input-tree stable with respect to all fibers in the network, including the fiber itself. Then, by labelling each fiber with an index or color we can then construct the fibration building blocks through the calculation of the fundamental class number $n$ and through the subclass number $\ell$. Again, a fibration building block is defined as the nodes belonging to a fiber and all the $\ell$ external nodes that directly regulates at least one node of the current fiber. With that, we calculate the fundamental class number $n_k$ of the fiber $k$ by building the adjacency matrix $\mathbf{A}^{k}$ of its fibration building block and then calculating the largest eigenvalue of it. The value of $n$ quantifies the information cycles of the fibration building blocks and it can be either represent integer branching ratios or fractal golden ration of their input-tree topology class.
+At the end of the algorithm, all the identified fibers are input-tree stable with respect to all fibers in the network, including the fiber itself. Then, by labelling each fiber with an index or color we can then construct the fibration building blocks through the calculation of the fundamental class number $n$ and through the subclass number $\ell$. Again, a fibration building block is defined as the nodes belonging to a fiber and all the $\ell$ external nodes that directly regulates all nodes of the current fiber. With that, I calculated the fundamental class number $n_k$ of the fiber $k$ by applying the algorithm described in \ref{alg:branchratio} over the strongly connected component of the fiber node that sends information to at least one of its regulators. The value of $n$ quantifies the information cycles of the fibration building blocks and it can be either represent integer branching ratios or fractal golden ration of their input-tree topology class.
 
 Labelling the resulted fiber distribution for the first example in figure \ref{fig:result1}, we obtain the following fibration classification for each fibration building block of the network containing more than one node:
 
@@ -327,7 +334,7 @@ Labelling the resulted fiber distribution for the first example in figure \ref{f
 
 The second example exhibits a connected component containing $N = 21$ nodes, where all the three type of regulation are present. For this network I find the total of eleven fibers, where only six are fibers containing more than one node in it. Important to note that for two arbitrary nodes be in the same fiber they must not just receive the same number of inward connections but the same number of each type of inward connections, receiving, this way, equivalent information from the rest of the network. We can see this for the example of the fibers $4$ e $5$, where even though both receives two links from the same central node, the fibers receives different types of information from that node, meaning that they are not equivalent fibers.
 
-If we consider the fiber $3$, besides the inner autoregulation loop we have a loop information going outside the fiber and going back through an external regulator inside the fiber $1$. In cases like this the branching ratio of the fiber has a fractal value given by a golden branch ratio $\phi_d$ resulted by a cycle of information represented by a fibonacci sequence. This way, fiber $3$ can be classified by the values $| \phi_d, \ell = 2 \rangle$ where the fiber has two external regulator nodes. The fibration classification for the non-trivial fibers is showed in the table \ref{tab:r2}.
+If we consider the fiber $3$, besides the inner autoregulation loop we have a loop information going outside the fiber and going back through an external regulator inside the fiber $1$. In cases like that one the branching ratio of the fiber has a fractal value given by a golden branch ratio $\varphi_d$ resulted by a cycle of information represented by a fibonacci sequence. This way, fiber $3$ can be classified by the values $| \varphi_d, \ell = 2 \rangle$ where the fiber has two external regulator nodes. The fibration classification for the non-trivial fibers is showed in the table \ref{tab:r2}.
 
 %\begin{figure}[H]
 %	\centering
@@ -378,9 +385,35 @@ Before applying the algorithm for the whole \textit{Escherichia Coli} network, I
 	\label{fig:result3-1}
 \end{figure}
 
-The connected component showed at the figure \ref{fig:result3} is a subset representation of the nodes of the regulatory network of the \textit{Escherichia Coli} bacteria and the resulted fibers shows just a portion of the whole fibers pattern. In the table X I provide the classification for each fibration building block obtained for the whole bacteria network, including, of course, the fibers presented in the figure \ref{fig:result3-1}. In total, I have found $92$ non-trivial fiber groups containing a total of $416$ nodes, obtaining a characteristic fiber statistics for the \textit{Escherichia Coli} network data. To guarantee the correctness of the fiber distribution found I calculated, after the refinement algorithm, the information received for each node inside the fibers and compares if each one process equivalent information. The result of this calculation is stored in the data file given at \url{https://github.com/higorsmonteiro/fiberblocks/blob/master/Data/fiberVerification.dat}, where for each node in a non-trivial fiber block I give the list of the nodes that sends information messages to the current node along with their fiber indexes and type of link values. Thus, the results of this report show an equivalent fiber distribution over the network comparing with results exhibited at \cite{fibration2019} for the same regulatory network data. After the classification for each fiber is done, I notice that the $92$ fibers are reduced by one unit, because of the existence of a multilayered fiber compound by two fibers. This way, the number of fibers are consistent with \cite{fibration2019}.
+The connected component showed at the figure \ref{fig:result3} is a subset representation of the nodes of the regulatory network of the \textit{Escherichia Coli} bacteria and the resulted fibers shows just a portion of the whole fibers pattern. In the table X I provide the classification for each fibration building block obtained for the whole bacteria network, including, of course, the fibers presented in the figure \ref{fig:result3-1}. In total, I have found $92$ non-trivial fiber groups containing a total of $416$ nodes, obtaining a characteristic fiber statistics for the \textit{Escherichia Coli} network data. To guarantee the correctness of the fiber distribution found I calculated, after the refinement algorithm, the information received for each node inside the fibers and compares if each one process equivalent information. The result of this calculation is stored in the data file given at \url{https://github.com/higorsmonteiro/fiberblocks/blob/master/Data/fiberVerification.dat}, where for each node in a non-trivial fiber block I give the list of the nodes that sends information messages to the current node along with their fiber indexes and type of link values. Thus, the results of this report show an equivalent fiber distribution over the network comparing with results exhibited at \cite{fibration2019} for the same regulatory network data. Even though the table IV an V of \cite{fibration2019} show a total number of $91$ fibers and the total number of $414$ of nodes inside non-trivial fibers, the authors \href{https://docs.google.com/spreadsheets/d/1-RG5vR_EGNPqQcnJU8q3ky1OpWi3OjTh5Uo-Xa0PjOc/edit#gid=1973910256}{spreadsheet} reports the total of $416$ nodes, a mismatch which is caused in this report by the presence of a additional fiber of size two and classified as $| 1.6181..., 7 \rangle$ containing the genes \textit{marR} e \textit{marA}. This way, the number of nodes in fibers and the genes inside each one are consistent with the results showed in \cite{fibration2019}.
 
-The statistics concerning the fundamental class number and the external regulators of each fibration block on the network is given in the table X, showing \textcolor{red}{describe the pattern of the statistics of the table that concerns the bacteria fiber statistics}.
+The statistics concerning the fundamental class number and the external regulators of each fibration block on the network is given in the table \ref{tab:fiberstats}, showing the additional fiber not reported in \cite{fibration2019}. 
+
+\begin{table}[H]
+	\centering
+	\begin{tabular}[b]{lc}\hline
+		Structure Fiber & Amount in E. Coli  \\ \hline
+		$| n = 0, \ell = 1 \rangle$ & 45 \\
+		$| n = 0, \ell = 2 \rangle$ & 13 \\
+		$| n = 0, \ell = 3 \rangle$ & 3 \\ 
+		$| n = 1, \ell = 0 \rangle$ & 13 \\
+		$| n = 1, \ell = 1 \rangle$ & 8 \\
+		$| n = 2, \ell = 1 \rangle$ & 3 \\
+		$| n = 2, \ell = 1 \rangle$ & 1 \\ 
+		$| n = 1.3802..., \ell = 1 \rangle$ & 1 \\ 
+		$| n = 1.4655..., \ell = 1 \rangle$ & 1 \\  
+		$| n = 1.6181..., \ell = 2 \rangle$ & 1 \\ 
+		$| n = 1.6181..., \ell = 7 \rangle$ & 1 \\ 
+		\hline
+		\textbf{Total number of building blocks} & 92 \\
+		\hline
+		\textbf{Total number of nodes inside fibers} & 416 \\
+		\hline
+	  \end{tabular}
+	  \caption{tab:fiberstats}
+	  \label{tab:fiberstats}
+\end{table}
+	
 
 
 %----------------------------------------------------------------------------------------

@@ -551,6 +551,29 @@ void freePart(PART** head_ref)
 	}
 }
 
+extern void deleteList(NODELIST** head)
+{
+	NODELIST* ptr = *head; 
+    NODELIST* next; 
+  
+    while (ptr != NULL) { 
+        next = ptr->next; 
+        deleteNode(head, ptr); 
+        ptr = next; 
+    } 
+}
+
+extern int subsetlist(NODELIST* inside, NODELIST* whole)
+{
+	NODELIST* nodelist;
+	for(nodelist=inside; nodelist!=NULL; nodelist=nodelist->next)
+	{
+		int check = doublycheck_element(whole, nodelist->data);
+		if(check==0) return -1;
+	}
+	return 1;
+}
+
 extern void push_block(PART** head, BLOCK* insertion)
 {
     PART* new_node = (PART*)malloc(sizeof(PART));

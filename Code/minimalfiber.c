@@ -37,7 +37,7 @@
 #include <string.h>
 #include <math.h>
 // Used fot the calculation of the eigenvalues for each fibration block adjacency matrix.
-#include <gsl/gsl_eigen.h>
+//#include <gsl/gsl_eigen.h>
 // Separated personal constructed modules for graph data and graph fibration specific functions.
 #include "fibrationf.h"
 #include "utilsforfiber.h"
@@ -137,8 +137,8 @@ void main(int argv, char** argc)
 	/* With gene names */ //printGeneGraphInFibers(graph, partition, nodefibers);
 	/* Without gene names */ //printGraphInFibers(graph, partition, nodefibers);
 	
-	/* Classification Info */ ShowClassification(partition, 0);
-	/* Fiber blocks and classification info */ //ShowInfo(partition, 0);
+	/* Classification Info */ //ShowClassification(partition, 0);
+	/* Fiber blocks and classification info */ ShowInfo(partition, 0);
 
 	/*	Show the number of non-trivial fibers	*/
 	//printf("%d %d\n", nontrivial_fibers, total_nodes);

@@ -228,7 +228,9 @@ INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmbx8.tfm
 INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmbx6.tfm
 INPUT /usr/share/texmf-dist/fonts/vf/adobe/courier/pcrr8t.vf
 INPUT /usr/share/texmf-dist/fonts/tfm/adobe/courier/pcrr8r.tfm
-INPUT /usr/share/texmf-dist/fonts/tfm/adobe/palatino/pplbi8t.tfm
+INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/input.png
+INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/input.png
+INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/input.png
 INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1.png
 INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1.png
 INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1.png
@@ -236,8 +238,6 @@ INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1-1.
 INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1-1.png
 INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1-1.png
 INPUT /usr/share/texmf-dist/fonts/tfm/public/cm/cmbx10.tfm
-INPUT /usr/share/texmf-dist/fonts/vf/adobe/palatino/pplbi8t.vf
-INPUT /usr/share/texmf-dist/fonts/tfm/adobe/palatino/pplbi8r.tfm
 INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1-label.png
 INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1-label.png
 INPUT /home/mhigor/Documentos/Projetos/fiberblocks/Manuscript/Figures/result1-label.png

@@ -176,7 +176,7 @@ extern void printGraphInFibers(Graph* graph, PART* partition, int* nodefiber)
 	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	{
 		if(current_part->block->size==1) continue;
-		printf("INSIDE FIBER %d WITH SIZE %d:\n", current_part->block->index, current_part->block->size);
+		printf("FIBER %d WITH SIZE %d -> | %.4lf, %d >:\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
 		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
 		{
 			n = GETNin(graph, nodelist->data);
@@ -199,7 +199,7 @@ extern void printGeneGraphInFibers(Graph* graph, PART* partition, int* nodefiber
 	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
 	{
 		if(current_part->block->size==1) continue;
-		printf("INSIDE FIBER %d WITH SIZE %d:\n", current_part->block->index, current_part->block->size);
+		printf("FIBER %d WITH SIZE %d -> | %.4lf, %d >:\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
 		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
 		{
 			printf("NODE %s receives from fiber(node,type): ", graph->array[nodelist->data].gene_name);
@@ -318,4 +318,7 @@ void ShowInfo(PART* partition, int mode)
 		}
 	}
 }
+
+
+
 #endif
