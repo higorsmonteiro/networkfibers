@@ -183,7 +183,7 @@ extern double BRANCH_RATIO(PART* block_info, Graph* graph, double delta)
 				cyclesize = height1+height2;
 			}
 		}
-		printf("%d\n", cyclesize);
+		//printf("%d\n", cyclesize);
 		
 		switch(cyclesize)
 		{

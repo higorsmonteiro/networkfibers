@@ -301,6 +301,23 @@ void ShowClassification(PART* partition, int mode)
 	}
 }
 
+void ShowClassification1(PART* partition, int mode)
+{
+	PART* current_part;
+	for(current_part=partition; current_part!=NULL; current_part=current_part->next)
+	{
+		if(current_part->block->size>1)
+		{
+			printf("%d,%d,%lf,%d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
+			//printBlock(current_part->block);
+		}
+		else if(mode==1)
+		{
+			printf("Fiber %d: Size %d - n %lf - l %d\n", current_part->block->index, current_part->block->size, current_part->fundamental_number, current_part->number_regulators);
+		}
+	}
+}
+
 void ShowInfo(PART* partition, int mode)
 {
 	PART* current_part;

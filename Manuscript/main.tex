@@ -84,7 +84,7 @@ The formal definition of an input-tree is explained in detail at \cite{fibration
 	\subfloat[]{{\includegraphics[scale=0.4]{Figures/ex2.png}}}
 	\qquad
 	\subfloat[]{{\includegraphics[scale=0.4]{Figures/ex3.png}}}
-	\caption{First trial network example. Containing a total of $N = 17$ nodes and $M = 22$ arcs, the network has two weakly connected components, defined as the connected networks when we treat all the directed arcs as undirected edges. For each non-trivial fiber I give the same color for the nodes belonging to it.}
+	\caption{The patterns of directed connections can influence the collective dynamical states of the network nodes through synchronization. Considering only the topology, we say that two nodes in a information-processing network synchronize their states if they process equivalent information. Since $Y$ and $Z$ receive same information from the same nodes in (a) e (c), they synchronize, different from the case (b), where all nodes have different dynamical states.}
 	\label{fig:ex}
 \end{figure}
 
@@ -99,7 +99,7 @@ All this discussion can be put on solid ground by considering the isomorphic rel
 	\subfloat[]{{\includegraphics[scale=0.32]{Figures/ex2input.png}}}
 	\qquad
 	\subfloat[]{{\includegraphics[scale=0.32]{Figures/ex3input.png}}}
-	\caption{First trial network example. Containing a total of $N = 17$ nodes and $M = 22$ arcs, the network has two weakly connected components, defined as the connected networks when we treat all the directed arcs as undirected edges. For each non-trivial fiber I give the same color for the nodes belonging to it.}
+	\caption{Nodes in a network that have isomorphic input-tree share the same dynamical states. (a) e (c) shows symmetrical input-tree for nodes $Y$ e $Z$, where due to the addition of the autoregulation loop in (c), their input-trees become infinite.}
 	\label{fig:inputex}
 \end{figure}
 
@@ -251,7 +251,7 @@ The algorithm consists of two steps, the first one being the verification of the
 
 The implementation of the algorithm is quite simple, making use of only stacks to store the input-tree layers. Starting from the root node $v$ of the input-tree of the fiber $V_i$ and defined $\Lambda$ for the case of fibonacci cycles, we find its nearest incoming neighbors $E^{-1}(\{v\}) \in \Lambda$ and $E^{-1}(\{v\}) \in V_i$ and store them in a first stack $S_1$, representing this way the second layer $j = 1$ of the input-tree, from which we can obtain the value of its size $Q_1$. Next, we pop each element of $S_1$ and get their incoming neighbors $E^{-1}(\{v \leftarrow pop(S_1)\})$ and store them in $S_2$ until $S_1$ is empty. Then, $S_2$ will store the second layer $j = 2$ of the input-tree, from which $Q_2$ is obtained, allowing the calculation of $n_2$. Since at this time $S_1$ is empty, the incoming neighbors of each element of $S_2$ are stored in $S_1$ until $S_2$ is empty, and this process is repeated, exchanging $S_1$ e $S_2$ as incoming neighbors supplier and deposit in each loop step. This repeating exchange can be implemented with the help of stacks pointers to represent, in each algorithm loop, the supplier and deposit stacks. This way, we can calculate the values of $n_j$ until the limit depth $j+1 > \delta$ is reached. The algorithm pseudocode implementation is given in \ref{alg:branchratio}.
 
-The algorithm \ref{alg:branchratio} assumes that the given node $v$ is part of a strongly connected component, even for the trivial case containing only $v$ connected to itself, because this warrant that $n \neq 0$. This can be easily verified implementing a Depth-First Search or Breadth-First Search on the network and its tranpose starting at node $v$ to find its strongly connected component, which takes linear time with the size of the strongly connected component. Then, for components containing only fiber nodes the algorithm obtain the correct integer $n$ for small $\delta$ limit tree depth, running linearly with $|E^{-1}(\{V_{SCC}\}) \in \Lambda|$. For component containing outsider nodes, then we define $\Lambda$ containing the nodes in the shortest loop \ref{fig:branch} and apply the above algorithm. Of course, for fibonacci loops, determining the size $s$ of the shortest loop already gives indirectly the information $\varphi_s$ needed, being necessary only to define previously a table with the relations $s \rightarrow \varphi_s$.
+The algorithm \ref{alg:branchratio} assumes that the given node $v$ is part of a strongly connected component, even for the trivial case containing only $v$ connected to itself, because this warrants that $n \neq 0$. This can be easily verified implementing a Depth-First Search or Breadth-First Search on the network and its tranpose starting at node $v$ to find its strongly connected component, which takes linear time with the size of the strongly connected component. Then, for components containing only fiber nodes the algorithm obtain the correct integer $n$ for small $\delta$ limit tree depth, running linearly with $|E^{-1}(\{V_{SCC}\}) \in \Lambda|$. For component containing outsider nodes, then we define $\Lambda$ containing the nodes in the shortest loop \ref{fig:branch} and apply the above algorithm. Of course, for fibonacci loops, determining the size $s$ of the shortest loop already gives indirectly the information $\varphi_s$ needed, being necessary only to define previously a table with the relations $s \rightarrow \varphi_s$.
 
 \begin{algorithm}[!h]
 	\SetAlgoLined
@@ -292,6 +292,8 @@ The approach given represents an alternative and direct method to obtain the fun
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.32]{Figures/input.png}
+	\caption{Example of fibration building block containing more than one cycle. Building the fiber input-tree with all the three nodes from the strongly connected component gives a wrong branching ratio $n$, while considering only the nodes in the shortest cycle gives the right branching ratio $\varphi_2$.}
+	\label{fig:branch}
 \end{figure}
 
 %------------------------------------------------
@@ -325,7 +327,7 @@ Labelling the resulted fiber distribution for the first example in figure \ref{f
       2 & $| 0, 1 \rangle$ \\
       3 & $| 0, 1 \rangle$ \\ 
       4 & $| 0, 1 \rangle$ \\
-      5 & $| 0, 2 \rangle$ \\ \hline
+      5 & $| 1, 2 \rangle$ \\ \hline
 	\end{tabular}
 	\captionlistentry[table]{A table beside a figure}
     %\captionsetup{labelformat=andtable}
@@ -336,20 +338,12 @@ The second example exhibits a connected component containing $N = 21$ nodes, whe
 
 If we consider the fiber $3$, besides the inner autoregulation loop we have a loop information going outside the fiber and going back through an external regulator inside the fiber $1$. In cases like that one the branching ratio of the fiber has a fractal value given by a golden branch ratio $\varphi_d$ resulted by a cycle of information represented by a fibonacci sequence. This way, fiber $3$ can be classified by the values $| \varphi_d, \ell = 2 \rangle$ where the fiber has two external regulator nodes. The fibration classification for the non-trivial fibers is showed in the table \ref{tab:r2}.
 
-%\begin{figure}[H]
-%	\centering
-%	\subfloat[]{{\includegraphics[scale=0.25]{Figures/result2.png}}}
-%	\qquad
-%	\subfloat[]{{\includegraphics[scale=0.25]{Figures/result2-label.png}}}
-%	\caption{First trial network example. Containing a total of $N = 17$ nodes and $M = 22$ arcs, the network has two weakly connected %components, defined as the connected networks when we treat all the directed arcs as undirected edges. For each non-trivial fiber I %give the same color for the nodes belonging to it.}
-%	\label{fig:result2}
-%\end{figure}
+Before applying the algorithm for the whole \textit{Escherichia Coli} network, I chose, for the finality of visualization and testing, to apply first the algorithm for a weakly connected component of the \textit{E. Coli} network. The same network is showed at the supplementary information of \cite{fibration2019}. The fiber distribution found is consistent with the one presented at \cite{fibration2019}, presenting the total of fifteen non-trivial fiber groups as shown in the figure \ref{fig:result3-1}.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.275]{Figures/result2.png}
 \end{figure}
-
 \begin{figure}[H]
 	\centering
 	\includegraphics[scale=0.275]{Figures/result2-label.png}
@@ -359,33 +353,33 @@ If we consider the fiber $3$, besides the inner autoregulation loop we have a lo
 \centering
 \begin{tabular}[b]{cc}\hline
 	Fiber & $| n, \ell \rangle$  \\ \hline
-	1 & $| 0, 1 \rangle$ \\
-	2 & $| 0, 1 \rangle$ \\
-	3 & $| 0, 1 \rangle$ \\ 
+	1 & $| 1.6181..., 1 \rangle$ \\
+	2 & $| 1, 0 \rangle$ \\
+	3 & $| 1.6181..., 2 \rangle$ \\ 
 	4 & $| 0, 1 \rangle$ \\
-	5 & $| 0, 2 \rangle$ \\
-	6 & $| 0, 2 \rangle$ \\ \hline
+	5 & $| 0, 1 \rangle$ \\
+	6 & $| 0, 1 \rangle$ \\ \hline
   \end{tabular}
   \caption{}
   \label{tab:r2}
 \end{table}
 
-Before applying the algorithm for the whole \textit{Escherichia Coli} network, I chose, for the finality of visualization and testing, to apply first the algorithm for a weakly connected component of the \textit{E. Coli} network. The same network is showed at the supplementary information of \cite{fibration2019}. The fiber distribution found is consistent with the one presented at \cite{fibration2019}, presenting the total of fifteen non-trivial fiber groups as shown in the figure \ref{fig:result3-1}.
+The connected component showed at the figure \ref{fig:result3} is a subset representation of the nodes of the regulatory network of the \textit{Escherichia Coli} bacteria and the resulted fibers shows just a portion of the whole fibers pattern. In the table X I provide the classification for each fibration building block obtained for the whole bacteria network, including, of course, the fibers presented in the figure \ref{fig:result3-1}. In total, I have found $92$ non-trivial fiber groups containing a total of $416$ nodes, obtaining a characteristic fiber statistics for the \textit{Escherichia Coli} network data. To guarantee the correctness of the fiber distribution found I calculated, after the refinement algorithm, the information received for each node inside the fibers and compares if each one process equivalent information. The result of this calculation is stored in the data file given at \url{https://github.com/higorsmonteiro/fiberblocks/blob/master/Data/Results/DefinitiveFiber.dat}, where for each node in a non-trivial fiber block I give the list of the nodes that sends information messages to the current node along with their fiber indexes and type of link values. Thus, the results of this report show an equivalent fiber distribution over the network comparing with results exhibited at \cite{fibration2019} for the same regulatory network data. Even though the table IV an V of \cite{fibration2019} show a total number of $91$ fibers and the total number of $414$ of nodes inside non-trivial fibers, the authors \href{https://docs.google.com/spreadsheets/d/1-RG5vR_EGNPqQcnJU8q3ky1OpWi3OjTh5Uo-Xa0PjOc/edit#gid=1973910256}{spreadsheet} reports the total of $416$ nodes, a mismatch which is caused in this report by the presence of a additional fiber of size two, classified as $| 1.6181..., 7 \rangle$ containing the genes \textit{marR} e \textit{marA}. This way, the number of nodes in fibers and the genes inside each one are consistent with the results showed in \cite{fibration2019}.
 
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.27]{Figures/result3.png}
+	\includegraphics[scale=0.23]{Figures/result3.png}
 	\caption{}
 	\label{fig:result3}
 \end{figure}
 \begin{figure}[H]
 	\centering
-	\includegraphics[scale=0.27]{Figures/result3-1.png}
+	\includegraphics[scale=0.23]{Figures/result3-1.png}
 	\caption{}
 	\label{fig:result3-1}
 \end{figure}
 
-The connected component showed at the figure \ref{fig:result3} is a subset representation of the nodes of the regulatory network of the \textit{Escherichia Coli} bacteria and the resulted fibers shows just a portion of the whole fibers pattern. In the table X I provide the classification for each fibration building block obtained for the whole bacteria network, including, of course, the fibers presented in the figure \ref{fig:result3-1}. In total, I have found $92$ non-trivial fiber groups containing a total of $416$ nodes, obtaining a characteristic fiber statistics for the \textit{Escherichia Coli} network data. To guarantee the correctness of the fiber distribution found I calculated, after the refinement algorithm, the information received for each node inside the fibers and compares if each one process equivalent information. The result of this calculation is stored in the data file given at \url{https://github.com/higorsmonteiro/fiberblocks/blob/master/Data/fiberVerification.dat}, where for each node in a non-trivial fiber block I give the list of the nodes that sends information messages to the current node along with their fiber indexes and type of link values. Thus, the results of this report show an equivalent fiber distribution over the network comparing with results exhibited at \cite{fibration2019} for the same regulatory network data. Even though the table IV an V of \cite{fibration2019} show a total number of $91$ fibers and the total number of $414$ of nodes inside non-trivial fibers, the authors \href{https://docs.google.com/spreadsheets/d/1-RG5vR_EGNPqQcnJU8q3ky1OpWi3OjTh5Uo-Xa0PjOc/edit#gid=1973910256}{spreadsheet} reports the total of $416$ nodes, a mismatch which is caused in this report by the presence of a additional fiber of size two and classified as $| 1.6181..., 7 \rangle$ containing the genes \textit{marR} e \textit{marA}. This way, the number of nodes in fibers and the genes inside each one are consistent with the results showed in \cite{fibration2019}.
+
 
 The statistics concerning the fundamental class number and the external regulators of each fibration block on the network is given in the table \ref{tab:fiberstats}, showing the additional fiber not reported in \cite{fibration2019}. 
 
@@ -410,10 +404,39 @@ The statistics concerning the fundamental class number and the external regulato
 		\textbf{Total number of nodes inside fibers} & 416 \\
 		\hline
 	  \end{tabular}
-	  \caption{tab:fiberstats}
+	  \caption{Fibration building blocks statistics of the \textit{Escherechia Coli} genetic regulatory network. The indexation accounts for trivial fibers also.}
 	  \label{tab:fiberstats}
 \end{table}
-	
+
+\centering
+\begin{table}[b]
+	\centering
+\begin{tabular}{r|r|r|r}
+\hline
+Fiber ID &  Fiber Size &  $n$ or $\varphi_d$ &  $\ell$ \\ \hline
+4 &          12 &             0.0000 &          1 \\        5 &           9 &             1.4655 &          1 \\       10 &           2 &             0.0000 &          1 \\       11 &           2 &             0.0000 &          1 \\       12 &           2 &             0.0000 &          1 \\       13 &           4 &             0.0000 &          1 \\       15 &           2 &             0.0000 &          2 \\       19 &           2 &             0.0000 &          1 \\       20 &           7 &             0.0000 &          1 \\       21 &           2 &             0.0000 &          1 \\       23 &           2 &             1.3802 &          1 \\       25 &           6 &             0.0000 &          1 \\       26 &           2 &             0.0000 &          1 \\       29 &           4 &             0.0000 &          1 \\       30 &           9 &             0.0000 &          1 \\       35 &           2 &             0.0000 &          1 \\       41 &           4 &             0.0000 &          1 \\       43 &          24 &             0.0000 &          1 \\       46 &          11 &             0.0000 &          1 \\       48 &           7 &             0.0000 &          1 \\       49 &           3 &             0.0000 &          1 \\       53 &           2 &             0.0000 &          1 \\       54 &           5 &             0.0000 &          1 \\       55 &           4 &             0.0000 &          1 \\       56 &           3 &             0.0000 &          1 \\       58 &           2 &             0.0000 &          2 \\       66 &           4 &             0.0000 &          2 \\       67 &          13 &             0.0000 &          1 \\       70 &           2 &             0.0000 &          1 \\       71 &          28 &             0.0000 &          1 \\       73 &           4 &             0.0000 &          3 \\       74 &           3 &             0.0000 &          2 \\       75 &           4 &             0.0000 &          1 \\       78 &           4 &             1.0000 &          1 \\       80 &           3 &             0.0000 &          2 \\       83 &           2 &             1.0000 &          1 \\       84 &           2 &             1.6181 &          2 \\       92 &           4 &             0.0000 &          1 \\ 
+\end{tabular}
+\end{table}
+
+\begin{table}[b]
+	\centering
+	\begin{tabular}{r|r|r|r}
+		
+		Fiber ID &  Fiber Size &  $n$ or $\varphi_d$ &  $\ell$ \\ \hline
+		110 &           2 &             0.0000 &          2 \\      114 &           2 &             0.0000 &          2 \\      117 &           2 &             0.0000 &          2 \\      120 &           2 &             0.0000 &          2 \\      128 &           2 &             0.0000 &          3 \\      132 &           3 &             0.0000 &          1 \\      135 &           5 &             0.0000 &          3 \\      137 &           2 &             2.0000 &          1 \\      145 &           2 &             1.0000 &          1 \\      153 &           4 &             1.0000 &          1 \\      181 &           2 &             0.0000 &          1 \\      187 &           8 &             0.0000 &          1 \\      198 &           2 &             1.0000 &          1 \\      208 &           2 &             1.0000 &          2 \\      225 &           2 &             0.0000 &          2 \\      246 &           2 &             1.0000 &          1 \\      249 &           3 &             1.0000 &          1 \\      257 &           3 &             1.0000 &          0 \\      269 &           2 &             0.0000 &          2 \\      277 &           2 &             2.0000 &          0 \\      278 &           9 &             0.0000 &          1 \\      281 &          11 &             1.0000 &          0 \\      284 &           3 &             0.0000 &          1 \\      299 &          26 &             1.0000 &          0 \\      305 &           3 &             1.0000 &          0 \\      311 &           2 &             0.0000 &          2 \\      312 &           5 &             1.0000 &          0 \\      313 &           2 &             1.0000 &          1 \\      319 &           5 &             0.0000 &          1 \\      322 &          16 &             1.0000 &          0 \\      324 &           3 &             1.0000 &          0 \\      330 &           9 &             1.0000 &          0 \\      331 &           2 &             1.0000 &          0 \\      342 &           3 &             0.0000 &          1 \\      350 &           3 &             0.0000 &          1 \\      353 &           2 &             0.0000 &          1 \\      356 &           2 &             0.0000 &          1 \\
+	\end{tabular}
+\end{table}
+
+\begin{table}[b]
+	\centering
+	\begin{tabular}{r|r|r|r}
+		
+		Fiber ID &  Fiber Size &  $n$ or $\varphi_d$ &  $\ell$ \\ \hline
+				 359 &           2 &             0.0000 &          1 \\      364 &           5 &             0.0000 &          1 \\      373 &          12 &             0.0000 &          1 \\      380 &           2 &             0.0000 &          1 \\      395 &           2 &             0.0000 &          1 \\      433 &           3 &             1.0000 &          2 \\      434 &           2 &             1.0000 &          2 \\      440 &           2 &             0.0000 &          2 \\      449 &           2 &             0.0000 &          1 \\      476 &           2 &             1.6181 &          7 \\      481 &           3 &             0.0000 &          1 \\      495 &           2 &             1.0000 &          0 \\      497 &           2 &             1.0000 &          0 \\      498 &           2 &             1.0000 &          0 \\      500 &           2 &             0.0000 &          1 \\      503 &           2 &             0.0000 &          1 \\      505 &           2 &             1.0000 &          0 \\
+				 \hline
+	\end{tabular}
+	\caption{Size and classification of all non-trivial fibers over the \textit{Escherichia Coli} genetic regulatory network.}
+\end{table}
 
 
 %----------------------------------------------------------------------------------------
