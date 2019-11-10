@@ -3,8 +3,9 @@
 
 /*  
     The code here represents the central module for the implementation of the coarsest
-    refinement graph partitioning algorithm, containing the functions used in the main
-    code. The necessary comments are given at the beginning of each function (to do).
+    refinement graph partitioning algorithm for input-tree stability, containing the 
+    functions used in the main code. The necessary comments are given at the beginning of 
+    each function (to do).
  */
 
 #include <stdio.h>
@@ -16,7 +17,15 @@
 #include "structforfiber.h"
 #define SENTINEL -96
 
-int CHECKLOOP(int root, Graph* graph)
+/////////////////////////////////////////////////////////////////////////
+/////////////////////// FIBRATION CLASSIFICATION ////////////////////////
+/////////////////////////////////////////////////////////////////////////
+
+
+//########## BRANCHING RATIO DETERMINATION ############//
+
+/*	Verify if the input-tree of 'root' is infinite (1) or not (0).	*/
+extern int INFINITE_INTREE(int root, Graph* graph)
 {
 	int i;
 	NODELIST* scc_nodes = NULL;
@@ -32,74 +41,86 @@ int CHECKLOOP(int root, Graph* graph)
 	} 
 }
 
-// The node that has the largest strong connected component.
-int FIBERNODE_FOR_BRANCHING(PART* current_part, Graph* graph)
+/*	Given a fiber V_i, the function returns the node that belongs to V_i that
+	should be used for the branching ratio determination.	*/
+extern int FIBERNODE_FOR_BRANCHING(PART* fiber, Graph* graph)
 {
 	NODELIST* nodelist;
 	NODELIST* regulators;
 	NODELIST* strong_component = NULL;
 
-	int size;
-	int nodeindex = current_part->block->head->data;
 	int max = -1;
-	// Pass through all nodes in fiber.
-	for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+	int verf, size;
+	int fibernode = fiber->block->head->data;
+
+	/*	For each node in fiber, defines its strongly connected component(SCC)
+		through Kosajaru's algorithm and returns the node that has the largest SCC.	*/
+	for(nodelist=fiber->block->head; nodelist!=NULL; nodelist=nodelist->next)
 	{
 		KOSAJARU(&strong_component, nodelist->data, graph);
 		size = GetListSize(strong_component);
 		if(size==1)
 		{
-			int check = CHECKLOOP(nodelist->data, graph);
-			if(check==1 && size>max)
+			verf = INFINITE_INTREE(nodelist->data, graph);
+			if(verf==1 && size>max)
 			{
-				nodeindex = nodelist->data;
+				fibernode = nodelist->data;
 				max = size;
 			}
 		}
 		else if(size>max)
 		{
-			nodeindex = nodelist->data;
+			fibernode = nodelist->data;
 			max = size;
 		}
 		deleteList(&strong_component);
 	}
-	return nodeindex;
+	return fibernode;
 }
 
-extern int OUTPUT_TREE(int root, int wanted, NODELIST* scc, Graph* graph)
+/*	Given two nodes 'root' and 'wanted', this function calculates the shortest distance
+	between them through the output-tree construction. Starting with the 'root' node as
+	the root tree, we build each layer of the output-tree until it finds the 'wanted' node.
+	The level layer number of 'wanted' gives the shortest path between 'root' and 'wanted'.
+	Since the network does not have weights, this procedure returns the shortest path in
+	linear time complexity with the size of the SCC.	*/
+extern int DISTANCE_TREEOUTPUT(int root, int wanted, NODELIST* scc, Graph* graph)
 {
 	if(root==wanted) return 0;
-	int i, j;
 	
-	/////////////////////
-	STACK* s1 = NULL;
-	STACK* s2 = NULL;
-	STACK* aux = NULL;
-	STACK* sup = NULL;
-	STACK* depot = NULL;
-	/////////////////////
+	//////////////////////
+	STACK* s1 = NULL;	//
+	STACK* s2 = NULL;	//
+	STACK* aux = NULL;	//
+	STACK* sup = NULL;	//
+	STACK* depot = NULL;//
+	//////////////////////
 	
+	int i, verf_scc;
 	int height = 0;
 	int node_bool = 0;
 	push(&s1, root);
-	sup = s1;
-	depot = s2;
-	while(node_bool==0)
+	
+	sup = s1;				// Supplier stack pointer.
+	depot = s2;				// Deposit stack pointer.
+	while(node_bool==0)		// Until 'wanted' is not found.
 	{
 		height++;
 		while(sup)
 		{
 			int node = pop(&sup);
-			int n_in = GETNout(graph, node);
-			int* neigh = GET_OUTNEIGH(graph, node);
-			for(i=0; i<n_in; i++) 
+			int n_out = GETNout(graph, node);
+			int* neighborhood = GET_OUTNEIGH(graph, node);
+			for(i=0; i<n_out; i++) 
 			{
-				if(neigh[i]==wanted) node_bool = 1;
-				int check1 = doublycheck_element(scc, neigh[i]);
-				if(check1==1)	push(&depot, neigh[i]);
+				if(neighborhood[i]==wanted) node_bool = 1;
+
+				verf_scc = doublycheck_element(scc, neighborhood[i]);
+				if(verf_scc==1)	push(&depot, neighborhood[i]);
 			}
-			free(neigh);
+			free(neighborhood);
 		}
+		// Exchanging supplier and deposit pointing references.
 		aux = depot;
 		depot = sup;
 		sup = aux;
@@ -107,42 +128,49 @@ extern int OUTPUT_TREE(int root, int wanted, NODELIST* scc, Graph* graph)
 	return height;
 }
 
-extern double BRANCH_RATIO(PART* block_info, Graph* graph, double delta)
+
+/*	Calculates the branching ratio 'n' considering two direct approaches. The first approach
+	is by constructing the input-tree layer by layer and then getting 'n' by dividing the number
+	of nodes of two layers in a row. This approach is used only for SCC subset of the fiber,
+	implying integer branching ratio. When the SCC is not subset of the fiber, then the function 
+	calculates the shortest cycle path, excluding autorregulation loops, for a node fiber. In 
+	this case the branching ratio is fractal. The shortest cycle path is calculated in linear time
+	and its length gives the appropriate generalized golden ratio.	*/
+extern double BRANCH_RATIO(PART* block_info, Graph* graph)
 {
-	int i, j;
 	double n, n_j;
-	int a_top, a_bottom;
+	int i, a_top, a_bottom;
+
 	NODELIST* nodelist;
+	NODELIST* nodelist1;
+	NODELIST* scc = NULL;
 	
-	/////////////////////
-	STACK* s1 = NULL;
-	STACK* s2 = NULL;
-	STACK* aux = NULL;
-	STACK* sup = NULL;
-	STACK* depot = NULL;
-	/////////////////////
+	//////////////////////
+	STACK* s1 = NULL;	//
+	STACK* s2 = NULL;	//
+	STACK* aux = NULL;	//
+	STACK* sup = NULL;	//
+	STACK* depot = NULL;//
+	//////////////////////
 
 	int v = FIBERNODE_FOR_BRANCHING(block_info, graph);
-	//int v = block_info->block->head->data;
-	//printf("node %d in fiber %d\n", v, block_info->block->index);
-	int bool_inputloop = CHECKLOOP(v, graph);
-	NODELIST* scc;
+	int bool_inputloop = INFINITE_INTREE(v, graph);
 	KOSAJARU(&scc, v, graph);
-	//printf("SCC: ");
-	//printList(scc);
 	int bool_subset = subsetlist(scc, block_info->block->head);
-	// If scc is not subset of the fiber, we need to get only the nodes
-	// contained in the shortest cycle.
 
-	if(bool_inputloop==1 && bool_subset==1)
+	/*	If scc is not subset of the fiber, we need to get only the 
+		shortest cycle path length. Otherwise, we construct the input-tree
+		of the node 'v' until the limit depth is reached.	*/
+	if(bool_inputloop==0) return 0.0000;
+	else if(bool_inputloop==1 && bool_subset==1)
 	{
-		int ffseq_size = 0;
+		int height = 0;
 		push(&s1, v);
 		sup = s1;
 		depot = s2;
-		while(ffseq_size<5)
+		while(height<=5)
 		{
-			ffseq_size++;
+			height++;
 			a_top = STACKSIZE(sup);
 			while(sup)
 			{
@@ -151,54 +179,57 @@ extern double BRANCH_RATIO(PART* block_info, Graph* graph, double delta)
 				int* neigh = GET_INNEIGH(graph, node);
 				for(i=0; i<n_in; i++) 
 				{
-					int check1 = doublycheck_element(scc, neigh[i]);
-					if(check1==1)	push(&depot, neigh[i]);
+					int verf_scc = doublycheck_element(scc, neigh[i]);
+					if(verf_scc==1)	push(&depot, neigh[i]);
 				}
 				free(neigh);
 			}
 			a_bottom = STACKSIZE(depot);
-			//for(aux=depot; aux!=NULL; aux=aux->next) printf("%d ", aux->node_ID);
-			//printf("\n");
 			n_j = (1.0*a_bottom)/(a_top);
-			//printf("%d\t%lf\n", a_bottom, n_j);
 			aux = depot;
 			depot = sup;
 			sup = aux;
 		}
 	}
-	else if(bool_inputloop==0)
-	{
-		n_j = 0.0;
-	}
 	else
 	{
-		int cyclesize = 10;
+		int cyclesize = 1000;
+		NODELIST* fibernodes_in_scc = NULL;
 		for(nodelist=scc; nodelist!=NULL; nodelist=nodelist->next)
 		{
-			int height1 = OUTPUT_TREE(v, nodelist->data, scc, graph);
-			int height2 = OUTPUT_TREE(nodelist->data, v, scc, graph);
-			
-			if((height1+height2)<cyclesize && (height1+height2)!=0)
+			int verf = doublycheck_element(block_info->block->head, nodelist->data);
+			if(verf==1) push_doublylist(&fibernodes_in_scc, nodelist->data);
+		}
+
+		int w;
+		for(nodelist1=fibernodes_in_scc; nodelist1!=NULL; nodelist1=nodelist1->next)
+		{
+			w = nodelist1->data;
+			for(nodelist=scc; nodelist!=NULL; nodelist=nodelist->next)
 			{
-				cyclesize = height1+height2;
+				int height1 = DISTANCE_TREEOUTPUT(w, nodelist->data, scc, graph);
+				int height2 = DISTANCE_TREEOUTPUT(nodelist->data, w, scc, graph);
+			
+				if((height1+height2)<cyclesize && (height1+height2)!=0)
+					cyclesize = height1+height2;
 			}
 		}
-		//printf("%d\n", cyclesize);
-		
+		deleteList(&scc);
+
 		switch(cyclesize)
 		{
 			case 2: return 1.6181;
 			case 3: return 1.4655;
 			case 4: return 1.3802;
+			case 5: return 1.2111;
 		}
 
 	}
-	
-	//printf("end\n");
+	deleteList(&scc);
 	return n_j;
 }
 
-extern void DEF_FUNDAMENTAL(PART** partition, Graph* graph)
+extern void CALC_BRANCHING(PART** partition, Graph* graph)
 {
 	double nloop;
 	PART* current_part;
@@ -207,7 +238,7 @@ extern void DEF_FUNDAMENTAL(PART** partition, Graph* graph)
 	{
 		if(current_part->block->size>1)
 		{
-			nloop = BRANCH_RATIO(current_part, graph, 0.001);
+			nloop = BRANCH_RATIO(current_part, graph);
 			current_part->fundamental_number = nloop;
 		}
 	}
@@ -257,23 +288,25 @@ extern void GET_EIGMAX(NODELIST* scc_nodes, Graph* graph)
 	all the nodes belonging to the block and all the external nodes that regulates that 
 	same fiber.	After that, construct the adjacency matrix for that set and obtain its
 	largest eigenvalue. */
-extern void DEF_BRANCH_RATIO(PART** partition, Graph* graph)
-{
-	//PART* current_part;
-	//NODELIST* nodelist;
-	//NODELIST* scc_nodes;
-	//// Loop over all the fiber blocks.
-	//for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
-	//{
-	//	scc_nodes = NULL;
-	//	// For each node in the fiber gets all nodes in its SCC.
-	//	for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
-	//		KOSAJARU(&scc_nodes, nodelist->data, graph);
-	//	//KOSAJARU(&scc_nodes, current_part->block->head->data, graph);
-	//	double eigmax = GET_EIGMAX(scc_nodes, graph);
-	//	current_part->fundamental_number = eigmax;
-	//}
-}
+//extern void DEF_BRANCH_RATIO(PART** partition, Graph* graph)
+//{
+//	PART* current_part;
+//	NODELIST* nodelist;
+//	NODELIST* scc_nodes;
+//	// Loop over all the fiber blocks.
+//	for(current_part=(*partition); current_part!=NULL; current_part=current_part->next)
+//	{
+//		scc_nodes = NULL;
+//		// For each node in the fiber gets all nodes in its SCC.
+//		for(nodelist=current_part->block->head; nodelist!=NULL; nodelist=nodelist->next)
+//			KOSAJARU(&scc_nodes, nodelist->data, graph);
+//		double eigmax = GET_EIGMAX(scc_nodes, graph);
+//		current_part->fundamental_number = eigmax;
+//	}
+//}
+//############################################################//
+
+//########## NUMBER OF REGULATORS COUNTING ############//
 
 int VERIFY_IF_REGULATOR(NODELIST* fibernodes, int regulator, Graph* graph)
 {
@@ -329,6 +362,13 @@ extern void CALCULATE_REGULATORS(PART** partition, Graph* graph)
 		free(in_neighbors);
 	}
 }
+//############################################################//
+
+/////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////
+///////////////// REFINEMENT PARTITIONING FUNCTIONS //////////////////
 
 void UPGRADE_PARTITION(PART** new_blocks, PART** old_blocks, PART** partition)
 {
@@ -527,7 +567,8 @@ int STABILITYCHECKER(PART** partition, BLOCK* Set, Graph* graph)
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
-////////////////// PREPROCESSING FUNCTIONS FOR REFINEMENT ALGORITHM ///////////////////
+//################ PREPROCESSING FUNCTIONS FOR REFINEMENT ALGORITHM #################//
+
 extern void ENQUEUE_BLOCKS(PART** partition, QBLOCK** qhead, QBLOCK** qtail)
 {
 	PART* current_part;
@@ -544,28 +585,6 @@ extern void InitiateBlock(PART** Null_Part, int node)
 	add_to_block(&new_block, node);
 	push_block(Null_Part, new_block);
 }
-
-//extern void PREPROCESSING(BLOCK** P, BLOCK** NonP, PART** Null_Part, Graph* graph, int N)
-//{
-//	(*P)->size = 0;
-//	(*NonP)->size = 0;
-//	(*P)->index = 0;
-//	(*NonP)->index = -1;
-//	(*P)->head = NULL;
-//	(*NonP)->head = NULL;    
-//
-//	int n_in, i;
-//    for(i=0; i<N; i++)
-//    {
-//		n_in = GETNin(graph, i);
-//        if(n_in>0) add_to_block(P, i);
-//		else add_to_block(NonP, i);
-//    }
-//	// Define one block for each solitaire node and put in the 'Null_Part'.
-//	NODELIST* nodelist = (*NonP)->head;
-//	for(nodelist=(*NonP)->head; nodelist!=NULL; nodelist=nodelist->next)
-//        InitiateBlock(Null_Part, nodelist->data);
-//}
 
 extern void push_block_by_index(int node, int index, PART** partition)
 {
@@ -598,16 +617,7 @@ extern void PREPROCESSING(PART** partition, PART** null_partition, PART** null_p
 	int N = graph->size;
 	int root, n_in, n_out, i;
 	int* roots = (int*)malloc(N*sizeof(int));
-	//for(i=0; i<N; i++)
-	//{
-	//	n_in = GETNin(graph, i);
-	//	if(n_in==0) roots[i] = -1;
-	//	else
-	//	{
-	//		root = findroot(i, components);
-	//		roots[i] = root;
-	//	}
-	//}
+	
 	for(i=0; i<N; i++)
 	{
 		n_out = GETNout(graph, i);

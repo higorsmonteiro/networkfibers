@@ -28,7 +28,7 @@
 
 	Author: Higor da S. Monteiro
 	Email: higor.monteiro@fisica.ufc.br
-	Complex System Lab (Prof. José Soares de Andrade Jr.)
+	Complex System Lab (Prof. J. S. de Andrade Jr.)
 	Departament of Physics/Universidade Federal do Ceará (UFC) - Fortaleza, Ceará.
 */
 
@@ -71,7 +71,6 @@ void main(int argv, char** argc)
 	///////////////////////////////////////////////////////////////////////////////////////
 
 	/////////////////////// COARSEST REFINEMENT PARTITIONING ALGORITHM ////////////////////////
-	int i, j, k;
 	
 	// Define the initial partition as one block containing all operating nodes. 
 	PART* partition = NULL;    
@@ -114,12 +113,13 @@ void main(int argv, char** argc)
 	CALCULATE_REGULATORS(&partition, graph);
 	CALCULATE_REGULATORS(&null_partition, graph);
 	// Calculates branch ratio number for each fiber block.
-	DEF_FUNDAMENTAL(&partition, graph);
+	CALC_BRANCHING(&partition, graph);
 	//DEF_BRANCH_RATIO(&partition, graph);
 	//////////////////////////////////////////////////////////////////////////////////////////
 	//////////////////////////////////////////////////////////////////////
 	
 	////// 'nodefibers' directly relates nodes with their fiber index ///////
+	int i, j, k;
 	NODELIST* nodelist;	
 	int total_nodes = 0;	// Number of nodes inside non-trivial fibers.
 	int* nodefibers = (int*)malloc(N*sizeof(int));
@@ -138,16 +138,15 @@ void main(int argv, char** argc)
 	/* Without gene names */ //printGraphInFibers(graph, partition, nodefibers);
 	
 	/* Classification Info */ //ShowClassification1(partition, 0);
-	/* Fiber blocks and classification info */ ShowInfo(partition, 0);
+	/* Fiber blocks and classification info */ //ShowInfo(partition, 0);
 
 	/*	Show the number of non-trivial fibers	*/
 	//printf("%d %d\n", nontrivial_fibers, total_nodes);
 	
-	//int node = atoi(argc[3]);
-	//PrintInNeighbors(graph, node);
-	//PrintOutNeighbors(graph, node);
-	//int n = GETNin(graph, node);
-
+	int node = atoi(argc[3]);
+	PrintInNeighbors(graph, node);
+	PrintOutNeighbors(graph, node);
+	int n = GETNin(graph, node);
 	//printf("%d\n", n);
 	/////////////////////////////////////////////////////////////////////////////
 

@@ -130,7 +130,7 @@ STORETYPE* GETIN_ADJTYPE(Graph* graph, int node)
 extern void PrintInNeighbors(Graph* graph, int node)
 {
 	NodeAdj* Inode = graph->array[node].head_in;
-	printf("Node %d: ", node);
+	printf("Node %d receives from: ", node);
 	while(Inode)
 	{
 		printf("%d(type:%d) ", Inode->neighbor, Inode->type_link);
@@ -142,7 +142,7 @@ extern void PrintInNeighbors(Graph* graph, int node)
 extern void PrintOutNeighbors(Graph* graph, int node)
 {
 	NodeAdj* Inode = graph->array[node].head_out;
-	printf("Node %d: ", node);
+	printf("Node %d points to: ", node);
 	while(Inode)
 	{
 		printf("%d ", Inode->neighbor);
