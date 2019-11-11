@@ -1,7 +1,36 @@
-*.tex
+## Core latex/pdflatex auxiliary files:
 *.aux
-*.bib
+*.lof
 *.log
-*.cls
+*.lot
+*.fls
+*.toc
+*.fmt
+*.fot
+*.cb
+*.cb2
+.*.lb
+*.tex
 *.zip
+
+## Auxiliary and intermediate files from other packages:
+# algorithms
+*.alg
+*.loa
+
+## Bibliography auxiliary files (bibtex/biblatex/biber):
+*.bib
+*.bbl
+*.bcf
+*.blg
+*-blx.aux
+*-blx.bib
+*.run.xml
+
+## Build tool auxiliary files:
+*.fdb_latexmk
+*.synctex
+*.synctex(busy)
 *.synctex.gz
+*.synctex.gz(busy)
+*.pdfsync
