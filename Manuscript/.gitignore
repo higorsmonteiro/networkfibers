@@ -1,7 +1,7 @@
-.tex
-.aux
-.bib
-.log
-.cls
-.zip
-.synctex.gz
+*.tex
+*.aux
+*.bib
+*.log
+*.cls
+*.zip
+*.synctex.gz
