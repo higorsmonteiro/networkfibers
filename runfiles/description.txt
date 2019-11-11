@@ -1,0 +1,23 @@
+'verify_neighborhood.out':
+    expects 3 arguments, where the first two are described in
+    readme file. The third is an integer value representing the
+    node ID. Returns the incoming and outcoming neighbors of
+    this node.
+    
+'classification_fibernodes.out':
+    Returns the classification of each non-trivial fiber and the
+    nodes that belongs to the fiber.
+    
+'onlyclassification.out':
+    Only classification.
+    
+'totalnodes.out':
+    Number of non-trivial fibers and the number of nodes in 
+    non-trivial fibers.
+    
+'general_genename.out':
+    Full information of the fibers using the gene names for each
+    node.
+    
+'general_nodeID.out':
+    Full information of the fibers using the nodes ID.
