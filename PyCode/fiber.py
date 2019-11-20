@@ -19,5 +19,8 @@ class FiberBlock:
     def get_nodes(self):
         return self.fibernodes
 
+    def get_number_nodes(self):
+        return self.number_nodes
+
     def get_regulators(self):
         return self.regulators

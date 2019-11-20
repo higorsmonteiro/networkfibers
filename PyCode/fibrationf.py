@@ -3,6 +3,44 @@ from utils import *
 import numpy as np
 from collections import deque
 
+def UPGRADE_PARTITION(new_blocks, old_blocks, partition):
+    for old in old_blocks:
+        partition.remove(old)
+
+    for new in new_blocks:
+        partition.append(new)
+
+
+def PUSH_ON_BLOCK(node, indexlist, splitted_part):
+    for fblock in splitted_part:
+        if indexlist.sort() == fblock.regtype.sort():
+            fblock.insert_node(node)
+            return
+    
+    newblock = FiberBlock()
+    newblock.regtype = indexlist
+    newblock.insert_node(node)
+    splitted_part.append(newblock)
+
+def SPLIT_BLOCK(fiberblock, pos_fromSet, neg_fromSet, dual_fromSet, subpart2):
+    splitted = []
+    fibernodes = fiberblock.get_nodes()
+    for node in fibernodes:
+        PUSH_ON_BLOCK(node, [pos_fromSet[node], neg_fromSet[node], dual_fromSet[node]], splitted)
+
+    index = 0
+    block_sizes = []
+    for fblock in splitted:
+        fblock.index = index
+        block_sizes.append(fblock.get_number_nodes())
+        index += 1
+
+    maxindex = block_sizes.index(max(block_sizes))
+    splitted[maxindex].index = -96
+
+    for block in splitted: subpart2.append(block)
+
+
 def PREPROCESSING(graph, partition, solitaire_part):
     init_block = FiberBlock()
 
@@ -42,11 +80,7 @@ def GET_NONSTABLE_BLOCKS(partition, subpart, pos_fromSet, neg_fromSet, dual_from
 
 def BLOCKS_PARTITIONING(subpart1, subpart2, pos_fromSet, neg_fromSet, dual_fromSet):
     for fblock in subpart1:
-        fibernodes = fblock.get_nodes()
-        poslist = pos_fromSet[fibernodes]
-        neglist = neg_fromSet[fibernodes]
-        dualist = dual_fromSet[fibernodes]
-
+        SPLIT_BLOCK(fblock, pos_fromSet, neg_fromSet, dual_fromSet, subpart2)
 
 
 def INPUT_SPLIT(partition, refinement_set, graph, bqueue):
@@ -63,6 +97,14 @@ def INPUT_SPLIT(partition, refinement_set, graph, bqueue):
         edgefromSet(dual_fromSet, graph, node, refinement_set, 2)
 
     GET_NONSTABLE_BLOCKS(partition, subpart1, pos_fromSet, neg_fromSet, dual_fromSet)
+
+    BLOCKS_PARTITIONING(subpart1, subpart2, pos_fromSet, neg_fromSet, dual_fromSet)
+
+    if len(subpart2)>len(subpart1):
+        UPGRADE_PARTITION(subpart2, subpart1, partition)
+
+        for splitted in subpart2:
+            if splitted.index!=(-96): bqueue.append(splitted)
 
     
     
