@@ -24,3 +24,6 @@ class FiberBlock:
 
     def get_regulators(self):
         return self.regulators
+
+    def show_nodes(self):
+        print(self.fibernodes)

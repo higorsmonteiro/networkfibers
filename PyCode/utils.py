@@ -9,21 +9,28 @@ def buildGraph(edgefilename):
             data = line.split()
             
             cur_edge = g.add_edge(int(data[0]), int(data[1]), add_missing=True)
-            if data[2]=='positive\n':
+            if data[2]=='positive':
                 regulation[cur_edge] = 0
-            elif data[2]=='negative\n':
+            elif data[2]=='negative':
                 regulation[cur_edge] = 1
-            elif data[2]=='dual\n':
+            elif data[2]=='dual':
                 regulation[cur_edge] = 2
-    return (g, regulation)
+    g.edge_properties['regulation'] = regulation
+    return g
 
-def edgefromSet(arr_fromSet, graph, node, refinement_set, reg_type):
-    in_neighbors = graph.get_in_neighbors(node)
 
-    # and regulation type?
-    for neigh in in_neighbors:
-        if neigh in refinement_set.get_nodes():
-            arr_fromSet[node] += 1
+def edgefromSet(arr, graph, node, refinement_set, regulation, reg_type):
+    '''
+        Given a refinement set and an edge type, the function calculates
+        the number of edges of that type that 'node' receives from the 
+        refinement set, and stores it in the 'arr'.
+    '''
+    in_edges = graph.get_in_edges(node, [graph.edge_index])
+    ref_set = refinement_set.get_nodes()
+
+    for edge in in_edges:
+        if edge[0] in ref_set and regulation[edge[2]]==reg_type:
+            arr[node] += 1
 
 
 def IDENTIFY_SOLITAIRE(graph, node):

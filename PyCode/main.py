@@ -12,8 +12,7 @@ flagname = sys.argv[2]
 edgefile = "../Data/"+identifier+"edgelist.dat"
 nodename = "../Data/"+identifier+"nameID.dat"
 
-g, regulation = buildGraph(edgefile)
-
+g = buildGraph(edgefile)
 
 ############# COARSEST REFINEMENT PARTITIONING ALGORITHM ##############
 
@@ -33,7 +32,19 @@ ENQUEUE_BLOCKS(partition, bqueue)
 ENQUEUE_BLOCKS(solitaire_part, bqueue)
 
 # Until the queue is empty, we procedure the splitting process.
-#while bqueue:
-#    refinement_set = bqueue.popleft()
-#    INPUT_SPLIT(partition, refinement_set, g, bqueue)
+while bqueue:
+	print(len(bqueue))
+	refinement_set = bqueue.popleft()
+	INPUT_SPLIT(partition, refinement_set, g, bqueue)
+
+print(len(partition))
+
+count = 0
+for eachblock in partition:
+	eachblock.show_nodes()
+	size = eachblock.get_number_nodes()
+	if size>1: count+=1
+
+print(count)
+
 
