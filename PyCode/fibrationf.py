@@ -11,12 +11,21 @@ def UPGRADE_PARTITION(new_blocks, old_blocks, partition):
         partition.append(new)
 
 
-def PREPROCESSING(graph, partition, solitaire_part):
+def PREPROCESSING(graph, partition, solitaire_part, bqueue):
+    '''
+        'partition' will consist of all operating nodes,
+        including the ones that only receive information
+        from themselves. 'solitaire_part' will consist of
+        all nodes that do not receive any information. The
+        nodes that receive information only from themselves
+        will be put in queue as a single block.
+    '''
     init_block = FiberBlock()
+    all_nodes = graph.get_vertices()
 
-    for node in graph.get_vertices():
+    for node in all_nodes:
         solitaire_bool = IDENTIFY_SOLITAIRE(graph, node)
-
+        
         if solitaire_bool==0:
             block = FiberBlock()
             block.insert_node(node)
@@ -24,7 +33,8 @@ def PREPROCESSING(graph, partition, solitaire_part):
         elif solitaire_bool==1:
             block = FiberBlock()
             block.insert_node(node)
-            partition.append(block)
+            bqueue.append(block)
+            init_block.insert_node(node)
         else:
             init_block.insert_node(node)
     
@@ -44,17 +54,20 @@ def GET_NONSTABLE_BLOCKS(partition, subpart, pos_fromSet, neg_fromSet, dual_from
     for fblock in partition:
         n = fblock.get_number_nodes()
         fibernodes = fblock.get_nodes()
+        if n==0: continue
 
-        for k in range(n-1):
-            if pos_fromSet[fibernodes[k]]!=pos_fromSet[fibernodes[k+1]]:
+        first_node = fibernodes[0]
+        for k in range(1, n):
+            if pos_fromSet[first_node]!=pos_fromSet[fibernodes[k]]:
                 subpart.append(fblock)
-                return
-            if neg_fromSet[fibernodes[k]]!=neg_fromSet[fibernodes[k+1]]:
+                break
+            if neg_fromSet[first_node]!=neg_fromSet[fibernodes[k]]:
                 subpart.append(fblock)
-                return
-            if dual_fromSet[fibernodes[k]]!=dual_fromSet[fibernodes[k+1]]:
+                break
+            if dual_fromSet[first_node]!=dual_fromSet[fibernodes[k]]:
                 subpart.append(fblock)
-                return
+                break
+
 
 def PUSH_ON_BLOCK(node, indexlist, splitted_part):
     node_types = np.array(indexlist)
@@ -102,10 +115,7 @@ def INPUT_SPLIT(partition, refinement_set, graph, bqueue):
     neg_fromSet = np.zeros(graph.get_vertices().shape[0], int)
     dual_fromSet = np.zeros(graph.get_vertices().shape[0], int)
 
-    for node in graph.get_vertices():
-        edgefromSet(pos_fromSet, graph, node, refinement_set, regulation, 0)
-        edgefromSet(neg_fromSet, graph, node, refinement_set, regulation, 1)
-        edgefromSet(dual_fromSet, graph, node, refinement_set, regulation, 2)
+    edgefromSet([pos_fromSet, neg_fromSet, dual_fromSet], graph, refinement_set, regulation)
 
     GET_NONSTABLE_BLOCKS(partition, subpart1, pos_fromSet, neg_fromSet, dual_fromSet)
     BLOCKS_PARTITIONING(subpart1, subpart2, pos_fromSet, neg_fromSet, dual_fromSet)

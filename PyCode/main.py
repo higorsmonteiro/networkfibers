@@ -24,27 +24,24 @@ g = buildGraph(edgefile)
 '''
 
 partition = []
-solitaire_part = []
+solitaire = []
 bqueue = deque([])
 
-PREPROCESSING(g, partition, solitaire_part)
+PREPROCESSING(g, partition, solitaire, bqueue)
 ENQUEUE_BLOCKS(partition, bqueue)
-ENQUEUE_BLOCKS(solitaire_part, bqueue)
+ENQUEUE_BLOCKS(solitaire, bqueue)
 
 # Until the queue is empty, we procedure the splitting process.
 while bqueue:
-	print(len(bqueue))
 	refinement_set = bqueue.popleft()
 	INPUT_SPLIT(partition, refinement_set, g, bqueue)
 
-print(len(partition))
+regulation = g.edge_properties['regulation'].a
+first_fiber = partition[0]
+for block in partition:
+	b = first_fiber.input_stability(g, block, regulation)
+	print(b)
 
-count = 0
-for eachblock in partition:
-	eachblock.show_nodes()
-	size = eachblock.get_number_nodes()
-	if size>1: count+=1
-
-print(count)
-
-
+counting = GetNumberFibers(partition)
+PrintFibers(partition)
+print(counting)
