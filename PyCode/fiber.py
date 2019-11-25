@@ -30,7 +30,21 @@ class FiberBlock:
     def show_nodes(self):
         print(self.fibernodes)
 
+    def show_nodes_name(self, graph):
+        '''
+            Used by the 'PrintFibers' function.
+        '''
+        names = graph.vertex_properties['node_names']
+        for node in self.fibernodes:
+            print(names[node], end=" ")
+        print("")
+
     def input_stability(self, graph, Set, regulation):
+        '''
+            Given a fiber 'Set' and the graph with its regulation
+            types, then it checks if the fiber is input-set stable
+            with respect to 'Set'.
+        '''
         set_nodes = Set.get_nodes()
         edges_received = np.zeros([3, len(self.fibernodes)], int)
         

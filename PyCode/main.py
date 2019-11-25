@@ -12,7 +12,10 @@ flagname = sys.argv[2]
 edgefile = "../Data/"+identifier+"edgelist.dat"
 nodename = "../Data/"+identifier+"nameID.dat"
 
-g = buildGraph(edgefile)
+if flagname=='-y':
+    g = buildGraph(edgefile, nodenamefile=nodename)
+else:
+    g = buildGraph(edgefile)
 
 ############# COARSEST REFINEMENT PARTITIONING ALGORITHM ##############
 
@@ -36,12 +39,16 @@ while bqueue:
 	refinement_set = bqueue.popleft()
 	INPUT_SPLIT(partition, refinement_set, g, bqueue)
 
-regulation = g.edge_properties['regulation'].a
-first_fiber = partition[0]
-for block in partition:
-	b = first_fiber.input_stability(g, block, regulation)
-	print(b)
+### Check input-set stability with respect to all fibers.
+#regulation = g.edge_properties['regulation'].a
+#first_fiber = partition[0]
+#for block in partition:
+#	b = first_fiber.input_stability(g, block, regulation)
+#	print(b)
+#########################################################
 
 counting = GetNumberFibers(partition)
-PrintFibers(partition)
+if flagname=="-y": PrintFibers(partition, g, name=True)
+else: PrintFibers(partition, g)
+
 print(counting)

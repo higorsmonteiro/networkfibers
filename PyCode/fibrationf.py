@@ -18,7 +18,7 @@ def PREPROCESSING(graph, partition, solitaire_part, bqueue):
         from themselves. 'solitaire_part' will consist of
         all nodes that do not receive any information. The
         nodes that receive information only from themselves
-        will be put in queue as a single block.
+        will be put in queue as single blocks.
     '''
     init_block = FiberBlock()
     all_nodes = graph.get_vertices()
@@ -26,16 +26,16 @@ def PREPROCESSING(graph, partition, solitaire_part, bqueue):
     for node in all_nodes:
         solitaire_bool = IDENTIFY_SOLITAIRE(graph, node)
         
-        if solitaire_bool==0:
+        if solitaire_bool==0: # Full solitaire.
             block = FiberBlock()
             block.insert_node(node)
             solitaire_part.append(block)
-        elif solitaire_bool==1:
+        elif solitaire_bool==1: # Receives information only from itself.
             block = FiberBlock()
             block.insert_node(node)
             bqueue.append(block)
             init_block.insert_node(node)
-        else:
+        else:   # Otherwise.
             init_block.insert_node(node)
     
     partition.append(init_block)
