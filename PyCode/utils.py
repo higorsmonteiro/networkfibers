@@ -45,7 +45,7 @@ def buildGraph(edgefilename, nodenamefile=None):
     return g
 
 
-# Much more efficient
+# Input-tree stability
 def edgefromSet(arr, graph, refinement_set, regulation):
     set_nodes = refinement_set.get_nodes()
     for setnode in set_nodes:
@@ -54,14 +54,57 @@ def edgefromSet(arr, graph, refinement_set, regulation):
             reg = regulation[edge[2]]
             arr[reg][edge[1]] += 1
 
+# Output-tree stability
+def edgetoSet(arr, graph, refinement_set, regulation):
+    set_nodes = refinement_set.get_nodes()
+    for setnode in set_nodes:
+        in_edges = graph.get_in_edges(setnode, [graph.edge_index])
+        for edge in in_edges:
+            reg = regulation[edge[2]]
+            arr[reg][edge[0]] += 1
 
+# Input solitaire
 def IDENTIFY_SOLITAIRE(graph, node):
     in_neighbors = graph.get_in_neighbors(node)
     n_in = in_neighbors.shape[0]
     if n_in==0: return 0    # Solitaire and do not feeds itself.
+    #elif node in in_neighbors: return 1
     elif np.all(in_neighbors==node): return 1 # Solitaire but feeds itself.
     else: return -1 # Not solitaire.
 
+# Output solitaire
+def OUT_IDENTIFY_SOLITAIRE(graph, node):
+    out_neighbors = graph.get_out_neighbors(node)
+    n_out = out_neighbors.shape[0]
+    if n_out==0: return 0    # Solitaire and do not feeds itself.
+    elif np.all(out_neighbors==node): return 1 # Solitaire but feeds itself.
+    else: return -1 # Not solitaire.
+
+######################################################################
+class VisitedinBFS(gt.BFSVisitor):
+    def __init__(self):
+        self.visitedlist = []
+
+    def discover_vertex(self, u):
+        self.visitedlist.append(int(u))
+        
+def GetStrongCCompOfNode(graph, vertex):
+    # Extract nodes from a bfs search starting at 'vertex'.
+    nodes = VisitedinBFS()
+    gt.bfs_search(graph, source=graph.vertex(vertex), visitor=nodes)
+
+    # For each one of the extracted nodes, we perform a bfs search 
+    # starting at this node. If 'vertex' is reached, then both belong
+    # to the same strongly connected component.
+    stronglycc = []
+    for w in nodes.visitedlist:
+        aux = VisitedinBFS()
+        gt.bfs_search(graph, source=graph.vertex(w), visitor=aux)
+        if vertex in aux.visitedlist:
+            stronglycc.append(w)
+    return stronglycc        
+
+###################### GET INFORMATION UTILS #########################
 def GetNumberFibers(partition):
     count = 0
     nodes_in_fiber = 0
@@ -78,3 +121,4 @@ def PrintFibers(partition, graph, name=False):
     else:
         for block in partition:
             block.show_nodes()
+#######################################################################

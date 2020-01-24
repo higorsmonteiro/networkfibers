@@ -126,8 +126,48 @@ def INPUT_SPLIT(partition, refinement_set, graph, bqueue):
         for splitted in subpart2:
             if splitted.index!=(-96): bqueue.append(splitted)
 
+############################################################################
+
+def OUTPUT_PREPROCESSING(graph, partition, solitaire_part, bqueue):
+    init_block = FiberBlock()
+    all_nodes = graph.get_vertices()
+
+    for node in all_nodes:
+        solitaire_bool = OUT_IDENTIFY_SOLITAIRE(graph, node)
+        
+        if solitaire_bool==0: # Full solitaire.
+            block = FiberBlock()
+            block.insert_node(node)
+            solitaire_part.append(block)
+        elif solitaire_bool==1: # Sends information only to itself.
+            block = FiberBlock()
+            block.insert_node(node)
+            bqueue.append(block)
+            init_block.insert_node(node)
+        else:   # Otherwise.
+            init_block.insert_node(node)
     
-    
+    partition.append(init_block)
+
+def OUTPUT_SPLIT(partition, refinement_set, graph, bqueue):
+    subpart1 = []
+    subpart2 = []
+
+    regulation = graph.edge_properties['regulation'].a
+    pos_toSet = np.zeros(graph.get_vertices().shape[0], int)
+    neg_toSet = np.zeros(graph.get_vertices().shape[0], int)
+    dual_toSet = np.zeros(graph.get_vertices().shape[0], int)
+
+    edgetoSet([pos_toSet, neg_toSet, dual_toSet], graph, refinement_set, regulation)
+
+    GET_NONSTABLE_BLOCKS(partition, subpart1, pos_toSet, neg_toSet, dual_toSet)
+    BLOCKS_PARTITIONING(subpart1, subpart2, pos_toSet, neg_toSet, dual_toSet)
+
+    if len(subpart2)>len(subpart1):
+        UPGRADE_PARTITION(subpart2, subpart1, partition)
+
+        for splitted in subpart2:
+            if splitted.index!=(-96): bqueue.append(splitted)    
 
 
 

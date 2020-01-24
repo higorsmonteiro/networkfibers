@@ -4,7 +4,7 @@ from utils import *
 from fiber import *
 from fibrationf import *
 import graph_tool.all as gt
-from collections import deque   # lists as queues are very slow.
+from collections import deque, defaultdict   # lists as queues are very slow.
 
 identifier = sys.argv[1]
 flagname = sys.argv[2]
@@ -18,7 +18,6 @@ else:
     g = buildGraph(edgefile)
 
 ############# COARSEST REFINEMENT PARTITIONING ALGORITHM ##############
-
 ''' 
     Define the initial partition as one block containing all operating 
     nodes. Operating nodes are nodes that receive information at least
@@ -36,19 +35,74 @@ ENQUEUE_BLOCKS(solitaire, bqueue)
 
 # Until the queue is empty, we procedure the splitting process.
 while bqueue:
-	refinement_set = bqueue.popleft()
-	INPUT_SPLIT(partition, refinement_set, g, bqueue)
+    refinement_set = bqueue.popleft()
+    #refinement_set.show_nodes()
+    INPUT_SPLIT(partition, refinement_set, g, bqueue)
 
 ### Check input-set stability with respect to all fibers.
-#regulation = g.edge_properties['regulation'].a
-#first_fiber = partition[0]
-#for block in partition:
-#	b = first_fiber.input_stability(g, block, regulation)
-#	print(b)
+regulation = g.edge_properties['regulation'].a
+first_fiber = partition[0]
+for index, block in enumerate(partition):
+    block.index = index
+    b = first_fiber.input_stability(g, block, regulation)
+    if b==(-1):
+        print("Not stable")
+        break
 #########################################################
+#PrintFibers(partition, g)
 
-counting = GetNumberFibers(partition)
-if flagname=="-y": PrintFibers(partition, g, name=True)
-else: PrintFibers(partition, g)
+fibercolors = g.new_vertex_property('float')
+fiberindex = g.new_vertex_property('int')
 
-print(counting)
+for block in partition:
+    nodes = block.get_nodes()
+    for node in nodes: fiberindex[node] = block.index
+
+for block in solitaire:
+    nodes = block.get_nodes()
+    for node in nodes: fiberindex[node] = -1
+
+f = fiberindex.a
+print(f)
+
+vfilt = g.new_vertex_property('bool')
+vfilt.a[f==8] = True
+print(vfilt)
+
+f = gt.GraphView(g, vfilt=vfilt)
+
+pos_random = gt.random_layout(f)
+pos = gt.arf_layout(f, max_iter=0, a=0.2)
+gt.graph_draw(f, pos=pos_random, vertex_text=g.vertex_index, vertex_font_size=26, output="../Figures/fibers/test.pdf")   
+
+
+################ Draw all the fibers ################ 
+# Defines a graph structure to be used for each fiber.
+
+
+#####################################################
+
+
+
+#cc = GetNumberFibers(partition)
+#print(cc)
+#print("strong")
+#st = GetStrongCCompOfNode(g, 3)
+#print(st)
+#print("dist")
+#PrintFibers(partition, g)
+#n = GetNumberFibers(partition)
+#print(n)
+
+#print("Input:")
+#counting = GetNumberFibers(partition)
+#if flagname=="-y": PrintFibers(partition, g, name=True)
+#else: PrintFibers(partition, g)
+
+#print("Output:")
+#counting_out = GetNumberFibers(partition_out)
+#if flagname=="-y": PrintFibers(partition_out, g, name=True)
+#else: PrintFibers(partition_out, g)
+
+#print(counting)
+#print(counting_out)

@@ -39,6 +39,17 @@ class FiberBlock:
             print(names[node], end=" ")
         print("")
 
+    def define_external_regulators(self, graph):
+        if len(self.fibernodes)==0: return
+        else:
+            external = []
+            for node in self.fibernodes:
+                external = external + list(graph.get_in_neighbors(node))
+            
+            for ext in external:
+                out_
+
+
     def input_stability(self, graph, Set, regulation):
         '''
             Given a fiber 'Set' and the graph with its regulation
