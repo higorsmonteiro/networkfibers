@@ -42,40 +42,37 @@ set_ISCV(g, ncolor_after)
 ######### REFINEMENT LOOP ############
 while ncolor_after!=ncolor_before:
     iscv_list = list(g.vp.iscv)
-
+    splitted = []
     ''' For each fiber, we split it according the value of
         the ISCV of each node inside the fiber. '''
     for fblock in fibers:
         if fblock.get_number_nodes() <= 1: continue
+
+        # defines the list of nodes of the current fiber and their ISCVs.
         fiber_nodeindex = [node for node in fblock.fibernodes]
         fiber_iscv = [iscv_list[node] for node in fblock.fibernodes]
         iscv_count = Counter(fiber_iscv)
+        if len(iscv_count) == 1: continue # The fiber is not splitted.
 
-        n_splitted = len(iscv_count)
-        print(fiber_nodeindex)
-        print(fiber_iscv)
-        print(n_splitted)
+        # Now we split the fiber according their ISCV 'fiber_iscv'.
+        splitted_list = split_fiber(fiber_nodeindex, fiber_iscv)
 
-    #iscv_count = Counter(iscv_list)
-    #n_unique = len(iscv_count)
-
-    ncolor_before = ncolor_after
-    #ncolor_after = n_unique
+        fibers.remove(fblock)
+        for child_fiber in splitted_list: 
+            splitted.append(child_fiber)
     
-    # Gets the unique ISCV and assign to them different colors.
-    #unique_iscv = list(set(iscv_count.elements()))
-    #colors_iscv = np.arange(0, n_unique, 1)
-#
-    ## Each node receives a color label according to its ISCV label.
-    #for node in g.get_vertices():
-    #    g.vp.node_colors[node] = colors_iscv[unique_iscv.index(g.vp.iscv[node])]
-    #for sol in solitaires[1:]:
-    #    g.vp.node_colors[node] = n_unique
-    #    n_unique+=1
-#
-    #set_ISCV(g, ncolor_after) # putting zero strings "0000..." in the same class.
+    for new_fiber in splitted:
+        fibers.append(new_fiber)
+    
+    ncolor_before = ncolor_after
+    ncolor_after = len(fibers)
+    set_colors(g, fibers)
 
-#number_colors(g)
+    set_ISCV(g, ncolor_after)
+
+
+print(len(fibers))
+PrintFibers(fibers, g)
 
 
 

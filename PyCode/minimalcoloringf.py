@@ -86,7 +86,22 @@ def set_ISCV(graph, ncolor):
             iscv[v] += str(Colors_counter[k])
 
 def split_fiber(fibernodes, fiber_iscv):
-    
+    new_list = []
+    #nfibers = len(Counter(fiber_iscv))
+    iscv_order = np.argsort(fiber_iscv)
+
+    current_iscv = fiber_iscv[iscv_order[0]]
+    new_list.append(FiberBlock())
+    for index in iscv_order:
+        if fiber_iscv[index] == current_iscv:
+            new_list[-1].insert_node(fibernodes[index])
+        else:
+            current_iscv = fiber_iscv[index]
+            new_list.append(FiberBlock())
+            new_list[-1].insert_node(fibernodes[index])
+    return new_list
+
+
 
 
 def print_colors(graph):
