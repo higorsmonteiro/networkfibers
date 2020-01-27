@@ -14,6 +14,10 @@ class FiberBlock:
         self.number_nodes += 1
         self.fibernodes.append(node)
 
+    def insert_nodelist(self, nodelist):
+        self.number_nodes += len(nodelist)
+        self.fibernodes += nodelist
+
     def insert_regulator(self, reg):
         self.number_reg += 1
         self.regulators.append(reg)
@@ -72,3 +76,42 @@ class FiberBlock:
             if not np.array_equal(col, edges_received[:,k]):
                 return -1
         return 1
+
+class StrongComponent:
+    def __init__(self):
+        self.nodes = []
+        self.have_input = False
+        self.number_nodes = 0
+
+    def insert_node(self, node):
+        self.number_nodes += 1
+        self.nodes.append(node)
+
+    def get_nodes(self):
+        return self.nodes
+
+    def show_nodes(self):
+        print(self.nodes)
+
+    def check_input(self, graph):
+        '''
+            Check if the SCC receives or not 
+            input from other components of the
+            network.
+        '''
+        for v in self.nodes:
+            in_neigh = graph.get_in_neighbors(v)
+            for neigh in in_neigh:
+                try: bl = nodes.index(neigh)
+                except: bl = -1
+                # the SCC have input from other component.
+                if bl == -1:    
+                    self.have_input = True
+                    break
+            if self.have_input==True: break
+
+    def show_input_bool(self):
+        print(self.have_input)
+
+    def get_input_bool(self):
+        return self.have_input 
