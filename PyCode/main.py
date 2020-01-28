@@ -40,14 +40,14 @@ while bqueue:
     INPUT_SPLIT(partition, refinement_set, g, bqueue)
 
 ### Check input-set stability with respect to all fibers.
-regulation = g.edge_properties['regulation'].a
-first_fiber = partition[0]
-for index, block in enumerate(partition):
-    block.index = index
-    b = first_fiber.input_stability(g, block, regulation)
-    if b==(-1):
-        print("Not stable")
-        break
+#regulation = g.edge_properties['regulation'].a
+#first_fiber = partition[0]
+#for index, block in enumerate(partition):
+#    block.index = index
+#    b = first_fiber.input_stability(g, block, regulation)
+#    if b==(-1):
+#        print("Not stable")
+#        break
 #########################################################
 #PrintFibers(partition, g)
 

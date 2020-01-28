@@ -44,6 +44,21 @@ def ENQUEUE_BLOCKS(partition, block_queue):
     for fiberblock in partition:
         block_queue.append(fiberblock)
 
+def GET_NONSTABLE_BLOCKS_ONE(partition, subpart, e_fromset):
+    '''
+        The same function from below, but considering networks
+        containing only one edge type.
+    '''
+    for fblock in partition:
+        n = fblock.get_number_nodes()
+        fibernodes = fblock.get_nodes()
+        if n==0: continue
+
+        first_node = fibernodes[0]
+        for k in range(1, n):
+            if e_fromset[first_node]!=e_fromset[fibernodes[k]]:
+                subpart.append(fblock)
+
 def GET_NONSTABLE_BLOCKS(partition, subpart, pos_fromSet, neg_fromSet, dual_fromSet):
     '''
         Get all the fiber blocks that are input-tree unstable with respect to a
@@ -83,6 +98,27 @@ def PUSH_ON_BLOCK(node, indexlist, splitted_part):
     newblock.insert_node(node)
     splitted_part.append(newblock)
 
+def BLOCKS_PARTITIONING_ONE(subpart1, subpart2, e_fromset):
+    for fblock in subpart1:
+        splitted = []
+        fibernodes = fblock.get_nodes()
+        
+        # splitting process: 'splitted' will hold the splitted blocks from subpart1.
+        for node in fibernodes:
+            PUSH_ON_BLOCK(node, [e_fromset[node]], splitted)
+
+        # indexation and size of each splitted block.
+        index = 0
+        blocks_size = []
+        for block in splitted:
+            block.index = index
+            blocks_size.append(block.get_number_nodes())
+            subpart2.append(block)
+            index += 1
+
+        maxindex = blocks_size.index(max(blocks_size))
+        splitted[maxindex].index = -96
+
 def BLOCKS_PARTITIONING(subpart1, subpart2, pos_fromSet, neg_fromSet, dual_fromSet):
     
     for fblock in subpart1:
@@ -105,6 +141,23 @@ def BLOCKS_PARTITIONING(subpart1, subpart2, pos_fromSet, neg_fromSet, dual_fromS
         maxindex = blocks_size.index(max(blocks_size))
         splitted[maxindex].index = -96
 
+
+def INPUT_SPLIT_ONE(partition, refinement_set, graph, bqueue):
+    subpart1 = []
+    subpart2 = []
+
+    regulation = graph.edge_properties['regulation'].a
+    e_fromset = np.zeros(graph.get_vertices().shape[0], int)
+    edgefromSet([e_fromset], graph, refinement_set, regulation)
+
+    GET_NONSTABLE_BLOCKS_ONE(partition, subpart1, e_fromset)
+    BLOCKS_PARTITIONING_ONE(subpart1, subpart2, e_fromset)
+
+    if len(subpart2)>len(subpart1):
+        UPGRADE_PARTITION(subpart2, subpart1, partition)
+
+        for splitted in subpart2:
+            if splitted.index!=(-96): bqueue.append(splitted)
 
 def INPUT_SPLIT(partition, refinement_set, graph, bqueue):
     subpart1 = []
