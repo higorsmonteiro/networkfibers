@@ -2,7 +2,7 @@ import sys
 import numpy as np
 from utils import *
 from fiber import *
-from fibrationf import *
+from FFPf import *
 import graph_tool.all as gt
 from minimalcoloringf import *
 
@@ -66,12 +66,12 @@ def FFPartitioning(g):
     solitaire = []
     bqueue = deque([])
 
-    PREPROCESSING(g, partition, solitaire, bqueue)
-    ENQUEUE_BLOCKS(partition, bqueue)
-    ENQUEUE_BLOCKS(solitaire, bqueue)
+    preprocessing(g, partition, solitaire, bqueue)
+    enqueue_blocks(partition, bqueue)
+    enqueue_blocks(solitaire, bqueue)
 
     # Until the queue is empty, we procedure the splitting process.
     while bqueue:
         refinement_set = bqueue.popleft()
         #refinement_set.show_nodes()
-        INPUT_SPLIT_ONE(partition, refinement_set, g, bqueue)
+        input_splitf(partition, refinement_set, g, 1, bqueue)
