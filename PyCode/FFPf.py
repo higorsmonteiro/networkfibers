@@ -1,0 +1,131 @@
+from fiber import *
+from utils import *
+import numpy as np
+from collections import deque, defaultdict
+
+def preprocessing(graph, partition, solitaire_part, bqueue):
+    '''
+        'partition' will consist of all operating nodes,
+        including the ones that only receive information
+        from themselves. 'solitaire_part' will consist of
+        all nodes that do not receive any information. The
+        nodes that receive information only from themselves
+        will be put in a queue as single blocks.
+    '''
+    init_block = FiberBlock()
+    all_nodes = graph.get_vertices()
+
+    for node in all_nodes:
+        solitaire_bool = IDENTIFY_SOLITAIRE(graph, node)
+        
+        if solitaire_bool==0: # Full solitaire.
+            block = FiberBlock()
+            block.insert_node(node)
+            solitaire_part.append(block)
+        elif solitaire_bool==1: # Receives information only from itself.
+            block = FiberBlock()
+            block.insert_node(node)
+            bqueue.append(block)
+            init_block.insert_node(node)
+        else:   # Otherwise.
+            init_block.insert_node(node)
+    
+    partition.append(init_block)
+    
+def enqueue_blocks(partition, bqueue):
+    for classes in partition: bqueue.append(classes)
+
+
+def upgrade_partition(new_classes, old_classes, partition):
+    for old in old_classes: partition.remove(old)
+    for new in new_classes: partition.remove(new)
+
+def push_to_class(node, indexlist, splitted_part):
+    node_types = np.array(indexlist)
+    for fclass in splitted_part:
+        class_types = np.array(fclass.regtype)
+        if np.array_equal(node_types, class_types):
+            fclass.insert_node(node)
+            return
+
+    newclass = FiberBlock()
+    newclass.regtype = indexlist
+    newclass.insert_node(node)
+    splitted_part.append(newclass)
+
+def get_unstable_classes(partition, unstable_list, regulation_list, pivotnode_to_index):
+    
+    for fclass in partition:
+        class_size = fclass.get_number_nodes()
+        nodelist = fclass.get_nodes()
+        if class_size==0: continue
+
+        first_node = nodelist[0]
+        for type_fromSet in regulation_list:
+            for k in range(1, class_size):
+                first_node_index = pivotnode_to_index[first_node]    
+                correct_index = pivotnode_to_index[nodelist[k]]
+                if type_fromSet[correct_index]!=type_fromSet[first_node_index]:
+                    unstable_list.append(fclass)
+                    break
+
+def classes_partitioning(unstable_classes, splitted_classes, regulation_list, node_to_index):
+    
+    for fclass in unstable_classes:
+        splitted = []
+        nodelist = fclass.get_nodes()
+        for node in nodelist:
+            nodeindex = node_to_index[node]
+            regulation_node = [type_arr[nodeindex] for type_arr in regulation_list]
+
+            #print(node, nodeindex, len(regulation_list[:]))
+            push_to_class(node, regulation_node, splitted)
+
+        print(len(splitted))
+        index = 0
+        classes_size = []
+        for fclass in splitted:
+            fclass.index = index
+            classes_size.append(fclass.get_number_nodes())
+            splitted_classes.append(fclass)
+            index += 1
+        
+        maxindex = classes_size.index(max(classes_size))
+        splitted[maxindex].index = -96
+
+
+def input_splitf(partition, pivot, graph, n_edgetype, bqueue):
+    unstable_classes = []
+    splitted_classes = []
+    N = graph.get_vertices().shape[0]
+    
+    pivot_sucessors = pivot.sucessor_nodes(graph)
+    # Given the node number, 'node_to_index' gives its index in 'pivot_sucessors'.
+    node_to_index = defaultdict(int)
+    for index, sucessor in enumerate(pivot_sucessors):
+        node_to_index[sucessor] = index
+
+    # 'regulation_list' represents a matrix (n_edgetype, len(pivot_nodes)).
+    regulation_list = []   
+    for j in range(n_edgetype):
+        regulation_list.append(np.zeros(len(pivot_sucessors), int))
+
+    ''' All nodes that receives information from 'pivot'
+        receives, for each edge type, the number of incoming
+        links received from 'pivot'. '''
+        # Type of each edge: 0,1,2,...,# edge types - 1.
+    regulation = graph.edge_properties['regulation'].a
+    edgefromSet_optimal(regulation_list, graph, pivot, node_to_index, regulation)
+
+    get_unstable_classes(partition, unstable_classes, regulation_list, node_to_index)
+    print(len(unstable_classes))
+    classes_partitioning(unstable_classes, splitted_classes, regulation_list, node_to_index)
+    print(len(splitted_classes))
+
+    if len(splitted_classes)>len(unstable_classes):
+        upgrade_partition(splitted_classes, unstable_classes, partition)
+        for splitted in splitted_classes:
+            if splitted.index!=(-96): bqueue.append(splitted)
+
+
+

@@ -171,8 +171,9 @@ def INPUT_SPLIT(partition, refinement_set, graph, bqueue):
     edgefromSet([pos_fromSet, neg_fromSet, dual_fromSet], graph, refinement_set, regulation)
 
     GET_NONSTABLE_BLOCKS(partition, subpart1, pos_fromSet, neg_fromSet, dual_fromSet)
+    print(len(subpart1))
     BLOCKS_PARTITIONING(subpart1, subpart2, pos_fromSet, neg_fromSet, dual_fromSet)
-
+    print(len(subpart2))
     if len(subpart2)>len(subpart1):
         UPGRADE_PARTITION(subpart2, subpart1, partition)
 

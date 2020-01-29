@@ -1,7 +1,8 @@
 import sys
 import numpy as np
 from utils import *
-from fiber import *
+#from fiber import *
+from FFPf import *
 from fibrationf import *
 import graph_tool.all as gt
 from collections import deque, defaultdict   # lists as queues are very slow.
@@ -29,15 +30,21 @@ partition = []
 solitaire = []
 bqueue = deque([])
 
-PREPROCESSING(g, partition, solitaire, bqueue)
-ENQUEUE_BLOCKS(partition, bqueue)
-ENQUEUE_BLOCKS(solitaire, bqueue)
+preprocessing(g, partition, solitaire, bqueue)
+#PrintFibers(partition, g)
+enqueue_blocks(partition, bqueue)
+enqueue_blocks(solitaire, bqueue)
+
+#PREPROCESSING(g, partition, solitaire, bqueue)
+#ENQUEUE_BLOCKS(partition, bqueue)
+#ENQUEUE_BLOCKS(solitaire, bqueue)
 
 # Until the queue is empty, we procedure the splitting process.
 while bqueue:
-    refinement_set = bqueue.popleft()
+    pivot_set = bqueue.popleft()
     #refinement_set.show_nodes()
-    INPUT_SPLIT(partition, refinement_set, g, bqueue)
+    input_splitf(partition, pivot_set, g, 1, bqueue)
+    #INPUT_SPLIT(partition, pivot_set, g, bqueue)
 
 ### Check input-set stability with respect to all fibers.
 #regulation = g.edge_properties['regulation'].a
@@ -51,29 +58,29 @@ while bqueue:
 #########################################################
 #PrintFibers(partition, g)
 
-fibercolors = g.new_vertex_property('float')
-fiberindex = g.new_vertex_property('int')
-
-for block in partition:
-    nodes = block.get_nodes()
-    for node in nodes: fiberindex[node] = block.index
-
-for block in solitaire:
-    nodes = block.get_nodes()
-    for node in nodes: fiberindex[node] = -1
-
-f = fiberindex.a
-print(f)
-
-vfilt = g.new_vertex_property('bool')
-vfilt.a[f==8] = True
-print(vfilt)
-
-f = gt.GraphView(g, vfilt=vfilt)
-
-pos_random = gt.random_layout(f)
-pos = gt.arf_layout(f, max_iter=0, a=0.2)
-gt.graph_draw(f, pos=pos_random, vertex_text=g.vertex_index, vertex_font_size=26, output="../Figures/fibers/test.pdf")   
+#fibercolors = g.new_vertex_property('float')
+#fiberindex = g.new_vertex_property('int')
+#
+#for block in partition:
+#    nodes = block.get_nodes()
+#    for node in nodes: fiberindex[node] = block.index
+#
+#for block in solitaire:
+#    nodes = block.get_nodes()
+#    for node in nodes: fiberindex[node] = -1
+#
+#f = fiberindex.a
+#print(f)
+#
+#vfilt = g.new_vertex_property('bool')
+#vfilt.a[f==8] = True
+#print(vfilt)
+#
+#f = gt.GraphView(g, vfilt=vfilt)
+#
+#pos_random = gt.random_layout(f)
+#pos = gt.arf_layout(f, max_iter=0, a=0.2)
+#gt.graph_draw(f, pos=pos_random, vertex_text=g.vertex_index, vertex_font_size=26, output="../Figures/fibers/test.pdf")   
 
 
 ################ Draw all the fibers ################ 

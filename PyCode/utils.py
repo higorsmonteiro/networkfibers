@@ -1,5 +1,6 @@
 import numpy as np
 import graph_tool.all as gt
+from collections import defaultdict
 
 
 def buildGraph(edgefilename, nodenamefile=None):
@@ -44,6 +45,21 @@ def buildGraph(edgefilename, nodenamefile=None):
 
     g.edge_properties['regulation'] = regulation
     return g
+
+
+def edgefromSet_optimal(arr, graph, pivot, pivotnode_to_index, regulation):
+    ''' given a pivot set and an 'number of received 
+        information' matrix 'arr', with size (n_edgetype, 
+        len(pivot_sucessor)), calculates the value of the entries
+        of 'arr'.   '''
+
+    pivot_nodes = pivot.get_nodes()
+    for node in pivot_nodes:
+        out_edges = graph.get_out_edges(node, [graph.edge_index])
+        for out in out_edges:
+            reg = regulation[out[2]]
+            correct_index = pivotnode_to_index[out[1]]
+            arr[reg][correct_index] += 1
 
 
 # Input-tree stability

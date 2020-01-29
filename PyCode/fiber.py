@@ -34,6 +34,19 @@ class FiberBlock:
     def show_nodes(self):
         print(self.fibernodes)
 
+    def sucessor_nodes(self, graph):
+        ''' Lists all nodes that receives information
+            from 'self' fiber. This listing is useful
+            for pivot sets, where we need to find the
+            unstable classes with respect to 'self'. '''
+        sucessors = []
+        for node in self.fibernodes:
+            out_neigh = graph.get_out_neighbors(node)
+            sucessors += list(out_neigh)
+
+        return list(set(sucessors))
+
+
     def show_nodes_name(self, graph):
         '''
             Used by the 'PrintFibers' function.
@@ -43,15 +56,15 @@ class FiberBlock:
             print(names[node], end=" ")
         print("")
 
-    def define_external_regulators(self, graph):
-        if len(self.fibernodes)==0: return
-        else:
-            external = []
-            for node in self.fibernodes:
-                external = external + list(graph.get_in_neighbors(node))
-            
-            for ext in external:
-                out_
+    #def define_external_regulators(self, graph):
+    #    if len(self.fibernodes)==0: return
+    #    else:
+    #        external = []
+    #        for node in self.fibernodes:
+    #            external = external + list(graph.get_in_neighbors(node))
+    #        
+    #        for ext in external:
+    #            out_
 
 
     def input_stability(self, graph, Set, regulation):
@@ -76,6 +89,7 @@ class FiberBlock:
             if not np.array_equal(col, edges_received[:,k]):
                 return -1
         return 1
+
 
 class StrongComponent:
     def __init__(self):
