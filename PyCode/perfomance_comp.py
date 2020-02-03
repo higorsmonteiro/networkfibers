@@ -46,7 +46,7 @@ def fast_gnp_erdos(n, p, seed=None, gdirected=False):
 
 N = int(sys.argv[1])
 mode = sys.argv[2]
-n_repeat = 10
+n_repeat = 1
 
 ######## FAST FIBRATION PARTITIONING ########
 def FFP_time():
@@ -98,6 +98,6 @@ MBColoring(g)   '''
 ############################################
 
 if __name__ == "__main__":
-    if mode == "fpp":   FFP_time()
+    if mode == "ffp":   FFP_time()
     elif mode == "mbc": MBC_time()
     else: print("flags: 'fpp', 'mbc'")
