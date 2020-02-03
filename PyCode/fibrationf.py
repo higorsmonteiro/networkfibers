@@ -174,6 +174,7 @@ def INPUT_SPLIT(partition, refinement_set, graph, bqueue):
     print(len(subpart1))
     BLOCKS_PARTITIONING(subpart1, subpart2, pos_fromSet, neg_fromSet, dual_fromSet)
     print(len(subpart2))
+    
     if len(subpart2)>len(subpart1):
         UPGRADE_PARTITION(subpart2, subpart1, partition)
 
