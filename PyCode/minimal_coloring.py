@@ -32,6 +32,7 @@ g.vertex_properties['iscv'] = iscv
 
 #### INITIALIZATION: Criterion -> inputless SCC's as different classes. ####
 fibers = Initialization(g)  # List of fiber classes.
+for fiber in fibers: fiber.show_nodes()
 set_colors(g, fibers)       # Set the colors for each node according its fiber.
 
 ncolor_after = len(fibers)

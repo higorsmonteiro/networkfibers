@@ -1,9 +1,9 @@
 import sys
 import numpy as np
 from utils import *
-#from fiber import *
+from fiber import *
 from FFPf import *
-from fibrationf import *
+#from fibrationf import *
 import graph_tool.all as gt
 from collections import deque, defaultdict   # lists as queues are very slow.
 
@@ -30,23 +30,25 @@ partition = []
 solitaire = []
 bqueue = deque([])
 
-preprocessing(g, partition, solitaire, bqueue)
-#PrintFibers(partition, g)
-enqueue_blocks(partition, bqueue)
-enqueue_blocks(solitaire, bqueue)
+partition = Initialization(g, bqueue)
+#preprocessing(g, partition, solitaire, bqueue)
+PrintFibers(partition, g)
+print(len(bqueue))
+#enqueue_blocks(partition, bqueue)
+#enqueue_blocks(solitaire, bqueue)
 
 #PREPROCESSING(g, partition, solitaire, bqueue)
 #ENQUEUE_BLOCKS(partition, bqueue)
 #ENQUEUE_BLOCKS(solitaire, bqueue)
 
 # Until the queue is empty, we procedure the splitting process.
-while bqueue:
-    pivot_set = bqueue.popleft()
-    #refinement_set.show_nodes()
-    input_splitf(partition, pivot_set, g, 1, bqueue)
-    #INPUT_SPLIT(partition, pivot_set, g, bqueue)
-
-PrintFibers(partition, g)
+#while bqueue:
+#    pivot_set = bqueue.popleft()
+#    #refinement_set.show_nodes()
+#    input_splitf(partition, pivot_set, g, 1, bqueue)
+#    #INPUT_SPLIT(partition, pivot_set, g, bqueue)
+#
+#PrintFibers(partition, g)
 ### Check input-set stability with respect to all fibers.
 #regulation = g.edge_properties['regulation'].a
 #first_fiber = partition[0]

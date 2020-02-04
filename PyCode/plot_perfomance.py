@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 ffp_path = "../Data/time_perfomance/FFP/ffpN"
 mbc_path = "../Data/time_perfomance/MBC/mbcN"
 
-sizes = [32, 64, 128, 256, 512]
+sizes = [32, 64, 128, 256, 512, 1024, 2048]
 ffp_time = []
 mbc_time = []
 
@@ -16,6 +16,4 @@ for N in sizes:
 
 plt.plot(sizes, ffp_time, "r-o", ms=8)
 plt.plot(sizes, mbc_time, "g-s", ms=8)
-#plt.xscale('log')
-#plt.yscale('log')
 plt.show()

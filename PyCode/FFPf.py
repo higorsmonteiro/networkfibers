@@ -1,7 +1,68 @@
 from fiber import *
 from utils import *
 import numpy as np
+import graph_tool.all as gt
 from collections import deque, defaultdict
+
+def Initialization(graph, bqueue):
+    ''' 
+        Separate each node in its corresponding SCC using
+        the 'label_components' function from graph_tool
+        library. After define the SCC we classify each one
+        to correctly initialize the fibration algorithm.
+    '''
+    N = graph.get_vertices().shape[0]
+    label_scc, hist = gt.label_components(graph, directed=True)
+
+    fibers_listing = defaultdict(list)
+    for v in graph.get_vertices():
+        label = label_scc[v]
+        fibers_listing[label].append(int(v))
+    ''' 
+        'fibers' now contains for each SCC label, 
+        all nodes belonging to it.
+    '''
+
+    scc = []
+    N_scc = hist.shape[0]
+    # Insert each node in its correct SCC object.
+    for scc_j in range(N_scc):
+        scc.append(StrongComponent())
+        node_list = fibers_listing[scc_j]
+        for n in node_list: scc[scc_j].insert_node(n)
+    '''
+        'scc[j]' is an object containing the information
+        about the nodes inside the j-th SCC.
+    '''
+
+    partition = [FiberBlock()]
+    autopivot = []
+    ''' Defines if each SCC receives or not input
+        from other components not itself. '''
+    for strong in scc:
+        strong.check_input(graph)
+        strong.classify_strong(graph)
+        if strong.type == 0:    # receive external input.
+            for node in strong.get_nodes():
+                partition[0].insert_node(node)
+        elif strong.type == 2:  # does not receive external input, but it is an isolated autorregulated node.
+            for node in strong.get_nodes():
+                fiber = FiberBlock()
+                fiber.insert_node(node)
+                partition[0].insert_node(node)
+                autopivot.append(fiber)
+                #bqueue.append(fiber)
+        elif strong.type == 1:
+            partition.append(FiberBlock())
+            for node in strong.get_nodes():
+                partition[-1].insert_node(node)
+
+    for fiber in partition: bqueue.append(fiber)
+    for isolated in autopivot: bqueue.append(isolated)
+
+    return partition
+
+    
 
 def preprocessing(graph, partition, solitaire_part, bqueue):
     '''

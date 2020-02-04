@@ -96,6 +96,7 @@ class StrongComponent:
         self.nodes = []
         self.have_input = False
         self.number_nodes = 0
+        self.type = -1
 
     def insert_node(self, node):
         self.number_nodes += 1
@@ -123,6 +124,24 @@ class StrongComponent:
                     self.have_input = True
                     break
             if self.have_input==True: break
+
+    def classify_strong(self, graph):
+        ''' It should be called after 'check_input' '''
+        
+        # if the SCC has input, then it belongs to the main fiber.
+        if self.have_input: self.type = 0
+        else:
+            #   If it doesn't receive any external input, then we
+            #   must check if it is an isolated autorregulated
+            #   node.
+            if self.number_nodes==1:
+                neigh = graph.get_in_neighbors(self.nodes[0])
+                for n in neigh:
+                    if n!=self.nodes[0]: 
+                        self.type = 2   # Isolated autorregulated node.
+                        return
+                self.type = 1   # There isn't any external input.
+
 
     def show_input_bool(self):
         print(self.have_input)

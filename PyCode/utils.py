@@ -2,7 +2,6 @@ import numpy as np
 import graph_tool.all as gt
 from collections import defaultdict
 
-
 def buildGraph(edgefilename, nodenamefile=None):
     g = gt.Graph(directed=True)
     regulation = g.new_edge_property('int')
