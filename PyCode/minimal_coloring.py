@@ -17,7 +17,7 @@ from collections import Counter
 identifier = sys.argv[1]
 edgefile = "../Data/"+identifier+"edgelist.dat"
 
-g = buildGraph(edgefile)
+g = defineGraph(edgefile)
 N = g.get_vertices().shape[0] # Number of vertices
 
 #####################################################################

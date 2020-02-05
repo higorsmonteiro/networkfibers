@@ -4,7 +4,8 @@ import numpy as np
 import graph_tool.all as gt
 from collections import deque, defaultdict
 
-def Initialization(graph, bqueue):
+#######################################################################
+def Initialization(graph, nodes_obj, bqueue):
     ''' 
         Separate each node in its corresponding SCC using
         the 'label_components' function from graph_tool
@@ -52,57 +53,29 @@ def Initialization(graph, bqueue):
                 partition[0].insert_node(node)
                 autopivot.append(fiber)
                 #bqueue.append(fiber)
-        elif strong.type == 1:
+        elif strong.type == 1:  # SCC does not receive any external input.
             partition.append(FiberBlock())
             for node in strong.get_nodes():
                 partition[-1].insert_node(node)
 
-    for fiber in partition: bqueue.append(fiber)
+    for index, fiber in enumerate(partition): 
+        bqueue.append(fiber)
+        for v in fiber.get_nodes(): nodes_obj[v].set_class_index(index)
+    
     for isolated in autopivot: bqueue.append(isolated)
-
     return partition
-
-    
-
-def preprocessing(graph, partition, solitaire_part, bqueue):
-    '''
-        'partition' will consist of all operating nodes,
-        including the ones that only receive information
-        from themselves. 'solitaire_part' will consist of
-        all nodes that do not receive any information. The
-        nodes that receive information only from themselves
-        will be put in a queue as single blocks.
-    '''
-    init_block = FiberBlock()
-    all_nodes = graph.get_vertices()
-
-    for node in all_nodes:
-        solitaire_bool = IDENTIFY_SOLITAIRE(graph, node)
-        
-        if solitaire_bool==0: # Full solitaire.
-            block = FiberBlock()
-            block.insert_node(node)
-            solitaire_part.append(block)
-        elif solitaire_bool==1: # Receives information only from itself.
-            block = FiberBlock()
-            block.insert_node(node)
-            bqueue.append(block)
-            init_block.insert_node(node)
-        else:   # Otherwise.
-            init_block.insert_node(node)
-    
-    partition.append(init_block)
-    
-def enqueue_blocks(partition, bqueue):
-    for classes in partition: bqueue.append(classes)
+#########################################################################
 
 
 def upgrade_partition(new_classes, old_classes, partition):
     for old in old_classes: partition.remove(old)
     for new in new_classes: partition.append(new)
 
+#def efficient_get_unstable_classes(partition, unstable_list, regulation_list, pivotnode_to_index):
+
+
 def get_unstable_classes(partition, unstable_list, regulation_list, pivotnode_to_index):
-    
+    ''' it is not linerar '''
     for fclass in partition:
         class_size = fclass.get_number_nodes()
         nodelist = fclass.get_nodes()
@@ -180,6 +153,16 @@ def possible_unstable_c(partition, pivot_sucessors):
     return maybe_unstables
 
 def input_splitf(partition, pivot, graph, n_edgetype, bqueue):
+    ''' The splitting process is divided in the following steps:
+
+        1.  We get all the current classes that are unstable with
+            respect to 'pivot'. We do that by getting all the outgoing
+            neighbors of the pivot nodes and their classes. From these
+            classes, we select only the ones that are unstable.
+
+        2.  
+
+    '''
     unstable_classes = []
     splitted_classes = []
     N = graph.get_vertices().shape[0]

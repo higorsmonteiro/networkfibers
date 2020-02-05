@@ -2,6 +2,68 @@ import numpy as np
 import graph_tool.all as gt
 from collections import defaultdict
 
+def defineGraph(edgefilename, nodenamefile=None):
+    g = gt.Graph(directed=True)
+    fiber_index = g.new_vertex_property('int')
+    information_type = g.new_edge_property('int')
+    if nodenamefile!=None:
+        nodename =  g.new_vertex_property('string')
+
+    # Counts the # of different types of information in the file.
+    edgetype_set = set()
+    with open(edgefilename, 'r') as edgelist:
+        for line in edgelist:
+            data = line.split()
+            # The 3-th column must be the edge type.
+            edgetype_set.add(data[2])
+    
+    # For each type string associate it to an integer index.
+    count = 0
+    edgetype_to_index = defaultdict(lambda:-1)
+    for info_type in edgetype_set:
+        edgetype_to_index[info_type] = count
+        count+=1
+    ##############################################################
+    
+    ''' If a file name containing strings to each node
+        is provided, then we store them in 'names' and
+        then we define the network. Otherwise, we build
+        the network only using the edgelist file.  '''
+    names = []
+    if nodenamefile!=None:
+        with open(nodenamefile, 'r') as namelist:
+            for line in namelist:
+                names.append(line.split()[0])
+
+        with open(edgefilename, 'r') as edgelist:
+            for line in edgelist:
+                data = line.split()
+                sender = int(data[0])
+                receiver = int(data[1])
+
+                # 'add_missing' True because sender and receiver may not exists in the network yet.
+                edge = g.add_edge(sender, receiver, add_missing=True)
+                nodename[sender] = names[sender]
+                nodename[receiver] = names[receiver]
+                # use the dict 'edgetype_to_index' to give the its integer index.
+                information_type[edge] = edgetype_to_index[data[2]]
+        g.vertex_properties['nodename'] = nodename
+        ###################################################
+    else:
+        with open(edgefilename, 'r') as edgelist:
+            for line in edgelist:
+                data = line.split()
+                sender = int(data[0])
+                receiver = int(data[1])
+
+                edge = g.add_edge(sender, receiver, add_missing=True)
+                information_type[edge] = edgetype_to_index[data[2]]
+    g.vertex_properties['fiber_index'] = fiber_index
+    g.edge_properties['regulation'] = information_type
+    return g, len(edgetype_set)
+
+
+
 def buildGraph(edgefilename, nodenamefile=None):
     g = gt.Graph(directed=True)
     regulation = g.new_edge_property('int')

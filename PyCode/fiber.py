@@ -1,5 +1,13 @@
 import numpy as np
 
+class Node:
+    def __init__(self, node):
+        self.fiber_index = -1
+        self.node_index = node
+
+    def set_class_index(self, index):
+        self.fiber_index = index
+
 class FiberBlock:
     def __init__(self):
         self.index = -1

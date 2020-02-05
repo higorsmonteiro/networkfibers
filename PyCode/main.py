@@ -14,9 +14,11 @@ edgefile = "../Data/"+identifier+"edgelist.dat"
 nodename = "../Data/"+identifier+"nameID.dat"
 
 if flagname=='-y':
-    g = buildGraph(edgefile, nodenamefile=nodename)
+    g, n_regulation = defineGraph(edgefile, nodenamefile=nodename)
 else:
-    g = buildGraph(edgefile)
+    g, n_regulation = defineGraph(edgefile)
+
+N = g.get_vertices().shape[0]
 
 ############# COARSEST REFINEMENT PARTITIONING ALGORITHM ##############
 ''' 
@@ -26,29 +28,20 @@ else:
     information: the solitaire.
 '''
 
-partition = []
-solitaire = []
 bqueue = deque([])
+nodes_obj = []
+for v in range(N): nodes_obj.append(Node(v))
 
-partition = Initialization(g, bqueue)
-#preprocessing(g, partition, solitaire, bqueue)
-PrintFibers(partition, g)
-print(len(bqueue))
-#enqueue_blocks(partition, bqueue)
-#enqueue_blocks(solitaire, bqueue)
-
-#PREPROCESSING(g, partition, solitaire, bqueue)
-#ENQUEUE_BLOCKS(partition, bqueue)
-#ENQUEUE_BLOCKS(solitaire, bqueue)
+partition = Initialization(g, nodes_obj, bqueue)
 
 # Until the queue is empty, we procedure the splitting process.
-#while bqueue:
-#    pivot_set = bqueue.popleft()
-#    #refinement_set.show_nodes()
-#    input_splitf(partition, pivot_set, g, 1, bqueue)
-#    #INPUT_SPLIT(partition, pivot_set, g, bqueue)
-#
-#PrintFibers(partition, g)
+while bqueue:
+    pivot_set = bqueue.popleft()
+    #refinement_set.show_nodes()
+    input_splitf(partition, pivot_set, g, n_regulation, bqueue)
+    #INPUT_SPLIT(partition, pivot_set, g, bqueue)
+
+PrintFibers(partition, g)
 ### Check input-set stability with respect to all fibers.
 #regulation = g.edge_properties['regulation'].a
 #first_fiber = partition[0]
