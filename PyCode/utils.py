@@ -58,70 +58,35 @@ def defineGraph(edgefilename, nodenamefile=None):
 
                 edge = g.add_edge(sender, receiver, add_missing=True)
                 information_type[edge] = edgetype_to_index[data[2]]
+    
+    for v in g.get_vertices(): fiber_index[v] = -1
     g.vertex_properties['fiber_index'] = fiber_index
     g.edge_properties['regulation'] = information_type
     return g, len(edgetype_set)
 
 
-
-def buildGraph(edgefilename, nodenamefile=None):
-    g = gt.Graph(directed=True)
-    regulation = g.new_edge_property('int')
-
-    names = []
-    if nodenamefile!=None:
-        with open(nodenamefile, 'r') as namelist:
-            for line in namelist:
-                data = line.split()
-                names.append(data[0])
-
-    if nodenamefile==None:
-        with open(edgefilename, 'r') as edgelist:
-            for line in edgelist:
-                data = line.split()
-
-                cur_edge = g.add_edge(int(data[0]), int(data[1]), add_missing=True)
-                if data[2]=='positive':
-                    regulation[cur_edge] = 0
-                elif data[2]=='negative':
-                    regulation[cur_edge] = 1
-                elif data[2]=='dual':
-                    regulation[cur_edge] = 2
-    else:
-        nodename = g.new_vertex_property('string')
-        with open(edgefilename, 'r') as edgelist:
-            for line in edgelist:
-                data = line.split()
-
-                cur_edge = g.add_edge(int(data[0]), int(data[1]), add_missing=True)
-                nodename[int(data[0])] = names[int(data[0])]
-                nodename[int(data[1])] = names[int(data[1])]
-                if data[2]=='positive':
-                    regulation[cur_edge] = 0
-                elif data[2]=='negative':
-                    regulation[cur_edge] = 1
-                elif data[2]=='dual':
-                    regulation[cur_edge] = 2
-        g.vertex_properties['node_names'] = nodename
-
-    g.edge_properties['regulation'] = regulation
-    return g
-
-
-def edgefromSet_optimal(arr, graph, pivot, pivotnode_to_index, regulation):
+def calc_R(R, graph, pivot, f, regulation):
     ''' given a pivot set and an 'number of received 
-        information' matrix 'arr', with size (n_edgetype, 
+        information' matrix 'R', with size (n_edgetype, 
         len(pivot_sucessor)), calculates the value of the entries
-        of 'arr'.   '''
+        of 'R'.   '''
 
     pivot_nodes = pivot.get_nodes()
     for node in pivot_nodes:
         out_edges = graph.get_out_edges(node, [graph.edge_index])
         for out in out_edges:
             reg = regulation[out[2]]
-            correct_index = pivotnode_to_index[out[1]]
-            arr[reg][correct_index] += 1
+            correct_index = f[out[1]]
+            R[reg][correct_index] += 1
 
+def is_unstable(arr_2d):
+    ''' For a matrix to be stable, for each row all the
+        columns must be equal. Otherwise, the matrix is
+        unstable and this function return True.   '''
+    for row in arr_2d:
+        if not np.all(row==row[0]):
+            return True # The matrix is unstable.
+    return False
 
 # Input-tree stability
 def edgefromSet(arr, graph, refinement_set, regulation):
@@ -140,23 +105,6 @@ def edgetoSet(arr, graph, refinement_set, regulation):
         for edge in in_edges:
             reg = regulation[edge[2]]
             arr[reg][edge[0]] += 1
-
-# Input solitaire
-def IDENTIFY_SOLITAIRE(graph, node):
-    in_neighbors = graph.get_in_neighbors(node)
-    n_in = in_neighbors.shape[0]
-    if n_in==0: return 0    # Solitaire and do not feeds itself.
-    #elif node in in_neighbors: return 1
-    elif np.all(in_neighbors==node): return 1 # Solitaire but feeds itself.
-    else: return -1 # Not solitaire.
-
-# Output solitaire
-def OUT_IDENTIFY_SOLITAIRE(graph, node):
-    out_neighbors = graph.get_out_neighbors(node)
-    n_out = out_neighbors.shape[0]
-    if n_out==0: return 0    # Solitaire and do not feeds itself.
-    elif np.all(out_neighbors==node): return 1 # Solitaire but feeds itself.
-    else: return -1 # Not solitaire.
 
 ######################################################################
 class VisitedinBFS(gt.BFSVisitor):

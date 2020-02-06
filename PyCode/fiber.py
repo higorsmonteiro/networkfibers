@@ -21,6 +21,10 @@ class FiberBlock:
     def insert_node(self, node):
         self.number_nodes += 1
         self.fibernodes.append(node)
+    
+    def delete_node(self, node):
+        self.number_nodes -= 1
+        self.fibernodes.remove(node)
 
     def insert_nodelist(self, nodelist):
         self.number_nodes += len(nodelist)

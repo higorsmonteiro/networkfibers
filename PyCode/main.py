@@ -29,19 +29,17 @@ N = g.get_vertices().shape[0]
 '''
 
 bqueue = deque([])
-nodes_obj = []
-for v in range(N): nodes_obj.append(Node(v))
-
-partition = Initialization(g, nodes_obj, bqueue)
+partition = Initialization(g, bqueue)
 
 # Until the queue is empty, we procedure the splitting process.
 while bqueue:
     pivot_set = bqueue.popleft()
     #refinement_set.show_nodes()
     input_splitf(partition, pivot_set, g, n_regulation, bqueue)
+    break
     #INPUT_SPLIT(partition, pivot_set, g, bqueue)
 
-PrintFibers(partition, g)
+#PrintFibers(partition, g)
 ### Check input-set stability with respect to all fibers.
 #regulation = g.edge_properties['regulation'].a
 #first_fiber = partition[0]
