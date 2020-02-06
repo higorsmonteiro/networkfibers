@@ -52,7 +52,6 @@ def Initialization(graph, bqueue):
                 fiber.insert_node(node)
                 partition[0].insert_node(node)
                 autopivot.append(fiber)
-                #bqueue.append(fiber)
         elif strong.type == 1:  # SCC does not receive any external input.
             partition.append(FiberBlock())
             for node in strong.get_nodes():
@@ -72,8 +71,6 @@ def upgrade_partition(new_classes, old_classes, partition):
     for old in old_classes: partition.remove(old)
     for new in new_classes: partition.append(new)
 
-#def efficient_get_unstable_classes(partition, unstable_list, regulation_list, pivotnode_to_index):
-
 def get_possible_unstable_classes(graph, pivot, partition):
     ''' 
         We define the list A of classes that receives information from
@@ -85,23 +82,18 @@ def get_possible_unstable_classes(graph, pivot, partition):
 
         By getting the fiber indexes of all outcoming neighbors of the pivot
         set nodes the 'receiver_classes' stores the indexes of the possible
-        unstable classes. Then, 'classes' lists the corresponding fiber objects. 
+        unstable classes. Then, 'classes' lists the corresponding objects. 
 
     '''
     fiber_index = graph.vp.fiber_index
-    
     receiver_classes = set()
     for w in pivot.get_nodes():
         w_receivers = graph.get_out_neighbors(w)
         for v in w_receivers:
             receiver_classes.add(fiber_index[v])
     
-    classes = []
-    for f_index in receiver_classes:
-        classes.append(partition[f_index])
+    classes = [partition[f_index] for f_index in receiver_classes]
     return classes
-
-
 
 #def get_unstable_classes(partition, unstable_list, regulation_list, pivotnode_to_index):
 #    ''' it is not linerar '''
@@ -221,11 +213,10 @@ def enqueue_splitted(newclass_list, bqueue):
         if ind!=argmax:
             bqueue.append(fclass)
 
-def class_split(p_class, R_class, g, graph, partition):
-    N_class = p_class.get_number_nodes()
-    Z = p_class.get_nodes()
+def class_split(chi, R_class, g, graph, partition):
+    N_class = chi.get_number_nodes()
+    Z = chi.get_nodes()
     
-    #IND = [g[w] for w in Z]
     str_input = [np.array2string(R_class[:,n], separator="")[1:-1] for n in range(N_class)]
     ORDER = np.argsort(str_input)
 
@@ -239,6 +230,7 @@ def class_split(p_class, R_class, g, graph, partition):
             current_input = str_input[index]
             newclass_list.append(FiberBlock())
             newclass_list[-1].insert_node(Z[index])
+    print(len(newclass_list), len(Z))
 
     fiber_index = graph.vp.fiber_index
     class_index = fiber_index[Z[0]]
@@ -251,69 +243,42 @@ def class_split(p_class, R_class, g, graph, partition):
             fiber_index[v] = len(partition) - 1
     return newclass_list
 
-
-
 def fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype, bqueue, graph):
-    ''' For each class 'p_class' in 'receiver_class' that receives
+    ''' For each class 'chi' in 'receiver_class' that receives
         information from pivot, we define a 'R_class' matrix with
         size (n_edgetype, N_class) where N_class is the number of 
         nodes in 'R_class'. We fill 'R_class' accordigly to matrix R.   '''
 
-    for p_class in receiver_classes:
-        class_nodes = p_class.get_nodes()
-        N_class = p_class.get_number_nodes()
+    for chi in receiver_classes:
+        chi_nodes = chi.get_nodes()
+        N_class = chi.get_number_nodes()
         
         g = defaultdict(lambda:-1)
-        for n in range(N_class): g[class_nodes[n]] = n
-        R_class = [np.zeros(N_class, int) for j in range(n_edgetype)]
+        for n in range(N_class): g[chi_nodes[n]] = n
+        R_class = np.vstack([np.zeros(N_class, int) for j in range(n_edgetype)])
         
         # fill R_class according R. Efficient.
         for v in eta:
             if g[v]!=-1:
                 for m in range(n_edgetype):
-                    R_class[m][g[v]] = R[m][f[v]]
+                    R_class[m,g[v]] = R[m,f[v]]
         
-        R_class = np.vstack(tuple(R_class))
         if is_unstable(R_class):
-            newclass_list = class_split(p_class, R_class, g, graph, partition)
-
+            newclass_list = class_split(chi, R_class, g, graph, partition)
             enqueue_splitted(newclass_list, bqueue)
 
 
 def input_splitf(partition, pivot, graph, n_edgetype, bqueue):
-    ''' The splitting process is divided in the following steps:
-
-        1.  We get all the current classes that are unstable with
-            respect to 'pivot'. We do that by getting all the outgoing
-            neighbors of the pivot nodes and their classes. From these
-            classes, we select only the ones that are unstable.
-
-        2.  
-
-    '''
-    #splitted_classes = []
     N = graph.get_vertices().shape[0]
     eta = pivot.sucessor_nodes(graph)
+    regulation = graph.edge_properties['regulation'].a
     # Given the node number, 'f' gives its index in 'eta'.
     f = defaultdict(lambda:-1)
     for eta_index, sucessor in enumerate(eta):  f[sucessor] = eta_index
 
     # 'R' represents a matrix (n_edgetype, len(eta)).
-    R = [np.zeros(len(eta), int) for row in range(n_edgetype)]
-   
-    regulation = graph.edge_properties['regulation'].a
+    R = np.vstack([np.zeros(len(eta), int) for row in range(n_edgetype)])
+
     calc_R(R, graph, pivot, f, regulation)
-    #print(R, eta)
     receiver_classes = get_possible_unstable_classes(graph, pivot, partition)
     fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype, bqueue, graph)
-
-    #get_unstable_classes(possibles, unstable_classes, R, f)
-    #classes_partitioning(unstable_classes, splitted_classes, R, f)
-    
-    #if len(splitted_classes)>len(unstable_classes):
-    #    upgrade_partition(splitted_classes, unstable_classes, partition)
-    #    for splitted in splitted_classes:
-    #        if splitted.index!=(-96): bqueue.append(splitted)
-
-
-

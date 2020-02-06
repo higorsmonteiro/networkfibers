@@ -36,6 +36,7 @@ while bqueue:
     pivot_set = bqueue.popleft()
     #refinement_set.show_nodes()
     input_splitf(partition, pivot_set, g, n_regulation, bqueue)
+    break
     #INPUT_SPLIT(partition, pivot_set, g, bqueue)
 
 PrintFibers(partition, g)

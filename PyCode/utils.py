@@ -77,7 +77,7 @@ def calc_R(R, graph, pivot, f, regulation):
         for out in out_edges:
             reg = regulation[out[2]]
             correct_index = f[out[1]]
-            R[reg][correct_index] += 1
+            R[reg,correct_index] += 1
 
 def is_unstable(arr_2d):
     ''' For a matrix to be stable, for each row all the
