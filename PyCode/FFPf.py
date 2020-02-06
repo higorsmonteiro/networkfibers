@@ -213,41 +213,47 @@ def classes_partitioning(unstable_classes, splitted_classes, regulation_list, no
 #        for splitted in splitted_classes:
 #            if splitted.index!=(-96): bqueue.append(splitted)
 
-def class_split(R_class, g, graph, partition):
-    N_class = R_class.get_number_nodes()
-    class_nodes = R_class.get_nodes()
-    
-    indexes = [g[w] for w in class_nodes]
-    col_str = [np.array2string(R_class[:,n], separator="")[1:-1] for n in range(N_class)]
+def enqueue_splitted(newclass_list, bqueue):
+    class_sizes = [fclass.get_number_nodes() for fclass in newclass_list]
+    argmax = class_sizes.index(max(class_sizes))
 
-    new_list = []
-    arg_order = np.argsort(col_str)
-    current_str = col_str[arg_order[0]]
-    new_list.append(FiberBlock())
-    for index in arg_order:
-        if col_str[index] == current_str:
-            new_list[-1].insert_node(class_nodes[index])
+    for ind, fclass in enumerate(newclass_list):
+        if ind!=argmax:
+            bqueue.append(fclass)
+
+def class_split(p_class, R_class, g, graph, partition):
+    N_class = p_class.get_number_nodes()
+    Z = p_class.get_nodes()
+    
+    #IND = [g[w] for w in Z]
+    str_input = [np.array2string(R_class[:,n], separator="")[1:-1] for n in range(N_class)]
+    ORDER = np.argsort(str_input)
+
+    newclass_list = []
+    newclass_list.append(FiberBlock())
+    current_str = str_input[ORDER[0]]
+    for index in ORDER:
+        if str_input[index] == current_str:
+            newclass_list[-1].insert_node(Z[index])
         else:
-            col_str = col_str[index]
-            new_list.append(FiberBlock())
-            new_list[-1].insert_node(class_nodes[index])
+            current_input = str_input[index]
+            newclass_list.append(FiberBlock())
+            newclass_list[-1].insert_node(Z[index])
 
     fiber_index = graph.vp.fiber_index
-    class_index = fiber_index[class_nodes[0]]
+    class_index = fiber_index[Z[0]]
 
-    for index, classs in new_list:
-        if index==0: continue
-                for v in classs.
-    
-
-    
-
-
-    
+    for index, new_class in enumerate(newclass_list):
+        if index==0: continue # the nodes of the first class will remain in the original class. 
+        partition.append(new_class)
+        for v in new_class.get_nodes():
+            partition[class_index].delete_node(v)
+            fiber_index[v] = len(partition) - 1
+    return newclass_list
 
 
 
-def fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype, graph):
+def fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype, bqueue, graph):
     ''' For each class 'p_class' in 'receiver_class' that receives
         information from pivot, we define a 'R_class' matrix with
         size (n_edgetype, N_class) where N_class is the number of 
@@ -269,7 +275,9 @@ def fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype, graph)
         
         R_class = np.vstack(tuple(R_class))
         if is_unstable(R_class):
-            class_split(R_class, g, graph, partition) 
+            newclass_list = class_split(p_class, R_class, g, graph, partition)
+
+            enqueue_splitted(newclass_list, bqueue)
 
 
 def input_splitf(partition, pivot, graph, n_edgetype, bqueue):
@@ -291,19 +299,13 @@ def input_splitf(partition, pivot, graph, n_edgetype, bqueue):
     for eta_index, sucessor in enumerate(eta):  f[sucessor] = eta_index
 
     # 'R' represents a matrix (n_edgetype, len(eta)).
-    R = []   
-    for row in range(n_edgetype):
-        R.append(np.zeros(len(eta), int))
-
-    ''' All nodes that receives information from 'pivot'
-        receives, for each edge type, the number of incoming
-        links received from 'pivot'. '''
-        # Type of each edge: 0,1,2,...,# edge types - 1.
+    R = [np.zeros(len(eta), int) for row in range(n_edgetype)]
+   
     regulation = graph.edge_properties['regulation'].a
     calc_R(R, graph, pivot, f, regulation)
     #print(R, eta)
     receiver_classes = get_possible_unstable_classes(graph, pivot, partition)
-    fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype)
+    fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype, bqueue, graph)
 
     #get_unstable_classes(possibles, unstable_classes, R, f)
     #classes_partitioning(unstable_classes, splitted_classes, R, f)

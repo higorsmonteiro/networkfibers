@@ -36,10 +36,9 @@ while bqueue:
     pivot_set = bqueue.popleft()
     #refinement_set.show_nodes()
     input_splitf(partition, pivot_set, g, n_regulation, bqueue)
-    break
     #INPUT_SPLIT(partition, pivot_set, g, bqueue)
 
-#PrintFibers(partition, g)
+PrintFibers(partition, g)
 ### Check input-set stability with respect to all fibers.
 #regulation = g.edge_properties['regulation'].a
 #first_fiber = partition[0]
