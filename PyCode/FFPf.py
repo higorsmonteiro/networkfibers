@@ -219,18 +219,20 @@ def class_split(chi, R_class, g, graph, partition):
     
     str_input = [np.array2string(R_class[:,n], separator="")[1:-1] for n in range(N_class)]
     ORDER = np.argsort(str_input)
+    #print(str_input, ORDER)
 
     newclass_list = []
     newclass_list.append(FiberBlock())
     current_str = str_input[ORDER[0]]
     for index in ORDER:
+        #print(str_input[index], current_str)
         if str_input[index] == current_str:
             newclass_list[-1].insert_node(Z[index])
         else:
-            current_input = str_input[index]
+            current_str = str_input[index]
             newclass_list.append(FiberBlock())
             newclass_list[-1].insert_node(Z[index])
-    print(len(newclass_list), len(Z))
+    #print(len(newclass_list), len(Z))
 
     fiber_index = graph.vp.fiber_index
     class_index = fiber_index[Z[0]]
@@ -270,6 +272,7 @@ def fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype, bqueue
 
 def input_splitf(partition, pivot, graph, n_edgetype, bqueue):
     N = graph.get_vertices().shape[0]
+    print(pivot.get_nodes())
     eta = pivot.sucessor_nodes(graph)
     regulation = graph.edge_properties['regulation'].a
     # Given the node number, 'f' gives its index in 'eta'.
