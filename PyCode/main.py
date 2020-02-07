@@ -38,8 +38,8 @@ while bqueue:
     input_splitf(partition, pivot_set, g, n_regulation, bqueue)
     #break
     #INPUT_SPLIT(partition, pivot_set, g, bqueue)
-print('d')
-PrintFibers(partition, g)
+#print('d')
+#PrintFibers(partition, g)
 ### Check input-set stability with respect to all fibers.
 #regulation = g.edge_properties['regulation'].a
 #first_fiber = partition[0]
