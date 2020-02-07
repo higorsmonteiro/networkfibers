@@ -2,14 +2,12 @@ import sys
 import numpy as np
 from utils import *
 from fiber import *
-from FFPf import *
+import FFPf as ffp
 import graph_tool.all as gt
-from minimalcoloringf import *
-
-from collections import Counter
+import minimalcoloringf as mbc
+from collections import Counter, deque
 
 def MBColoring(g):
-    
     N = g.get_vertices()
 
     # Properties of the nodes: colors and ISCV.
@@ -19,13 +17,13 @@ def MBColoring(g):
     g.vertex_properties['iscv'] = iscv
 
     #### INITIALIZATION: Criterion -> inputless SCC's as different classes. ####
-    fibers = Initialization(g)  # List of fiber classes.
-    set_colors(g, fibers)       # Set the colors for each node according its fiber.
+    fibers = mbc.Initialization(g)  # List of fiber classes.
+    mbc.set_colors(g, fibers)       # Set the colors for each node according its fiber.
 
     ncolor_after = len(fibers)
     ncolor_before = -1
 
-    set_ISCV(g, ncolor_after)
+    mbc.set_ISCV(g, ncolor_after)
 
     ######### REFINEMENT LOOP ############
     while ncolor_after!=ncolor_before:
@@ -43,7 +41,7 @@ def MBColoring(g):
             if len(iscv_count) == 1: continue # The fiber is not splitted.
 
             # Now we split the fiber according their ISCV 'fiber_iscv'.
-            splitted_list = split_fiber(fiber_nodeindex, fiber_iscv)
+            splitted_list = mbc.split_fiber(fiber_nodeindex, fiber_iscv)
 
             # If the current fiber is splitted, remove the father from the list.
             fibers.remove(fblock)
@@ -55,23 +53,16 @@ def MBColoring(g):
 
         ncolor_before = ncolor_after
         ncolor_after = len(fibers)
-        set_colors(g, fibers)
+        mbc.set_colors(g, fibers)
 
-        set_ISCV(g, ncolor_after)
+        mbc.set_ISCV(g, ncolor_after)
 
 
 def FFPartitioning(g):
-
-    partition = []
-    solitaire = []
     bqueue = deque([])
-
-    preprocessing(g, partition, solitaire, bqueue)
-    enqueue_blocks(partition, bqueue)
-    enqueue_blocks(solitaire, bqueue)
+    partition = ffp.Initialization(g, bqueue)
 
     # Until the queue is empty, we procedure the splitting process.
     while bqueue:
-        refinement_set = bqueue.popleft()
-        #refinement_set.show_nodes()
-        input_splitf(partition, refinement_set, g, 1, bqueue)
+        pivot_set = bqueue.popleft()
+        ffp.input_splitf(partition, pivot_set, g, 1, bqueue)

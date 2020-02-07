@@ -127,9 +127,9 @@ class StrongComponent:
             network.
         '''
         for v in self.nodes:
-            in_neigh = graph.get_in_neighbors(v)
-            for neigh in in_neigh:
-                try: bl = nodes.index(neigh)
+            input_neigh = graph.get_in_neighbors(v)
+            for neigh in input_neigh:
+                try: bl = self.nodes.index(neigh)
                 except: bl = -1
                 # the SCC have input from other component.
                 if bl == -1:    
@@ -147,12 +147,11 @@ class StrongComponent:
             #   must check if it is an isolated autorregulated
             #   node.
             if self.number_nodes==1:
-                neigh = graph.get_in_neighbors(self.nodes[0])
-                for n in neigh:
-                    if n!=self.nodes[0]: 
-                        self.type = 2   # Isolated autorregulated node.
-                        return
-                self.type = 1   # There isn't any external input.
+                input_neigh = graph.get_in_neighbors(self.nodes[0])
+                if input_neigh.shape[0] == 0:
+                    self.type = 1
+                else: self.type = 2 # Isolated autorregulated node. 
+            else: self.type = 1     # SCC does not receive any external input.
 
 
     def show_input_bool(self):

@@ -56,10 +56,12 @@ import numpy as np
 import graph_tool.all as gt
 from fibration_mains import FFPartitioning, MBColoring
 
-g = fast_gnp_erdos(N, 0.1, gdirected=True)
+g = fast_gnp_erdos(N, 0.05, gdirected=True)
+fiber_index = g.new_vertex_property('int')
 regulation = g.new_edge_property('int')
 for n in g.edges(): regulation[n] = 0
 g.edge_properties['regulation'] = regulation
+g.vertex_properties['fiber_index'] = fiber_index
  ''' 
 
     TEST_CODE = '''

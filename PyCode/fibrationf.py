@@ -159,6 +159,48 @@ def INPUT_SPLIT_ONE(partition, refinement_set, graph, bqueue):
         for splitted in subpart2:
             if splitted.index!=(-96): bqueue.append(splitted)
 
+#def input_splitf(partition, pivot, graph, n_edgetype, bqueue):
+#    ''' The splitting process is divided in the following steps:
+#
+#        1.  We get all the current classes that are unstable with
+#            respect to 'pivot'. We do that by getting all the outgoing
+#            neighbors of the pivot nodes and their classes. From these
+#            classes, we select only the ones that are unstable.
+#
+#        2.  
+#
+#    '''
+#    unstable_classes = []
+#    splitted_classes = []
+#    N = graph.get_vertices().shape[0]
+#    
+#    pivot_sucessors = pivot.sucessor_nodes(graph)
+#    # Given the node number, 'node_to_index' gives its index in 'pivot_sucessors'.
+#    node_to_index = defaultdict(lambda:-1)
+#    for index, sucessor in enumerate(pivot_sucessors):
+#        node_to_index[sucessor] = index
+#
+#    # 'regulation_list' represents a matrix (n_edgetype, len(pivot_nodes)).
+#    regulation_list = []   
+#    for j in range(n_edgetype):
+#        regulation_list.append(np.zeros(len(pivot_sucessors), int))
+#
+#    ''' All nodes that receives information from 'pivot'
+#        receives, for each edge type, the number of incoming
+#        links received from 'pivot'. '''
+#        # Type of each edge: 0,1,2,...,# edge types - 1.
+#    regulation = graph.edge_properties['regulation'].a
+#    edgefromSet_optimal(regulation_list, graph, pivot, node_to_index, regulation)
+#    possibles = possible_unstable_c(partition, pivot_sucessors)
+#
+#    get_unstable_classes(possibles, unstable_classes, regulation_list, node_to_index)
+#    classes_partitioning(unstable_classes, splitted_classes, regulation_list, node_to_index)
+#    
+#    if len(splitted_classes)>len(unstable_classes):
+#        upgrade_partition(splitted_classes, unstable_classes, partition)
+#        for splitted in splitted_classes:
+#            if splitted.index!=(-96): bqueue.append(splitted)
+
 def INPUT_SPLIT(partition, refinement_set, graph, bqueue):
     subpart1 = []
     subpart2 = []

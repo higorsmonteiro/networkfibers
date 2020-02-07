@@ -21,23 +21,15 @@ else:
 N = g.get_vertices().shape[0]
 
 ############# COARSEST REFINEMENT PARTITIONING ALGORITHM ##############
-''' 
-    Define the initial partition as one block containing all operating 
-    nodes. Operating nodes are nodes that receive information at least
-    from itself, which not include nodes that do not receive any 
-    information: the solitaire.
-'''
-
 bqueue = deque([])
 partition = Initialization(g, bqueue)
 
 # Until the queue is empty, we procedure the splitting process.
 while bqueue:
     pivot_set = bqueue.popleft()
-    #refinement_set.show_nodes()
     input_splitf(partition, pivot_set, g, n_regulation, bqueue)
-    #break
-    #INPUT_SPLIT(partition, pivot_set, g, bqueue)
+#######################################################################
+
 #print('d')
 #PrintFibers(partition, g)
 ### Check input-set stability with respect to all fibers.
@@ -85,8 +77,8 @@ while bqueue:
 
 
 
-#cc = GetNumberFibers(partition)
-#print(cc)
+cc = GetNumberFibers(partition)
+print(cc)
 #print("strong")
 #st = GetStrongCCompOfNode(g, 3)
 #print(st)
