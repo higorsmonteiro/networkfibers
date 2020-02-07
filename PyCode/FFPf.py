@@ -87,22 +87,21 @@ def get_possible_unstable_classes(graph, pivot, partition):
 
     '''
     fiber_index = graph.vp.fiber_index
-    receiver_classes = set()
-    for w in pivot.get_nodes():
-        w_receivers = graph.get_out_neighbors(w)
-        for v in w_receivers:
-            receiver_classes.add(fiber_index[v])
+
+    receiver_classes = []
+    p_sucessors = pivot.sucessor_nodes(graph)
+    for w in p_sucessors: receiver_classes.append(fiber_index[w])
+    receiver_classes = set(receiver_classes)
     
     classes = [partition[f_index] for f_index in receiver_classes]
     return classes
 
 def enqueue_splitted(newclass_list, bqueue, graph):
-    class_sizes = [fclass.get_number_nodes() for fclass in newclass_list]
-    argmax = class_sizes.index(max(class_sizes))
-    #print("Splitted")
+    class_sizes = np.array([fclass.get_number_nodes() for fclass in newclass_list])
+    argmax = np.argmax(class_sizes)
 
-    for ind, fclass in enumerate(newclass_list):
-        if ind==argmax: continue
+    for index, fclass in enumerate(newclass_list):
+        if index==argmax: continue
         new_pivot = copy_class(fclass)
         bqueue.append(new_pivot)
 
@@ -117,22 +116,22 @@ def class_split(chi, R_class, g, graph, partition):
     newclass_list.append(FiberBlock())
     current_str = str_input[ORDER[0]]
     for index in ORDER:
-        if str_input[index] == current_str:
-            newclass_list[-1].insert_node(Z[index])
-        else:
+        if str_input[index]!=current_str:
             current_str = str_input[index]
-            newclass_list.append(FiberBlock())
-            newclass_list[-1].insert_node(Z[index])
+            newclass_list.append(FiberBlock())    
+        newclass_list[-1].insert_node(Z[index])
 
-    fiber_index = graph.vp.fiber_index
-    class_index = fiber_index[Z[0]]
+    class_index = graph.vertex_properties['fiber_index'][Z[0]]
 
+    to_be_deleted = []
     for index, new_class in enumerate(newclass_list):
         if index==0: continue # the nodes of the first class will remain in the original class. 
         partition.append(copy_class(new_class))
         for v in new_class.get_nodes():
-            partition[class_index].delete_node(v)
-            fiber_index[v] = len(partition) - 1
+            to_be_deleted.append(v)
+            graph.vertex_properties['fiber_index'][v] = len(partition) - 1
+    partition[class_index].delete_nodes(to_be_deleted)
+    
     return newclass_list
 
 def fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype, bqueue, graph):

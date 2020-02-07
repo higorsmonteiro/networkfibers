@@ -46,7 +46,7 @@ def fast_gnp_erdos(n, p, seed=None, gdirected=False):
 
 N = int(sys.argv[1])
 mode = sys.argv[2]
-n_repeat = 1
+n_repeat = 3
 
 ######## FAST FIBRATION PARTITIONING ########
 def FFP_time():
