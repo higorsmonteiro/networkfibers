@@ -31,7 +31,7 @@ while bqueue:
 #######################################################################
 
 #print('d')
-#PrintFibers(partition, g)
+PrintFibers(partition, g)
 ### Check input-set stability with respect to all fibers.
 #regulation = g.edge_properties['regulation'].a
 #first_fiber = partition[0]

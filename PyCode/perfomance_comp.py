@@ -45,18 +45,19 @@ def fast_gnp_erdos(n, p, seed=None, gdirected=False):
 #########################################################################
 
 N = int(sys.argv[1])
-mode = sys.argv[2]
-n_repeat = 3
+p = float(sys.argv[2])
+mode = sys.argv[3]
+n_repeat = 2
 
 ######## FAST FIBRATION PARTITIONING ########
 def FFP_time():
     SETUP_CODE = '''
-from __main__ import fast_gnp_erdos, N
+from __main__ import fast_gnp_erdos, N, p
 import numpy as np
 import graph_tool.all as gt
 from fibration_mains import FFPartitioning, MBColoring
 
-g = fast_gnp_erdos(N, 0.05, gdirected=True)
+g = fast_gnp_erdos(N, p, gdirected=True)
 fiber_index = g.new_vertex_property('int')
 regulation = g.new_edge_property('int')
 for n in g.edges(): regulation[n] = 0
@@ -78,12 +79,12 @@ FFPartitioning(g) '''
 ####### MINIMAL BALANCED COLORING ########
 def MBC_time():
     SETUP_CODE = '''
-from __main__ import fast_gnp_erdos, N
+from __main__ import fast_gnp_erdos, N, p
 import numpy as np
 import graph_tool.all as gt
 from fibration_mains import FFPartitioning, MBColoring
 
-g = fast_gnp_erdos(N, 0.1, gdirected=True)
+g = fast_gnp_erdos(N, p, gdirected=True)
 regulation = g.new_edge_property('int')
 for n in g.edges(): regulation[n] = 0
 g.edge_properties['regulation'] = regulation'''

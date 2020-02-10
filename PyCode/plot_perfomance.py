@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 ffp_path = "../Data/time_perfomance/FFP/ffpN"
 mbc_path = "../Data/time_perfomance/MBC/mbcN"
 
-sizes = [32, 64, 128, 256, 512, 1024]
+sizes = [32, 64, 128, 256, 512, 1024, 2048, 4096]
 ffp_time = []
 mbc_time = []
 
