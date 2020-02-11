@@ -1,10 +1,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-ffp_path = "../Data/time_perfomance/FFP/ffpN"
-mbc_path = "../Data/time_perfomance/MBC/mbcN"
+ffp_path = "../Data/time_perfomance/k_FFP/k_2/N"
+mbc_path = "../Data/time_perfomance/k_MBC/k_2/N"
 
-sizes = [32, 64, 128, 256, 512, 1024, 2048, 4096]
+sizes = [64, 128, 256, 512, 1024]
 ffp_time = []
 mbc_time = []
 
@@ -14,6 +14,6 @@ for N in sizes:
     ffp_time.append(mean_ffp)
     mbc_time.append(mean_mbc)
 
-plt.plot(sizes, ffp_time, "r-o", ms=8)
-plt.plot(sizes, mbc_time, "g-s", ms=8)
+plt.plot(sizes, ffp_time, "b-o", ms=8)
+plt.plot(sizes, mbc_time, "m-s", ms=8)
 plt.show()
