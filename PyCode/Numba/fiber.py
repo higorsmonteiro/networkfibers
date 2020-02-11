@@ -1,14 +1,25 @@
 import numpy as np
+from numba import jitclass, int64, float64
 
+spec = [
+    ('index', int64),
+    ('number_nodes', int64),
+    ('branching', float64),
+    ('reg_number', int64),
+    ('regulators', int64),
+    ('fibernodes', int64)
+]
+
+@jitclass(spec)
 class FiberBlock:
     def __init__(self):
         self.index = -1
-        self.regtype = [-1, -1, -1]
+        #self.regtype = [-1, -1, -1]
         self.number_nodes = 0
         self.branching = -1.0
         self.reg_number = -1
-        self.regulators = []
-        self.fibernodes = []
+        self.regulators = [int64(x) for x in range(0)]
+        self.fibernodes = [int64(x) for x in range(0)]
 
     def insert_node(self, node):
         self.number_nodes += 1
@@ -26,9 +37,9 @@ class FiberBlock:
         self.number_nodes += len(nodelist)
         self.fibernodes += nodelist
 
-    def insert_regulator(self, reg):
-        self.number_reg += 1
-        self.regulators.append(reg)
+    #def insert_regulator(self, reg):
+    #    self.number_reg += 1
+    #    self.regulators.append(reg)
 
     def get_nodes(self):
         return self.fibernodes
@@ -63,17 +74,6 @@ class FiberBlock:
         for node in self.fibernodes:
             print(names[node], end=" ")
         print("")
-
-    #def define_external_regulators(self, graph):
-    #    if len(self.fibernodes)==0: return
-    #    else:
-    #        external = []
-    #        for node in self.fibernodes:
-    #            external = external + list(graph.get_in_neighbors(node))
-    #        
-    #        for ext in external:
-    #            out_
-
 
     def input_stability(self, graph, Set, regulation):
         '''
