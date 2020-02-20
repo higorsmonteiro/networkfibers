@@ -23,12 +23,7 @@ import graph_tool.all as gt
 from fibration_mains import FFPartitioning
 
 g = fast_gnp_erdos(N, p, gdirected=True)
-fiber_index = g.new_vertex_property('int')
-regulation = g.new_edge_property('int')
-for n in g.edges(): regulation[n] = 0
-g.edge_properties['regulation'] = regulation
-g.vertex_properties['fiber_index'] = fiber_index
- ''' 
+''' 
 
     TEST_CODE = '''
 FFPartitioning(g) '''
@@ -52,9 +47,7 @@ from fibration_mains import MBColoring
 
 g = fast_gnp_erdos(N, p, gdirected=True)
 print(g.num_vertices(), g.num_edges())
-regulation = g.new_edge_property('int')
-for n in g.edges(): regulation[n] = 0
-g.edge_properties['regulation'] = regulation'''
+'''
 
     TEST_CODE = '''
 MBColoring(g)   '''

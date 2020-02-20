@@ -9,11 +9,20 @@ from collections import Counter, deque
 def MBColoring(g):
     N = g.get_vertices()
 
-    # Properties of the nodes: colors and ISCV.
+    ### Properties of the nodes: colors and ISCV. ###
     node_colors = g.new_vertex_property('int')
     iscv = g.new_vertex_property('string')
+    edge_color = g.new_edge_property('int')
+    color_name = g.new_vertex_property('string')
     g.vertex_properties['node_colors'] = node_colors
     g.vertex_properties['iscv'] = iscv
+    g.edge_properties['edge_color'] = edge_color
+    g.vertex_properties['color_name'] = color_name
+
+    regulation = g.new_edge_property('int')
+    g.edge_properties['regulation'] = regulation
+    #################################################
+    for n in g.edges(): regulation[n] = 0
 
     #### INITIALIZATION: Criterion -> inputless SCC's as different classes. ####
     fibers = mbc.Initialization(g)  # List of fiber classes.
@@ -51,9 +60,27 @@ def MBColoring(g):
         mbc.set_colors(g, fibers)
 
         mbc.set_ISCV(g, ncolor_after)
-
+    
+    # Properties for network drawing.
+    for v in g.get_vertices(): color_name[v] = str(node_colors[v])
+    for e in g.edges():
+        source = e.source()
+        edge_color[e] = node_colors[source]
+    
 
 def FFPartitioning(g):
+    # Necessary property maps.
+    edge_color = g.new_edge_property('int')
+    color_name = g.new_vertex_property('string')
+    fiber_index = g.new_vertex_property('int')
+    regulation = g.new_edge_property('int')
+    g.edge_properties['edge_color'] = edge_color
+    g.vertex_properties['color_name'] = color_name
+    g.vertex_properties['fiber_index'] = fiber_index
+    g.edge_properties['regulation'] = regulation
+    ###################################################
+    for n in g.edges(): regulation[n] = 0   # One edge type.
+
     bqueue = deque([])
     partition = ffp.Initialization(g, bqueue)
 
@@ -63,26 +90,23 @@ def FFPartitioning(g):
         ffp.input_splitf(partition, pivot_set, g, 1, bqueue)
 
 if __name__=="__main__":
-    N = 32 
+    N = 16 
     p = 1/(N-1)
     
     g = fast_gnp_erdos(N, p, gdirected=True)
     print(g.num_vertices(), g.num_edges())
-    regulation = g.new_edge_property('int')
-    for n in g.edges(): regulation[n] = 0
-    g.edge_properties['regulation'] = regulation
-
-    edge_color = g.new_edge_property('int')
-    color_name = g.new_vertex_property('string')
-    g.edge_properties['edge_color'] = edge_color
-    g.vertex_properties['color_name'] = color_name
     
     MBColoring(g)
+    #FFPartitioning(g)
+    edge_color = g.ep.edge_color
+    color_name = g.vp.color_name
+    #node_colors = g.vp.fiber_index
     node_colors = g.vp.node_colors
     for v in g.get_vertices(): color_name[v] = str(node_colors[v])
     for e in g.edges():
         source = e.source()
         edge_color[e] = node_colors[source]
 
-    node_colors = g.vp.node_colors
-    gt.graph_draw(g, vertex_text=color_name, vertex_color=node_colors, edge_color=edge_color, vertex_fill_color=node_colors, output_size=(800, 800), output="../Figures/fibers/test_mbc.pdf")
+    pos = gt.random_layout(g)
+    pos = gt.arf_layout(g, max_iter=0)
+    gt.graph_draw(g, pos, vertex_text=color_name, vertex_color=node_colors, edge_color=edge_color, vertex_fill_color=node_colors, output_size=(800, 800), output="../Figures/fibers/test_mbc.pdf")

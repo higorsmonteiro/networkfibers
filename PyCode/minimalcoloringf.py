@@ -51,20 +51,6 @@ def Initialization(graph):
         elif strong.type == 2:
             node = strong.get_nodes()[0]
             fibers[0].insert_node(node)
-    
-    # Count the number of colors.
-    #color_index = 0
-    #fibers = [FiberBlock()]
-    #fibers[0].index = color_index
-    #for strong in scc:
-    #    input_bool = strong.get_input_bool()
-    #    if input_bool==True:
-    #        fibers[0].insert_nodelist(strong.nodes)
-    #    else:
-    #        color_index += 1
-    #        fibers.append(FiberBlock())
-    #        fibers[-1].index = color_index
-    #        fibers[-1].insert_nodelist(strong.nodes)
 
     return fibers
 
@@ -77,8 +63,8 @@ def copy_class(copied_class):
 def set_colors(graph, fibers):
     node_colors = graph.vp.node_colors
     
-    for index, fiberblock in enumerate(fibers):
-        for v in fiberblock.fibernodes:
+    for index, fclass in enumerate(fibers):
+        for v in fclass.get_nodes():
             node_colors[v] = index
 
 def set_ISCV(graph, ncolor):
@@ -140,7 +126,7 @@ def split_fiberf(class_index, fiber, fibernodes, fiber_iscv):
         if fiber_iscv[index]!=current_iscv:
             current_iscv = fiber_iscv[index]
             new_list.append(FiberBlock())
-        new_list[-1].insert_node(index)
+        new_list[-1].insert_node(fibernodes[index])
 
     to_be_deleted = []
     for index, new_class in enumerate(new_list):
@@ -150,12 +136,6 @@ def split_fiberf(class_index, fiber, fibernodes, fiber_iscv):
     fiber.delete_nodes(to_be_deleted)
     
     return new_list[1:]
-
-
-
-
-
-
 
 
 def print_colors(graph):
