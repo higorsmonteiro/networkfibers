@@ -30,25 +30,21 @@ def MBColoring(g):
         splitted = []
         ''' For each fiber, we split it according the value of
             the ISCV of each node inside the fiber. '''
-        for fblock in fibers:
+        for class_index, fblock in enumerate(fibers):
             if fblock.get_number_nodes() <= 1: continue
 
             # defines the list of nodes of the current fiber and their ISCVs.
-            fiber_nodeindex = [node for node in fblock.fibernodes]
-            fiber_iscv = [iscv_list[node] for node in fblock.fibernodes]
+            fiber_nodeindex = [node for node in fblock.get_nodes()]
+            fiber_iscv = [iscv_list[node] for node in fblock.get_nodes()]
             iscv_count = Counter(fiber_iscv)
             if len(iscv_count) == 1: continue # The fiber is not splitted.
 
             # Now we split the fiber according their ISCV 'fiber_iscv'.
-            splitted_list = mbc.split_fiber(fiber_nodeindex, fiber_iscv)
+            splitted_list = mbc.split_fiberf(class_index, fblock, fiber_nodeindex, fiber_iscv)
 
             # If the current fiber is splitted, remove the father from the list.
-            fibers.remove(fblock)
-            for child_fiber in splitted_list: 
-                splitted.append(child_fiber)
-
-        for new_fiber in splitted:
-            fibers.append(new_fiber)
+            #fibers.remove(fblock)
+            for new_fiber in splitted_list: fibers.append(new_fiber)
 
         ncolor_before = ncolor_after
         ncolor_after = len(fibers)
@@ -65,3 +61,28 @@ def FFPartitioning(g):
     while bqueue:
         pivot_set = bqueue.popleft()
         ffp.input_splitf(partition, pivot_set, g, 1, bqueue)
+
+if __name__=="__main__":
+    N = 32 
+    p = 1/(N-1)
+    
+    g = fast_gnp_erdos(N, p, gdirected=True)
+    print(g.num_vertices(), g.num_edges())
+    regulation = g.new_edge_property('int')
+    for n in g.edges(): regulation[n] = 0
+    g.edge_properties['regulation'] = regulation
+
+    edge_color = g.new_edge_property('int')
+    color_name = g.new_vertex_property('string')
+    g.edge_properties['edge_color'] = edge_color
+    g.vertex_properties['color_name'] = color_name
+    
+    MBColoring(g)
+    node_colors = g.vp.node_colors
+    for v in g.get_vertices(): color_name[v] = str(node_colors[v])
+    for e in g.edges():
+        source = e.source()
+        edge_color[e] = node_colors[source]
+
+    node_colors = g.vp.node_colors
+    gt.graph_draw(g, vertex_text=color_name, vertex_color=node_colors, edge_color=edge_color, vertex_fill_color=node_colors, output_size=(800, 800), output="../Figures/fibers/test_mbc.pdf")

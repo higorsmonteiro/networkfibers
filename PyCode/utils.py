@@ -64,6 +64,42 @@ def defineGraph(edgefilename, nodenamefile=None):
     g.edge_properties['regulation'] = information_type
     return g, len(edgetype_set)
 
+def fast_gnp_erdos(n, p, seed=None, gdirected=False):
+    ''' fast procedure to generate an Erdos-Renyi network 
+        according the G(n,p) model. '''
+    if seed!=None:  np.seed(seed)
+
+    G = gt.Graph(directed=gdirected)
+    for nn in range(n): G.add_vertex()
+
+    if p<=0 or p >= 1:  return None
+    
+    w = -1
+    lp = np.log(1.0-p)
+    if gdirected:   # directed network (self-loops allowed).
+        v = 0
+        while v < n:
+            lr = np.log(1.0 - np.random.uniform())
+            w += (1 + int(lr/lp))
+            while v < n <= w:
+                w -= n
+                v += 1
+            if v < n:
+                G.add_edge(v,w)
+    else:   # undirected network.
+        v = 1
+        while v < n:
+            lr = np.log(1.0 - np.random.random())
+            w += 1 + int(lr/lp)
+            while w >= v and v < n:
+                w -= v
+                v += 1
+            if v < n:
+                G.add_edge(v, w)
+    
+    return G
+###########################################################   
+
 
 def calc_R(R, graph, pivot, f, regulation):
     ''' given a pivot set and an 'number of received 

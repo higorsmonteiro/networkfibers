@@ -68,6 +68,12 @@ def Initialization(graph):
 
     return fibers
 
+def copy_class(copied_class):
+    new_class = FiberBlock()
+    for v in copied_class.get_nodes():
+        new_class.insert_node(v)
+    return new_class
+
 def set_colors(graph, fibers):
     node_colors = graph.vp.node_colors
     
@@ -75,8 +81,11 @@ def set_colors(graph, fibers):
         for v in fiberblock.fibernodes:
             node_colors[v] = index
 
-# Define the ISCV for each node. At this step, each ISCV has size 'ncolor'.
 def set_ISCV(graph, ncolor):
+    '''
+        Define the ISCV for each node. At this step, each ISCV has size
+        equal to 'ncolor' times the number of edge types (not considered yet).
+    '''
     # intrinsic properties
     iscv = graph.vp.iscv
     node_colors = graph.vp.node_colors
@@ -94,16 +103,16 @@ def set_ISCV(graph, ncolor):
         # Counts how many inputs the 'node' receives from each color.
         Colors_counter = Counter(input_colors)
         for k in range(ncolor):
-            # 'Color_counter[k] returns the number of inputs from color 'k'.
+            # 'Color_counter[k]' returns the number of inputs from color 'k'.
             iscv[v] += str(Colors_counter[k])
 
 def split_fiber(fibernodes, fiber_iscv):
-    new_list = []
     #nfibers = len(Counter(fiber_iscv))
     iscv_order = np.argsort(fiber_iscv)
 
-    current_iscv = fiber_iscv[iscv_order[0]]
+    new_list = []
     new_list.append(FiberBlock())
+    current_iscv = fiber_iscv[iscv_order[0]]
     for index in iscv_order:
         if fiber_iscv[index] == current_iscv:
             new_list[-1].insert_node(fibernodes[index])
@@ -112,6 +121,39 @@ def split_fiber(fibernodes, fiber_iscv):
             new_list.append(FiberBlock())
             new_list[-1].insert_node(fibernodes[index])
     return new_list
+
+def split_fiberf(class_index, fiber, fibernodes, fiber_iscv):
+    '''
+        Given the class that will be splitted, we delete from it
+        the nodes that have different ISCV than the first element.
+
+        This, if a class is splitted in N classes, then we will
+        create N-1 new classes, and use the original one to store
+        the class of the first element (in the ordered iscv).
+    '''
+    iscv_order = np.argsort(fiber_iscv)
+
+    new_list = []
+    new_list.append(FiberBlock())
+    current_iscv = fiber_iscv[iscv_order[0]]
+    for index in iscv_order:
+        if fiber_iscv[index]!=current_iscv:
+            current_iscv = fiber_iscv[index]
+            new_list.append(FiberBlock())
+        new_list[-1].insert_node(index)
+
+    to_be_deleted = []
+    for index, new_class in enumerate(new_list):
+        if index==0: continue
+        for v in new_class.get_nodes():
+            to_be_deleted.append(v)
+    fiber.delete_nodes(to_be_deleted)
+    
+    return new_list[1:]
+
+
+
+
 
 
 
