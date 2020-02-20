@@ -37,22 +37,34 @@ def Initialization(graph):
 
     ''' Defines if each SCC receives or not input
         from other components not itself. '''
+    fibers = [FiberBlock()]
     for strong in scc:
         strong.check_input(graph)
+        strong.classify_strong(graph)
+        if strong.type==0:
+            for node in strong.get_nodes():
+                fibers[0].insert_node(node)
+        elif strong.type==1:
+            fibers.append(FiberBlock())
+            for node in strong.get_nodes():
+                fibers[-1].insert_node(node)
+        elif strong.type == 2:
+            node = strong.get_nodes()[0]
+            fibers[0].insert_node(node)
     
     # Count the number of colors.
-    color_index = 0
-    fibers = [FiberBlock()]
-    fibers[0].index = color_index
-    for strong in scc:
-        input_bool = strong.get_input_bool()
-        if input_bool==True:
-            fibers[0].insert_nodelist(strong.nodes)
-        else:
-            color_index += 1
-            fibers.append(FiberBlock())
-            fibers[-1].index = color_index
-            fibers[-1].insert_nodelist(strong.nodes)
+    #color_index = 0
+    #fibers = [FiberBlock()]
+    #fibers[0].index = color_index
+    #for strong in scc:
+    #    input_bool = strong.get_input_bool()
+    #    if input_bool==True:
+    #        fibers[0].insert_nodelist(strong.nodes)
+    #    else:
+    #        color_index += 1
+    #        fibers.append(FiberBlock())
+    #        fibers[-1].index = color_index
+    #        fibers[-1].insert_nodelist(strong.nodes)
 
     return fibers
 
