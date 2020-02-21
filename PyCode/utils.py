@@ -98,6 +98,11 @@ def fast_gnp_erdos(n, p, seed=None, gdirected=False):
                 G.add_edge(v, w)
     
     return G
+
+#def label_weak_components(graph):
+#    G = gt.Graph(directed=False)
+#
+#    for v in g.get_vertices(): G.add_vertex(v)
 ###########################################################   
 
 
@@ -183,4 +188,35 @@ def PrintFibers(partition, graph, name=False):
     else:
         for block in partition:
             block.show_nodes()
+
+def draw_fibers(g, output_filename=None):
+    node_colors = g.vp.fiber_index
+    edge_color = g.ep.edge_color
+    color_name = g.vp.color_name    # string format for fiber index.
+
+    for v in g.get_vertices(): color_name[v] = str(node_colors[v])
+    for e in g.edges():
+        source = e.source()
+        edge_color[e] = node_colors[source]
+
+    if output_filename!=None:
+        pos = gt.random_layout(g)
+        gt.graph_draw(g, pos, vertex_text=color_name, vertex_color=node_colors, edge_color=edge_color, vertex_fill_color=node_colors, output_size=(900,900), output=output_filename)
+
+
+def in_degree_average(G):
+    kin = 0
+    N = G.num_vertices()
+    for v in G.get_vertices():
+        in_neigh = G.get_in_neighbors(v)
+        kin += in_neigh.shape[0]
+    return kin/N
+
+def out_degree_average(G):
+    kout = 0
+    N = G.num_vertices()
+    for v in G.get_vertices():
+        out_neigh = G.get_out_neighbors(v)
+        kout += out_neigh.shape[0]
+    return kout/N
 #######################################################################

@@ -6,9 +6,7 @@ import graph_tool.all as gt
 import minimalcoloringf as mbc
 from collections import Counter, deque
 
-def MBColoring(g):
-    N = g.get_vertices()
-
+def MBColoring(g, get_flist=False):
     ### Properties of the nodes: colors and ISCV. ###
     node_colors = g.new_vertex_property('int')
     iscv = g.new_vertex_property('string')
@@ -32,11 +30,9 @@ def MBColoring(g):
     ncolor_before = -1
 
     mbc.set_ISCV(g, ncolor_after)
-
     ######### REFINEMENT LOOP ############
     while ncolor_after!=ncolor_before:
         iscv_list = list(g.vp.iscv)
-        splitted = []
         ''' For each fiber, we split it according the value of
             the ISCV of each node inside the fiber. '''
         for class_index, fblock in enumerate(fibers):
@@ -66,6 +62,8 @@ def MBColoring(g):
     for e in g.edges():
         source = e.source()
         edge_color[e] = node_colors[source]
+
+    if get_flist==True: return fibers
     
 
 def FFPartitioning(g):
@@ -90,23 +88,17 @@ def FFPartitioning(g):
         ffp.input_splitf(partition, pivot_set, g, 1, bqueue)
 
 if __name__=="__main__":
-    N = 16 
+    N = 32 
     p = 1/(N-1)
     
     g = fast_gnp_erdos(N, p, gdirected=True)
-    print(g.num_vertices(), g.num_edges())
-    
-    MBColoring(g)
-    #FFPartitioning(g)
-    edge_color = g.ep.edge_color
-    color_name = g.vp.color_name
-    #node_colors = g.vp.fiber_index
-    node_colors = g.vp.node_colors
-    for v in g.get_vertices(): color_name[v] = str(node_colors[v])
-    for e in g.edges():
-        source = e.source()
-        edge_color[e] = node_colors[source]
+    vertex_comp, hist = gt.label_components(g, directed=False)
+    nlabel = set()
+    for v in g.get_vertices(): nlabel.add(vertex_comp[v])
+    print(len(nlabel))
+    gt.graph_draw(g, output_size=(400,400), output="test.pdf")
+    #print(g.num_vertices(), g.num_edges())
+    #MBColoring(g)
 
-    pos = gt.random_layout(g)
-    pos = gt.arf_layout(g, max_iter=0)
-    gt.graph_draw(g, pos, vertex_text=color_name, vertex_color=node_colors, edge_color=edge_color, vertex_fill_color=node_colors, output_size=(800, 800), output="../Figures/fibers/test_mbc.pdf")
+    
+    

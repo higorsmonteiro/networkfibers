@@ -20,7 +20,7 @@ from __main__ import N, p
 from utils import fast_gnp_erdos
 import numpy as np
 import graph_tool.all as gt
-from fibration_mains import FFPartitioning
+from main_f import FFPartitioning
 
 g = fast_gnp_erdos(N, p, gdirected=True)
 ''' 
@@ -40,13 +40,16 @@ FFPartitioning(g) '''
 def MBC_time():
     SETUP_CODE = '''
 from __main__ import N, p
-from utils import fast_gnp_erdos
+from utils import fast_gnp_erdos, in_degree_average, out_degree_average
 import numpy as np
 import graph_tool.all as gt
-from fibration_mains import MBColoring
+from main_f import MBColoring
 
 g = fast_gnp_erdos(N, p, gdirected=True)
-print(g.num_vertices(), g.num_edges())
+#vertex_comp, hist = gt.label_components(g, directed=False)
+#nlabel = set()
+#for v in g.get_vertices(): nlabel.add(vertex_comp[v])
+#print(len(nlabel))
 '''
 
     TEST_CODE = '''

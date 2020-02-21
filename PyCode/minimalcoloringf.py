@@ -5,10 +5,13 @@ from collections import Counter, defaultdict
 
 def Initialization(graph):
     ''' 
-        Separate each node in its corresponding SCC using
-        the 'label_components' function from graph_tool
+        Separate each node in its corresponding SCC and WCC 
+        using the 'label_components' function from graph_tool
         library.
     '''
+    #weak_components = gt.label_components(g, directed=False)
+    #graph.vertex_properties['weak_components'] = weak_components
+    
     N = graph.get_vertices().shape[0]
     label_scc, hist = gt.label_components(graph, directed=True)
 
@@ -60,10 +63,14 @@ def copy_class(copied_class):
         new_class.insert_node(v)
     return new_class
 
-def set_colors(graph, fibers):
+def set_colors(graph, fiber_list):
+    '''
+        Receives a list of fibers, and for each node
+        associate it with the index number of its fiber
+        location on the list.
+    '''
     node_colors = graph.vp.node_colors
-    
-    for index, fclass in enumerate(fibers):
+    for index, fclass in enumerate(fiber_list):
         for v in fclass.get_nodes():
             node_colors[v] = index
 
@@ -76,37 +83,32 @@ def set_ISCV(graph, ncolor):
     iscv = graph.vp.iscv
     node_colors = graph.vp.node_colors
 
-    # initializate iscv
-    for v in graph.get_vertices():
-        iscv[v] = ""
-
     # define the iscv for each node.
     for v in graph.get_vertices():
+        iscv[v] = ""
         in_neighbors = graph.get_in_neighbors(v)
         input_colors = []
         for neigh in in_neighbors:
             input_colors.append(node_colors[neigh])
         # Counts how many inputs the 'node' receives from each color.
         Colors_counter = Counter(input_colors)
-        for k in range(ncolor):
-            # 'Color_counter[k]' returns the number of inputs from color 'k'.
-            iscv[v] += str(Colors_counter[k])
+        # 'Color_counter[k]' returns the number of inputs from color 'k'.
+        for k in range(ncolor): iscv[v] += str(Colors_counter[k])  
 
-def split_fiber(fibernodes, fiber_iscv):
-    #nfibers = len(Counter(fiber_iscv))
-    iscv_order = np.argsort(fiber_iscv)
-
-    new_list = []
-    new_list.append(FiberBlock())
-    current_iscv = fiber_iscv[iscv_order[0]]
-    for index in iscv_order:
-        if fiber_iscv[index] == current_iscv:
-            new_list[-1].insert_node(fibernodes[index])
-        else:
-            current_iscv = fiber_iscv[index]
-            new_list.append(FiberBlock())
-            new_list[-1].insert_node(fibernodes[index])
-    return new_list
+#def split_fiber(fibernodes, fiber_iscv):
+#    iscv_order = np.argsort(fiber_iscv)
+#
+#    new_list = []
+#    new_list.append(FiberBlock())
+#    current_iscv = fiber_iscv[iscv_order[0]]
+#    for index in iscv_order:
+#        if fiber_iscv[index] == current_iscv:
+#            new_list[-1].insert_node(fibernodes[index])
+#        else:
+#            current_iscv = fiber_iscv[index]
+#            new_list.append(FiberBlock())
+#            new_list[-1].insert_node(fibernodes[index])
+#    return new_list
 
 def split_fiberf(class_index, fiber, fibernodes, fiber_iscv):
     '''
@@ -119,8 +121,7 @@ def split_fiberf(class_index, fiber, fibernodes, fiber_iscv):
     '''
     iscv_order = np.argsort(fiber_iscv)
 
-    new_list = []
-    new_list.append(FiberBlock())
+    new_list = [FiberBlock()]
     current_iscv = fiber_iscv[iscv_order[0]]
     for index in iscv_order:
         if fiber_iscv[index]!=current_iscv:
@@ -131,10 +132,8 @@ def split_fiberf(class_index, fiber, fibernodes, fiber_iscv):
     to_be_deleted = []
     for index, new_class in enumerate(new_list):
         if index==0: continue
-        for v in new_class.get_nodes():
-            to_be_deleted.append(v)
+        for v in new_class.get_nodes(): to_be_deleted.append(v)
     fiber.delete_nodes(to_be_deleted)
-    
     return new_list[1:]
 
 
