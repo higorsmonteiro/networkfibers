@@ -1,4 +1,5 @@
 import numpy as np
+from utils import *
 from fiber import *
 import graph_tool.all as gt
 from collections import Counter, defaultdict
@@ -63,16 +64,64 @@ def copy_class(copied_class):
         new_class.insert_node(v)
     return new_class
 
+def get_possible_unstable_classes(graph, pivot, partition):
+    ''' 
+        We define the list A of classes that receives information from
+        'pivot'. To guarantee that the fibration algorithm runs in loglinear
+        time, this procedure should take advantage of the 'fiber_index'
+        vertex property in the network to avoid a sweep over all the nodes
+        in it. 'defineGraph' function in 'utils.py' guarantees this vertex
+        property.
+
+        By getting the fiber indexes of all outcoming neighbors of the pivot
+        set nodes the 'receiver_classes' stores the indexes of the possible
+        unstable classes. Then, 'classes' lists the corresponding objects. 
+
+    '''
+    fiber_index = graph.vp.fiber_index
+
+    receiver_classes = []
+    p_sucessors = pivot.sucessor_nodes(graph)
+    for w in p_sucessors: receiver_classes.append(fiber_index[w])
+    receiver_classes = set(receiver_classes)
+    
+    classes = [partition[f_index] for f_index in receiver_classes]
+    return classes
+
+def fast_checking(receiver_classes, eta, f, R, partition, n_edgetype, graph):
+    ''' For each class 'chi' in 'receiver_class' that receives
+        information from pivot, we define a 'R_class' matrix with
+        size (n_edgetype, N_class) where N_class is the number of 
+        nodes in 'chi'. We fill 'R_class' accordigly to matrix 'R'.   '''
+
+    for chi in receiver_classes:
+        chi_nodes = chi.get_nodes()
+        N_class = chi.get_number_nodes()
+        
+        g = defaultdict(lambda:-1)
+        for n in range(N_class): g[chi_nodes[n]] = n
+        R_class = np.vstack([np.zeros(N_class, int) for j in range(n_edgetype)])
+        
+        # fill 'R_class' according 'R'. Efficient.
+        for v in eta:
+            if g[v]!=-1:
+                for m in range(n_edgetype):
+                    R_class[m,g[v]] = R[m,f[v]]
+        
+        if is_unstable(R_class):
+            print(-1)
+        #print(1)
+
 def set_colors(graph, fiber_list):
     '''
         Receives a list of fibers, and for each node
         associate it with the index number of its fiber
         location on the list.
     '''
-    node_colors = graph.vp.node_colors
+    fiber_index = graph.vp.fiber_index
     for index, fclass in enumerate(fiber_list):
         for v in fclass.get_nodes():
-            node_colors[v] = index
+            fiber_index[v] = index
 
 def set_ISCV(graph, ncolor):
     '''
@@ -81,7 +130,7 @@ def set_ISCV(graph, ncolor):
     '''
     # intrinsic properties
     iscv = graph.vp.iscv
-    node_colors = graph.vp.node_colors
+    fiber_index = graph.vp.fiber_index
 
     # define the iscv for each node.
     for v in graph.get_vertices():
@@ -89,7 +138,7 @@ def set_ISCV(graph, ncolor):
         in_neighbors = graph.get_in_neighbors(v)
         input_colors = []
         for neigh in in_neighbors:
-            input_colors.append(node_colors[neigh])
+            input_colors.append(fiber_index[neigh])
         # Counts how many inputs the 'node' receives from each color.
         Colors_counter = Counter(input_colors)
         # 'Color_counter[k]' returns the number of inputs from color 'k'.
@@ -138,10 +187,10 @@ def split_fiberf(class_index, fiber, fibernodes, fiber_iscv):
 
 
 def print_colors(graph):
-    node_colors = graph.vp.node_colors
+    fiber_index = graph.vp.fiber_index
     for v in graph.get_vertices():
-        print(v, node_colors[v])
+        print(v, fiber_index[v])
 
 def number_colors(graph):
-    node_colors = list(graph.vp.node_colors.a)
-    print(len(set(node_colors)))
+    fiber_index = list(graph.vp.fiber_index.a)
+    print(len(set(fiber_index)))

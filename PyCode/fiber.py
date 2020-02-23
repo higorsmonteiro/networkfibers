@@ -65,21 +65,19 @@ class FiberBlock:
         print("")
 
 
-    def input_stability(self, graph, Set, regulation):
+    def input_stability(self, graph, Set, regulation, num_edge_type):
         '''
             Given a fiber 'Set' and the graph with its regulation
-            types, then it checks if the fiber is input-set stable
+            types, then we check if the fiber is input-set stable
             with respect to 'Set'.
         '''
         set_nodes = Set.get_nodes()
-        edges_received = np.zeros([3, len(self.fibernodes)], int)
+        edges_received = np.zeros([num_edge_type, len(self.fibernodes)], int)
         
         for setnode in set_nodes:
-            out_edges = graph.get_out_edges(setnode, [graph.edge_index])
-            for edge in out_edges:
-                if edge[1] in self.fibernodes:
-                    cur_index = self.fibernodes.index(edge[1])
-                else: continue
+            cur_index = self.fibernodes.index(setnode)
+            in_edges = graph.get_in_edges(setnode, [graph.edge_index])
+            for edge in in_edges:
                 edges_received[regulation[edge[2]], cur_index] += 1
 
         col = edges_received[:,0]

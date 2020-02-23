@@ -8,23 +8,23 @@ from collections import Counter, deque
 
 def MBColoring(g, get_flist=False):
     ### Properties of the nodes: colors and ISCV. ###
-    node_colors = g.new_vertex_property('int')
+    fiber_index = g.new_vertex_property('int')
     iscv = g.new_vertex_property('string')
     edge_color = g.new_edge_property('int')
     color_name = g.new_vertex_property('string')
-    g.vertex_properties['node_colors'] = node_colors
+    regulation = g.new_edge_property('int')
+    g.vertex_properties['fiber_index'] = fiber_index
     g.vertex_properties['iscv'] = iscv
     g.edge_properties['edge_color'] = edge_color
     g.vertex_properties['color_name'] = color_name
-
-    regulation = g.new_edge_property('int')
     g.edge_properties['regulation'] = regulation
     #################################################
-    for n in g.edges(): regulation[n] = 0
+    for n in g.edges(): regulation[n] = 0   # One edge type.
 
     #### INITIALIZATION: Criterion -> inputless SCC's as different classes. ####
     fibers = mbc.Initialization(g)  # List of fiber classes.
-    mbc.set_colors(g, fibers)       # Set the colors for each node according its fiber.
+    # Set the colors for each node according its 'fibers' index.
+    mbc.set_colors(g, fibers)       
 
     ncolor_after = len(fibers)
     ncolor_before = -1
@@ -58,10 +58,10 @@ def MBColoring(g, get_flist=False):
         mbc.set_ISCV(g, ncolor_after)
     
     # Properties for network drawing.
-    for v in g.get_vertices(): color_name[v] = str(node_colors[v])
+    for v in g.get_vertices(): color_name[v] = str(fiber_index[v])
     for e in g.edges():
         source = e.source()
-        edge_color[e] = node_colors[source]
+        edge_color[e] = fiber_index[source]
 
     if get_flist==True: return fibers
     
