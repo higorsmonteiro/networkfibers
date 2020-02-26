@@ -64,13 +64,14 @@ def defineGraph(edgefilename, nodenamefile=None):
     g.edge_properties['regulation'] = information_type
     return g, len(edgetype_set)
 
-def fast_gnp_erdos(n, p, seed=None, gdirected=False):
+def fast_gnp_erdos(n, p, num_edgetype=1, seed=None, gdirected=False):
     ''' fast procedure to generate an Erdos-Renyi network 
         according the G(n,p) model. '''
     if seed!=None:  np.seed(seed)
 
     G = gt.Graph(directed=gdirected)
     for nn in range(n): G.add_vertex()
+    regulation = G.new_edge_property('int')
 
     if p<=0 or p >= 1:  return None
     
@@ -85,7 +86,8 @@ def fast_gnp_erdos(n, p, seed=None, gdirected=False):
                 w -= n
                 v += 1
             if v < n:
-                G.add_edge(v,w)
+                e = G.add_edge(v,w)
+                regulation[e] = np.randint(0, num_edgetype)
     else:   # undirected network.
         v = 1
         while v < n:
@@ -95,16 +97,12 @@ def fast_gnp_erdos(n, p, seed=None, gdirected=False):
                 w -= v
                 v += 1
             if v < n:
-                G.add_edge(v, w)
+                e = G.add_edge(v, w)
+                regulation[e] = np.randint(0, num_edgetype)
     
+    G.edge_properties['regulation'] = regulation
     return G
-
-#def label_weak_components(graph):
-#    G = gt.Graph(directed=False)
-#
-#    for v in g.get_vertices(): G.add_vertex(v)
 ###########################################################   
-
 
 def calc_R(R, graph, pivot, f, regulation):
     ''' given a pivot set and an 'number of received 
@@ -203,7 +201,7 @@ def draw_fibers(g, output_filename=None):
         pos = gt.random_layout(g)
         gt.graph_draw(g, pos, vertex_text=color_name, vertex_color=node_colors, edge_color=edge_color, vertex_fill_color=node_colors, output_size=(900,900), output=output_filename)
 
-
+######################################################################
 def in_degree_average(G):
     kin = 0
     N = G.num_vertices()

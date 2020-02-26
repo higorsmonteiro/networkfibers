@@ -11,15 +11,7 @@ k_aver = float(sys.argv[2])
 p = k_aver/(N-1)
 
 random_g = fast_gnp_erdos(N, p, gdirected=True)
-
 fibers = MBColoring(random_g, get_flist=True)
-##### count the number of edge types.
-#input_type = []
-#regulation = random_g.ep.regulation
-#for v in random_g.get_vertices():
-#	input_type.append(regulation[v])
-#n_edgetype = len(set(input_type))
-######################################
 
 print("# of fibers = %i; N = %i; p = %lf; <k> = %lf" %(len(fibers), N, p, k_aver))
 
@@ -37,3 +29,5 @@ for pivot in fibers:
 	calc_R(R, random_g, pivot, f, regulation)
 	receiver_classes = get_possible_unstable_classes(random_g, pivot, fibers)
 	fast_checking(receiver_classes, eta, f, R, fibers, n_edgetype, random_g)
+
+#PrintFibers(fibers, random_g)

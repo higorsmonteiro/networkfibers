@@ -10,8 +10,6 @@ def Initialization(graph):
         using the 'label_components' function from graph_tool
         library.
     '''
-    #weak_components = gt.label_components(g, directed=False)
-    #graph.vertex_properties['weak_components'] = weak_components
     
     N = graph.get_vertices().shape[0]
     label_scc, hist = gt.label_components(graph, directed=True)
@@ -123,7 +121,7 @@ def set_colors(graph, fiber_list):
         for v in fclass.get_nodes():
             fiber_index[v] = index
 
-def set_ISCV(graph, ncolor):
+def set_ISCV(graph, ncolor, num_edgetype):
     '''
         Define the ISCV for each node. At this step, each ISCV has size
         equal to 'ncolor' times the number of edge types (not considered yet).
@@ -131,14 +129,24 @@ def set_ISCV(graph, ncolor):
     # intrinsic properties
     iscv = graph.vp.iscv
     fiber_index = graph.vp.fiber_index
+    regulation = graph.ep.regulation
 
     # define the iscv for each node.
     for v in graph.get_vertices():
         iscv[v] = ""
-        in_neighbors = graph.get_in_neighbors(v)
+        in_edges = graph.get_in_edges(v, [graph.edge_index])
         input_colors = []
-        for neigh in in_neighbors:
-            input_colors.append(fiber_index[neigh])
+        type_edge = []
+        for in_neigh in in_edges:
+            source = in_neigh[0]
+            e_index = in_neigh[2]
+            input_colors.append(fiber_index[source])
+            type_edge.append(regulation[e_index])
+
+        iscv_v = np.zeros(ncolor*num_edgetype, int)
+        for ind, color in input_colors:
+            factor = type_edge[ind]
+            iscv_v[ind*factor + color] += 1
         # Counts how many inputs the 'node' receives from each color.
         Colors_counter = Counter(input_colors)
         # 'Color_counter[k]' returns the number of inputs from color 'k'.
@@ -184,7 +192,6 @@ def split_fiberf(class_index, fiber, fibernodes, fiber_iscv):
         for v in new_class.get_nodes(): to_be_deleted.append(v)
     fiber.delete_nodes(to_be_deleted)
     return new_list[1:]
-
 
 def print_colors(graph):
     fiber_index = graph.vp.fiber_index
