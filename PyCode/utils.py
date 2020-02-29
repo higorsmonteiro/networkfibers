@@ -65,8 +65,10 @@ def defineGraph(edgefilename, nodenamefile=None):
     return g, len(edgetype_set)
 
 def fast_gnp_erdos(n, p, num_edgetype=1, seed=None, gdirected=False):
-    ''' fast procedure to generate an Erdos-Renyi network 
-        according the G(n,p) model. '''
+    ''' 
+        fast procedure to generate an Erdos-Renyi network 
+        according the G(n,p) model. 
+    '''
     if seed!=None:  np.seed(seed)
 
     G = gt.Graph(directed=gdirected)
@@ -87,7 +89,7 @@ def fast_gnp_erdos(n, p, num_edgetype=1, seed=None, gdirected=False):
                 v += 1
             if v < n:
                 e = G.add_edge(v,w)
-                regulation[e] = np.randint(0, num_edgetype)
+                regulation[e] = np.random.randint(0, num_edgetype, dtype='int')
     else:   # undirected network.
         v = 1
         while v < n:
@@ -98,7 +100,7 @@ def fast_gnp_erdos(n, p, num_edgetype=1, seed=None, gdirected=False):
                 v += 1
             if v < n:
                 e = G.add_edge(v, w)
-                regulation[e] = np.randint(0, num_edgetype)
+                regulation[e] = np.random.randint(0, num_edgetype, dtype='int')
     
     G.edge_properties['regulation'] = regulation
     return G
@@ -119,9 +121,11 @@ def calc_R(R, graph, pivot, f, regulation):
             R[reg,correct_index] += 1
 
 def is_unstable(arr_2d):
-    ''' For a matrix to be stable, for each row all the
+    ''' 
+        For a matrix to be stable, for each row all the
         columns must be equal. Otherwise, the matrix is
-        unstable and this function return True.   '''
+        unstable and this function returns True.
+   '''
     for row in arr_2d:
         if not np.all(row==row[0]):
             return True # The matrix is unstable.
@@ -187,19 +191,34 @@ def PrintFibers(partition, graph, name=False):
         for block in partition:
             block.show_nodes()
 
-def draw_fibers(g, output_filename=None):
+def draw_fibers(g, output_filename=None, edgetext=False, layout='random'):
     node_colors = g.vp.fiber_index
     edge_color = g.ep.edge_color
     color_name = g.vp.color_name    # string format for fiber index.
+    regulation = g.ep.regulation
 
-    for v in g.get_vertices(): color_name[v] = str(node_colors[v])
+    regulation_text = g.new_edge_property('string')
     for e in g.edges():
-        source = e.source()
-        edge_color[e] = node_colors[source]
+        regulation_text[e] = str(regulation[e])
 
-    if output_filename!=None:
-        pos = gt.random_layout(g)
-        gt.graph_draw(g, pos, vertex_text=color_name, vertex_color=node_colors, edge_color=edge_color, vertex_fill_color=node_colors, output_size=(900,900), output=output_filename)
+    #for v in g.get_vertices(): color_name[v] = str(node_colors[v])
+    #for e in g.edges():
+    #    source = e.source()
+    #    edge_color[e] = node_colors[source]
+
+    if layout=='random': pos = gt.random_layout(g)
+    elif layout=='planar': pos = gt.planar_layout(g)
+    elif layout=='spring': pos = gt.arf_layout(g, d=2.1, max_iter=0)
+    else: pos = gt.random_layout(g)
+
+    if output_filename!=None and edgetext==False:
+        gt.graph_draw(g, pos, vertex_text=color_name, vertex_color=node_colors, 
+                      edge_color=edge_color, vertex_fill_color=node_colors, 
+                      output_size=(900,900), output=output_filename)
+    elif output_filename!=None and edgetext==True:
+        gt.graph_draw(g, pos, vertex_text=color_name, vertex_color=node_colors, 
+                      edge_color=edge_color, vertex_fill_color=node_colors,
+                      edge_text=regulation_text, output_size=(900,900), output=output_filename)
 
 ######################################################################
 def in_degree_average(G):

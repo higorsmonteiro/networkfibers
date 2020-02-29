@@ -17,10 +17,6 @@ class FiberBlock:
     def delete_nodes(self, nodelist):
         self.number_nodes -= len(nodelist)
         self.fibernodes = [item for item in self.fibernodes if item not in nodelist]
-    
-    #def delete_node(self, node):
-    #    self.number_nodes -= 1
-    #    self.fibernodes.remove(node)
 
     def insert_nodelist(self, nodelist):
         self.number_nodes += len(nodelist)

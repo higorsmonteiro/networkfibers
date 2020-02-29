@@ -1,33 +1,34 @@
+'''
+	Minimal balancing coloring code testing. For several average degree values
+	and for all possible number of edge types, this code runs the MBC's code and
+	after checks if the final classes are all input-set stable.
+
+	arg1 -> size of the random network.
+	arg2 -> average degree desired.
+'''
+
 import sys
 from utils import *
 import graph_tool.all as gt
 from main_f import MBColoring
 from collections import Counter
 import matplotlib.pyplot as plt
-from minimalcoloringf import get_possible_unstable_classes, fast_checking
+from MBCf import check_sucessor_stability
 
 N = int(sys.argv[1])
 k_aver = float(sys.argv[2])
 p = k_aver/(N-1)
 
-random_g = fast_gnp_erdos(N, p, gdirected=True)
-fibers = MBColoring(random_g, get_flist=True)
+nedgetype = 1	# number of edge types.
+random_g = fast_gnp_erdos(N, p, num_edgetype=nedgetype, gdirected=True)
+fibers = MBColoring(random_g, num_edgetype=nedgetype, get_flist=True)
 
 print("# of fibers = %i; N = %i; p = %lf; <k> = %lf" %(len(fibers), N, p, k_aver))
 
-n_edgetype = 1
+'''
+	For each class in the final partitioning, we check if all
+	classes that receives information from 'pivot' are stable.
+'''
 for pivot in fibers:
-	eta = pivot.sucessor_nodes(random_g)
-	regulation = random_g.edge_properties['regulation'].a
-    # Given the node number, 'f' gives its index in 'eta'.
-	f = defaultdict(lambda:-1)
-	for eta_index, sucessor in enumerate(eta):  f[sucessor] = eta_index
+	check_sucessor_stability(pivot, fibers, random_g, nedgetype)
 
-    # 'R' represents a matrix (n_edgetype, len(eta)).
-	R = np.vstack([np.zeros(len(eta), int) for row in range(n_edgetype)])
-
-	calc_R(R, random_g, pivot, f, regulation)
-	receiver_classes = get_possible_unstable_classes(random_g, pivot, fibers)
-	fast_checking(receiver_classes, eta, f, R, fibers, n_edgetype, random_g)
-
-#PrintFibers(fibers, random_g)
