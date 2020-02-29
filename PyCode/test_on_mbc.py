@@ -19,8 +19,8 @@ N = int(sys.argv[1])
 k_aver = float(sys.argv[2])
 p = k_aver/(N-1)
 
-nedgetype = 1	# number of edge types.
-random_g = fast_gnp_erdos(N, p, num_edgetype=nedgetype, gdirected=True)
+nedgetype = 8	# number of edge types.
+random_g = fast_gnp_erdos(N, p, num_edgetype=nedgetype, seed=1, gdirected=True)
 fibers = MBColoring(random_g, num_edgetype=nedgetype, get_flist=True)
 
 print("# of fibers = %i; N = %i; p = %lf; <k> = %lf" %(len(fibers), N, p, k_aver))
@@ -30,5 +30,8 @@ print("# of fibers = %i; N = %i; p = %lf; <k> = %lf" %(len(fibers), N, p, k_aver
 	classes that receives information from 'pivot' are stable.
 '''
 for pivot in fibers:
+	#print(pivot.get_nodes())
 	check_sucessor_stability(pivot, fibers, random_g, nedgetype)
 
+#print(random_g.get_out_edges(298), random_g.get_in_edges(624), random_g.get_in_edges(952))
+#iscv = random_g.vp.iscv

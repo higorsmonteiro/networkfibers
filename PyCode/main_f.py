@@ -36,22 +36,20 @@ def MBColoring(g, get_flist=False, num_edgetype=1):
 
     #### INITIALIZATION: Criterion -> inputless SCC's as different classes. ####
     fibers = mbc.Initialization(g)  # List of fiber classes.
-    # Set the colors for each node according its 'fibers' index.
-    mbc.set_colors(g, fibers)       
-
     ncolor_after = len(fibers)
     ncolor_before = -1
+    # Set the colors for each node according its 'fibers' index.
+    mbc.set_colors(g, fibers)
+    ############################################################################       
 
-    mbc.set_ISCV(g, ncolor_after, num_edgetype)
     ######### REFINEMENT LOOP ############
+    mbc.set_ISCV(g, ncolor_after, num_edgetype)
     while ncolor_after!=ncolor_before:
-        print(len(fibers))
         iscv_list = list(g.vp.iscv)
         ''' For each fiber, we split it according the value of
             the ISCV of each node inside the fiber. '''
         for class_index, fclass in enumerate(fibers):
             if fclass.get_number_nodes() <= 1: continue
-
             # defines the list of nodes of the current fiber and their ISCVs.
             f_nodeindex = [node for node in fclass.get_nodes()]
             fiber_iscv = [iscv_list[node] for node in fclass.get_nodes()]
@@ -63,6 +61,7 @@ def MBColoring(g, get_flist=False, num_edgetype=1):
         ncolor_before = ncolor_after
         ncolor_after = len(fibers)
         mbc.set_colors(g, fibers)
+        print(ncolor_before, ncolor_after)
 
         mbc.set_ISCV(g, ncolor_after, num_edgetype)
 

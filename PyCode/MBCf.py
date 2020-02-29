@@ -100,7 +100,8 @@ def set_ISCV(graph, ncolor, num_edgetype):
         for ind_color, color in enumerate(input_colors):
             etype = type_edge[ind_color]
             iscv_v[ncolor*etype + color] += 1
-        iscv[v] = np.array2string(iscv_v, separator="")[1:-1]
+        iscv[v] = ''.join(str(num) for num in iscv_v)
+        #iscv[v] = np.array2string(iscv_v, separator="")[1:-1]
         
 
 def split_fiberf(class_index, fiber, fibernodes, fiber_iscv):
@@ -182,8 +183,8 @@ def fast_checking(receiver_classes, eta, f, R, partition, n_edgetype, graph):
                     R_class[m,g[v]] = R[m,f[v]]
         
         if is_unstable(R_class):
-            print(-1, N_class)
-        #print(1)
+            return chi
+        return None
 
 def check_sucessor_stability(pivot, fibers, graph, n_edgetype):
     '''
@@ -199,7 +200,9 @@ def check_sucessor_stability(pivot, fibers, graph, n_edgetype):
     R = np.vstack([np.zeros(len(eta), int) for row in range(n_edgetype)])
     calc_R(R, graph, pivot, f, regulation)
     receiver_classes = get_possible_unstable_classes(graph, pivot, fibers)
-    fast_checking(receiver_classes, eta, f, R, fibers, n_edgetype, graph)
+    chi = fast_checking(receiver_classes, eta, f, R, fibers, n_edgetype, graph)
+    if chi!=None:
+        print(-1, pivot.get_nodes(), chi.get_nodes())
 
 ################################################################################
 

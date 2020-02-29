@@ -69,7 +69,7 @@ def fast_gnp_erdos(n, p, num_edgetype=1, seed=None, gdirected=False):
         fast procedure to generate an Erdos-Renyi network 
         according the G(n,p) model. 
     '''
-    if seed!=None:  np.seed(seed)
+    if seed!=None:  np.random.seed(seed)
 
     G = gt.Graph(directed=gdirected)
     for nn in range(n): G.add_vertex()
