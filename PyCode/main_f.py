@@ -61,7 +61,6 @@ def MBColoring(g, get_flist=False, num_edgetype=1):
         ncolor_before = ncolor_after
         ncolor_after = len(fibers)
         mbc.set_colors(g, fibers)
-        print(ncolor_before, ncolor_after)
 
         mbc.set_ISCV(g, ncolor_after, num_edgetype)
 
