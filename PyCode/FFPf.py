@@ -106,25 +106,45 @@ def enqueue_splitted(newclass_list, bqueue, graph):
         bqueue.append(new_pivot)
 
 def class_split(chi, R_class, g, graph, partition):
+    '''
+        'R_class' is an unstable matrix in which its columns
+        are not all equal. To split correctly the equivalent class
+        we must sort this matrix according each column sequence of
+        it. This way, columns that are equal will gonna be side by
+        side, which facilitates the creation of the new classes.
+    '''
     N_class = chi.get_number_nodes()
     Z = chi.get_nodes()
-    
-    str_input = [np.array2string(R_class[:,n], separator="")[1:-1] for n in range(N_class)]
-    ORDER = np.argsort(str_input)
 
-    newclass_list = []
-    newclass_list.append(FiberBlock())
-    current_str = str_input[ORDER[0]]
-    for index in ORDER:
-        if str_input[index]!=current_str:
-            current_str = str_input[index]
-            newclass_list.append(FiberBlock())    
-        newclass_list[-1].insert_node(Z[index])
+    # Really fast splitting procedure.
+    nclass_list = []
+    check_uniquecol = defaultdict(lambda:-1)
+    for n in range(N_class):
+        cur_str = ''.join(str(num) for num in R_class[:,n])
+        col_index = check_uniquecol[cur_str]
+        if col_index==-1:
+            nclass_list.append(FiberBlock())
+            check_uniquecol[cur_str] = len(nclass_list)-1
+            nclass_list[-1].insert_node(Z[n])
+        else:
+            nclass_list[col_index].insert_node(Z[n])
+    ########################################################
+    
+    #str_input = [np.array2string(R_class[:,n], separator="")[1:-1] for n in range(N_class)]
+    #ORDER = np.argsort(str_input)
+    #nclass_list = []
+    #nclass_list.append(FiberBlock())
+    #current_str = str_input[ORDER[0]]
+    #for index in ORDER:
+    #    if str_input[index]!=current_str:
+    #        current_str = str_input[index]
+    #        nclass_list.append(FiberBlock())    
+    #    nclass_list[-1].insert_node(Z[index])
 
     class_index = graph.vertex_properties['fiber_index'][Z[0]]
 
     to_be_deleted = []
-    for index, new_class in enumerate(newclass_list):
+    for index, new_class in enumerate(nclass_list):
         if index==0: continue # the nodes of the first class will remain in the original class. 
         partition.append(copy_class(new_class))
         for v in new_class.get_nodes():
@@ -132,7 +152,7 @@ def class_split(chi, R_class, g, graph, partition):
             graph.vertex_properties['fiber_index'][v] = len(partition) - 1
     partition[class_index].delete_nodes(to_be_deleted)
     
-    return newclass_list
+    return nclass_list
 
 def fast_partitioning(receiver_classes, eta, f, R, partition, n_edgetype, bqueue, graph):
     ''' For each class 'chi' in 'receiver_class' that receives

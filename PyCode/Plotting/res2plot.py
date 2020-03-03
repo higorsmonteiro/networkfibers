@@ -27,7 +27,6 @@ for ind, info in enumerate(EDGETYPES):
         AX[ind_deg, 0].plot(net_sizes, mbc_points, marker="s", color=colors[ind], linewidth=2, ms=8, label=labels[ind])
         AX[ind_deg, 1].plot(net_sizes, ffp_points, marker="o", color=colors[ind], linewidth=2, ms=8, label=labels[ind])
 
-
 for row in range(len(k_aver)-1):
     AX[row,0].set_xticklabels([])
     AX[row,1].set_xticklabels([])
@@ -55,10 +54,10 @@ fig.text(0.51, 0.005, r'$N$', ha='center', fontsize=24)
 #AX[2,0].text(0.0, 15.0, r'$\langle k \rangle = 4$', fontsize=18)
 #AX[3,0].text(0.0, 15.0, r'$\langle k \rangle = 8$', fontsize=18)
 
-fig.text(0.0, 0.155, r'$\langle k \rangle = 8$', va='center', fontsize=18)
-fig.text(0.0, 0.39, r'$\langle k \rangle = 4$', va='center', fontsize=18)
-fig.text(0.0, 0.622, r'$\langle k \rangle = 2$', va='center', fontsize=18)
-fig.text(0.0, 0.86, r'$\langle k \rangle = 1$', va='center', fontsize=18)
+fig.text(0.0, 0.155, r'$\langle k \rangle = 8$', va='center', fontsize=20)
+fig.text(0.0, 0.39, r'$\langle k \rangle = 4$', va='center', fontsize=20)
+fig.text(0.0, 0.622, r'$\langle k \rangle = 2$', va='center', fontsize=20)
+fig.text(0.0, 0.86, r'$\langle k \rangle = 1$', va='center', fontsize=20)
 
 #AX[0,0].text(65.0, 15.0, r'$\langle k \rangle = 1$', fontsize=18)
 #AX[1,0].text(65.0, 15.0, r'$\langle k \rangle = 2$', fontsize=18)
