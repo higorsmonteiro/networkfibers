@@ -10,12 +10,13 @@ ffp_folder = "FFP/"
 
 EDGETYPES = ['INFOTYPE_1/', 'INFOTYPE_2/', 'INFOTYPE_4/', 'INFOTYPE_8/']
 k_aver = ['k_1/', 'k_2/', 'k_4/', 'k_8/']
-net_sizes = [64, 128, 256, 512, 1024]
+net_sizes = [64, 128, 256, 512, 1024, 2048]
 
+markers = ['o', 's', '^', 'p']
 colors = ['red', 'mediumseagreen', 'dodgerblue', 'hotpink']
 labels = [r"$K_{type} = 1$", r"$K_{type} = 2$", r"$K_{type} = 4$", r"$K_{type} = 8$"]
 
-fig, AX = plt.subplots(4,2, figsize=(9.8,10), sharey=True)
+fig, AX = plt.subplots(4,2, figsize=(9.2,10), sharey=True)
 
 for ind, info in enumerate(EDGETYPES):
     for ind_deg, degs in enumerate(k_aver):
@@ -24,8 +25,8 @@ for ind, info in enumerate(EDGETYPES):
         for N in net_sizes:
             mbc_points.append(np.loadtxt(mbc_folder+info+degs+"N"+str(N)+".dat").mean())
             ffp_points.append(np.loadtxt(ffp_folder+info+degs+"N"+str(N)+".dat").mean())
-        AX[ind_deg, 0].plot(net_sizes, mbc_points, marker="s", color=colors[ind], linewidth=2, ms=8, label=labels[ind])
-        AX[ind_deg, 1].plot(net_sizes, ffp_points, marker="o", color=colors[ind], linewidth=2, ms=8, label=labels[ind])
+        AX[ind_deg, 0].plot(net_sizes, mbc_points, marker=markers[ind], color=colors[ind], linewidth=2, ms=8, label=labels[ind])
+        AX[ind_deg, 1].plot(net_sizes, ffp_points, marker=markers[ind], color=colors[ind], linewidth=2, ms=8, label=labels[ind])
 
 for row in range(len(k_aver)-1):
     AX[row,0].set_xticklabels([])
@@ -64,7 +65,7 @@ fig.text(0.0, 0.86, r'$\langle k \rangle = 1$', va='center', fontsize=20)
 #AX[2,0].text(65.0, 15.0, r'$\langle k \rangle = 4$', fontsize=18)
 #AX[3,0].text(65.0, 15.0, r'$\langle k \rangle = 8$', fontsize=18)
 
-AX[0,1].legend(prop={'size':'14'}, bbox_to_anchor=(1.02, 1.035), markerscale=0.0)
+AX[0,1].legend(prop={'size':'14'}, bbox_to_anchor=(1.02, 1.035), markerscale=1.5)
 #mat.rcParams['legend.markerscale'] = 0.0
 
 plt.tight_layout()
